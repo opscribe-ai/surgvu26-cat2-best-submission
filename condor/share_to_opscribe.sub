@@ -1,0 +1,18 @@
+universe   = vanilla
+executable = containers/share_to_opscribe.sh
+output = logs/share_opscribe_$(Cluster).out
+error  = logs/share_opscribe_$(Cluster).err
+log    = logs/share_opscribe_$(Cluster).log
++WantStagingMount = true
+request_cpus   = 2
+request_memory = 4GB
+request_disk   = 2GB
+should_transfer_files   = YES
+when_to_transfer_output = ON_EXIT
+# Everything this job produces is written directly to shared staging. Nothing
+# should come back into the repo -- the last build job returned a 3.3GB .sif
+# into the working directory despite this being set, so it is watched for.
+transfer_output_files   =
+stream_output = true
+stream_error  = true
+queue 1

@@ -1,0 +1,55 @@
+# CPU-only checks that need torch AND torchvision.
+#
+#   condor_submit condor/verify.sub script=scripts/verify_temporal.py \
+#       out=verify_temporal.json
+#
+# NOT condor/metric.sub. That runs inside surgvu26-extract.sif, whose venv
+# carries torch (bert_score pulls it in) but NOT torchvision -- cluster
+# 9655155 died on `import torchvision` ninety seconds in. Anything that builds
+# a model needs the TRAINING image, which is what this uses.
+#
+# NOT condor/train.sub either: that requests a GPU, and these checks are
+# arithmetic on small tensors. Spending a GPU slot on them delays the training
+# arms that actually need one.
+
+universe        = container
+container_image = file:///staging/n/nkalthoff/surgvu26/surgvu26-train.sif
+
+executable   = condor/verify.sh
+arguments    = "$(script) $(out) $(args)"
+
++WantStagingMount = true
+# `tests` is here so scripts/run_tests.py has something to run: without it
+# pytest starts correctly and reports "file or directory not found: tests",
+# exit 4, which reads like a broken wrapper rather than a missing input.
+# `containers` too: tests/test_verify_checkpoints.py asserts that every build
+# recipe (Dockerfile, .def, build_submission.sh) gates on the checkpoint
+# verifier, and without those files it reports 11 failures that look like
+# broken build recipes rather than missing inputs.
+transfer_input_files = src, scripts, config, tests, containers, outputs
+
+# 2 and 8GB, not 4 and 16: these checks build two ResNet-50s and push a
+# 1x3x8x112x112 clip through them. 4cpu/16GB narrows the matching slot set for
+# no benefit, and cluster 9655158 sat idle until it was edited down -- the same
+# contention that stalled the extraction jobs.
+# MACROS, because this file is multi-purpose by design -- it drives
+# run_tests.py, verify_temporal.py and verify_multi_pool.py, which want
+# different things. Bare values here cannot be overridden from the command
+# line at all (that trap cost six idle minutes on the residual smoke job), and
+# a file whose whole point is `script=` deciding what runs should not also
+# hardcode what that script is allowed to ask for. Defaults unchanged.
+request_cpus   = $(cpus:2)
+request_memory = $(memory:8GB)
+request_disk   = $(disk:8GB)
+
+output = logs/verify_$(Cluster).out
+error  = logs/verify_$(Cluster).err
+log    = logs/verify_$(Cluster).log
+
+should_transfer_files   = YES
+when_to_transfer_output = ON_EXIT
+transfer_output_files   = $(out)
+
+max_retries = 2
+
+queue 1

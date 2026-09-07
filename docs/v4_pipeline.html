@@ -1,0 +1,842 @@
+<title>The v4 Signal Path</title>
+<style>
+  :root {
+    --ground: #edf1f2;
+    --surface: #ffffff;
+    --surface-2: #e4eaec;
+    --ink: #101a1e;
+    --ink-2: #3d5058;
+    --muted: #5c6f77;
+    --rule: #c8d4d8;
+    --rule-soft: #dbe4e7;
+    --accent: #1a6f89;
+    --accent-soft: #d9e9ef;
+    --loss: #a8423a;
+    --loss-soft: #f3dedc;
+    --gain: #37705a;
+    --gain-soft: #dceae4;
+    --code-bg: #e8eef0;
+
+    --sans: ui-sans-serif, -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    --serif: "Iowan Old Style", "Charter", Charter, Georgia, "Times New Roman", serif;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, "Cascadia Code", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #0d1417;
+      --surface: #151f23;
+      --surface-2: #1c282d;
+      --ink: #dbe5e9;
+      --ink-2: #a8bcc4;
+      --muted: #8399a2;
+      --rule: #2b3a40;
+      --rule-soft: #223036;
+      --accent: #57aec9;
+      --accent-soft: #123640;
+      --loss: #d6786e;
+      --loss-soft: #3a201d;
+      --gain: #5ea888;
+      --gain-soft: #17302a;
+      --code-bg: #101a1e;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #0d1417;
+    --surface: #151f23;
+    --surface-2: #1c282d;
+    --ink: #dbe5e9;
+    --ink-2: #a8bcc4;
+    --muted: #8399a2;
+    --rule: #2b3a40;
+    --rule-soft: #223036;
+    --accent: #57aec9;
+    --accent-soft: #123640;
+    --loss: #d6786e;
+    --loss-soft: #3a201d;
+    --gain: #5ea888;
+    --gain-soft: #17302a;
+    --code-bg: #101a1e;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 17px;
+    line-height: 1.62;
+    margin: 0;
+    padding: 0 20px 96px;
+  }
+
+  .wrap { max-width: 940px; margin: 0 auto; }
+
+  .masthead {
+    padding: 64px 0 34px;
+    border-bottom: 2px solid var(--ink);
+  }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 18px;
+  }
+  h1 {
+    font-family: var(--sans);
+    font-weight: 700;
+    letter-spacing: -0.028em;
+    font-size: clamp(2.3rem, 6vw, 3.5rem);
+    line-height: 1.02;
+    margin: 0 0 22px;
+    text-wrap: balance;
+  }
+  .standfirst {
+    font-size: 1.18rem;
+    color: var(--ink-2);
+    max-width: 62ch;
+    margin: 0;
+  }
+
+  .thesis {
+    margin: 30px 0 0;
+    padding: 18px 20px;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--accent);
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.9;
+    color: var(--ink-2);
+    overflow-x: auto;
+  }
+  .thesis b { color: var(--accent); font-weight: 600; }
+
+  figure { margin: 44px 0; padding: 0; }
+  figure svg {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    color: var(--ink-2);
+  }
+  .figframe {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    padding: 22px 18px 14px;
+    overflow-x: auto;
+  }
+  figcaption {
+    font-family: var(--sans);
+    font-size: 0.83rem;
+    color: var(--muted);
+    margin-top: 12px;
+    line-height: 1.55;
+  }
+
+  h2 {
+    font-family: var(--sans);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    font-size: 1.05rem;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 72px 0 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .step {
+    display: grid;
+    grid-template-columns: 108px 1fr;
+    gap: 26px;
+    padding: 34px 0;
+    border-bottom: 1px solid var(--rule-soft);
+    align-items: start;
+  }
+  .gutter {
+    position: sticky;
+    top: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .num {
+    font-family: var(--mono);
+    font-size: 1.6rem;
+    font-weight: 500;
+    color: var(--ink);
+    letter-spacing: -0.03em;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .num small { font-size: 0.95rem; color: var(--muted); }
+
+  .chip {
+    font-family: var(--sans);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    padding: 4px 7px;
+    border-radius: 2px;
+    line-height: 1.35;
+  }
+  .chip.decides { background: var(--loss-soft); color: var(--loss); }
+  .chip.shapes  { background: var(--surface-2); color: var(--ink-2); }
+  .chip.inert   { background: var(--surface-2); color: var(--muted); }
+  .chip.seam    { background: var(--accent-soft); color: var(--accent); }
+
+  .step h3 {
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: 1.42rem;
+    letter-spacing: -0.02em;
+    margin: -4px 0 12px;
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+  .step p { margin: 0 0 14px; max-width: 66ch; }
+  .step p:last-child { margin-bottom: 0; }
+
+  strong { font-weight: 600; }
+
+  code {
+    font-family: var(--mono);
+    font-size: 0.845em;
+    background: var(--code-bg);
+    padding: 1px 5px;
+    border-radius: 2px;
+  }
+  pre {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.62;
+    background: var(--code-bg);
+    border: 1px solid var(--rule-soft);
+    padding: 14px 16px;
+    overflow-x: auto;
+    margin: 0 0 16px;
+  }
+  pre code { background: none; padding: 0; font-size: inherit; }
+
+  .ledger {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 18px 0 4px;
+  }
+  @media (max-width: 620px) { .ledger { grid-template-columns: 1fr; } }
+  .col {
+    background: var(--surface);
+    border: 1px solid var(--rule-soft);
+    padding: 14px 16px;
+  }
+  .col.up { border-top: 2px solid var(--gain); }
+  .col.down { border-top: 2px solid var(--loss); }
+  .col h4 {
+    font-family: var(--sans);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin: 0 0 9px;
+    font-weight: 700;
+  }
+  .col.up h4 { color: var(--gain); }
+  .col.down h4 { color: var(--loss); }
+  .col ul { margin: 0; padding-left: 17px; }
+  .col li { margin-bottom: 8px; font-size: 0.94rem; line-height: 1.52; }
+  .col li:last-child { margin-bottom: 0; }
+
+  .tablewrap { overflow-x: auto; margin: 0 0 16px; }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-family: var(--sans);
+    font-size: 0.87rem;
+  }
+  th, td {
+    text-align: left;
+    padding: 8px 12px 8px 0;
+    border-bottom: 1px solid var(--rule-soft);
+    vertical-align: top;
+  }
+  th {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--rule);
+    white-space: nowrap;
+  }
+  td.n { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .yes { color: var(--gain); font-weight: 600; }
+  .no  { color: var(--loss); font-weight: 600; }
+
+  .note {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--accent);
+    padding: 16px 18px;
+    margin: 18px 0;
+    font-size: 0.96rem;
+  }
+  .note.warn { border-left-color: var(--loss); }
+  .note .lbl {
+    font-family: var(--sans);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--accent);
+    display: block;
+    margin-bottom: 6px;
+  }
+  .note.warn .lbl { color: var(--loss); }
+  .note p { margin: 0 0 10px; }
+  .note p:last-child { margin-bottom: 0; }
+
+  footer {
+    margin-top: 72px;
+    padding-top: 22px;
+    border-top: 2px solid var(--ink);
+    font-family: var(--sans);
+    font-size: 0.82rem;
+    color: var(--muted);
+  }
+  a { color: var(--accent); }
+  a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+
+<div class="wrap">
+
+<header class="masthead">
+  <p class="eyebrow">SurgVU 2026 &middot; Category 2 &middot; build v4</p>
+  <h1>The v4 Signal Path</h1>
+  <p class="standfirst">Every step the container takes between a 30-second surgical clip and the one string we submit &mdash; what each step buys, what it costs, and where new machinery can actually reach the score.</p>
+  <div class="thesis">
+video (1800 frames) &rarr; <b>16 frames</b> &rarr; <b>~20 numbers</b> &rarr; <b>1 of 12 recipes</b> &rarr; <b>1 of ~20 strings</b><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#9492;&#9472;&#9472;&#9472; the bottleneck &#9472;&#9472;&#9472;&#9496;&nbsp;&nbsp;&#9492;&#9472;&#9472;&#9472; the ceiling &#9472;&#9472;&#9472;&#9496;
+  </div>
+</header>
+
+<figure>
+  <div class="figframe">
+    <svg viewBox="0 0 1180 430" role="img" aria-label="The v4 pipeline: a video lane decodes 16 frames into two CNNs and a thresholded perception record; a motion branch differences neighbouring frames into statistics that join the same record; a question lane regex-classifies the question into one of twelve intents; record and intent meet at an answer recipe, then a negation flip and a write step emit the output. A dashed path shows any failure routing to a calibrated fallback.">
+      <defs>
+        <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor"></path>
+        </marker>
+        <marker id="arA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#1a6f89"></path>
+        </marker>
+        <marker id="arL" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#a8423a"></path>
+        </marker>
+      </defs>
+
+      <g font-family="ui-sans-serif, system-ui, sans-serif" fill="currentColor">
+
+        <text x="24" y="24" font-size="10" letter-spacing="1.6" opacity="0.62">VIDEO</text>
+        <text x="24" y="130" font-size="10" letter-spacing="1.6" opacity="0.62">MOTION BRANCH &middot; --motion</text>
+        <text x="24" y="264" font-size="10" letter-spacing="1.6" opacity="0.62">QUESTION</text>
+
+        <rect x="24"  y="36" width="132" height="52" rx="5" fill="none" stroke="currentColor" stroke-width="1.2"></rect>
+        <text x="90"  y="58" font-size="12" text-anchor="middle">/input .mp4</text>
+        <text x="90"  y="74" font-size="10.5" text-anchor="middle" opacity="0.66">1800 frames</text>
+
+        <rect x="188" y="36" width="132" height="52" rx="5" fill="none" stroke="currentColor" stroke-width="1.2"></rect>
+        <text x="254" y="58" font-size="12" text-anchor="middle">decode</text>
+        <text x="254" y="74" font-size="10.5" text-anchor="middle" opacity="0.66">16 spaced frames</text>
+
+        <rect x="352" y="36" width="132" height="52" rx="5" fill="none" stroke="currentColor" stroke-width="1.2"></rect>
+        <text x="418" y="58" font-size="12" text-anchor="middle">two CNNs</text>
+        <text x="418" y="74" font-size="10.5" text-anchor="middle" opacity="0.66">12 tools &middot; 8 tasks</text>
+
+        <rect x="516" y="36" width="132" height="52" rx="5" fill="none" stroke="currentColor" stroke-width="1.2"></rect>
+        <text x="582" y="58" font-size="12" text-anchor="middle">mean + cut</text>
+        <text x="582" y="74" font-size="10.5" text-anchor="middle" opacity="0.66">per-class threshold</text>
+
+        <line x1="156" y1="62" x2="184" y2="62" stroke="currentColor" stroke-width="1.2" marker-end="url(#ar)"></line>
+        <line x1="320" y1="62" x2="348" y2="62" stroke="currentColor" stroke-width="1.2" marker-end="url(#ar)"></line>
+        <line x1="484" y1="62" x2="512" y2="62" stroke="currentColor" stroke-width="1.2" marker-end="url(#ar)"></line>
+
+        <rect x="188" y="142" width="132" height="52" rx="5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="3 2.5"></rect>
+        <text x="254" y="164" font-size="12" text-anchor="middle">&plusmn;67 ms flanks</text>
+        <text x="254" y="180" font-size="10.5" text-anchor="middle" opacity="0.66">48 frames total</text>
+
+        <rect x="352" y="142" width="132" height="52" rx="5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="3 2.5"></rect>
+        <text x="418" y="164" font-size="12" text-anchor="middle">64&times;64 grey diff</text>
+        <text x="418" y="180" font-size="10.5" text-anchor="middle" opacity="0.66">no model</text>
+
+        <rect x="516" y="142" width="132" height="52" rx="5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="3 2.5"></rect>
+        <text x="582" y="164" font-size="12" text-anchor="middle">micro &middot; macro</text>
+        <text x="582" y="180" font-size="10.5" text-anchor="middle" opacity="0.66">16 stats stored</text>
+
+        <path d="M 254 88 L 254 138" stroke="currentColor" stroke-width="1.2" marker-end="url(#ar)"></path>
+        <text x="262" y="116" font-size="10.5" opacity="0.7">neighbours</text>
+        <line x1="320" y1="168" x2="348" y2="168" stroke="currentColor" stroke-width="1.2" marker-end="url(#ar)"></line>
+        <line x1="484" y1="168" x2="512" y2="168" stroke="currentColor" stroke-width="1.2" marker-end="url(#ar)"></line>
+
+        <rect x="706" y="36" width="158" height="158" rx="5" fill="none" stroke="#1a6f89" stroke-width="2"></rect>
+        <text x="785" y="60" font-size="12.5" text-anchor="middle" fill="#1a6f89" font-weight="600">PERCEPTION</text>
+        <text x="785" y="76" font-size="12.5" text-anchor="middle" fill="#1a6f89" font-weight="600">RECORD</text>
+        <line x1="726" y1="88" x2="844" y2="88" stroke="#1a6f89" stroke-width="0.8" opacity="0.45"></line>
+        <text x="785" y="106" font-size="10.5" text-anchor="middle" opacity="0.78">12 tool probs</text>
+        <text x="785" y="122" font-size="10.5" text-anchor="middle" opacity="0.78">tools_present[ ]</text>
+        <text x="785" y="138" font-size="10.5" text-anchor="middle" opacity="0.78">8 task probs</text>
+        <text x="785" y="154" font-size="10.5" text-anchor="middle" opacity="0.78">task_top</text>
+        <text x="785" y="174" font-size="10.5" text-anchor="middle" fill="#1a6f89">~20 numbers</text>
+
+        <line x1="648" y1="62" x2="702" y2="62" stroke="currentColor" stroke-width="1.2" marker-end="url(#ar)"></line>
+        <path d="M 648 168 L 676 168 L 676 120 L 702 120" fill="none" stroke="currentColor" stroke-width="1.2" marker-end="url(#ar)"></path>
+
+        <rect x="24"  y="276" width="132" height="52" rx="5" fill="none" stroke="currentColor" stroke-width="1.2"></rect>
+        <text x="90"  y="298" font-size="12" text-anchor="middle">/input question</text>
+        <text x="90"  y="314" font-size="10.5" text-anchor="middle" opacity="0.66">one string</text>
+
+        <rect x="188" y="276" width="180" height="52" rx="5" fill="none" stroke="#1a6f89" stroke-width="2"></rect>
+        <text x="278" y="298" font-size="12" text-anchor="middle" fill="#1a6f89" font-weight="600">regex &rarr; intent</text>
+        <text x="278" y="314" font-size="10.5" text-anchor="middle" opacity="0.72">1 of 12</text>
+
+        <line x1="156" y1="302" x2="184" y2="302" stroke="currentColor" stroke-width="1.2" marker-end="url(#ar)"></line>
+
+        <rect x="706" y="276" width="158" height="52" rx="5" fill="none" stroke="#1a6f89" stroke-width="2"></rect>
+        <text x="785" y="298" font-size="12" text-anchor="middle" fill="#1a6f89" font-weight="600">answer recipe</text>
+        <text x="785" y="314" font-size="10.5" text-anchor="middle" opacity="0.72">1 of 12 forms</text>
+
+        <line x1="368" y1="302" x2="702" y2="302" stroke="#1a6f89" stroke-width="1.4" marker-end="url(#arA)"></line>
+        <text x="500" y="294" font-size="10.5" fill="#1a6f89">intent decides the form</text>
+
+        <line x1="785" y1="194" x2="785" y2="272" stroke="#1a6f89" stroke-width="1.4" marker-end="url(#arA)"></line>
+        <text x="794" y="238" font-size="10.5" fill="#1a6f89">record fills it in</text>
+
+        <rect x="898" y="276" width="112" height="52" rx="5" fill="none" stroke="currentColor" stroke-width="1.2"></rect>
+        <text x="954" y="298" font-size="12" text-anchor="middle">negation</text>
+        <text x="954" y="314" font-size="10.5" text-anchor="middle" opacity="0.66">flip Yes/No</text>
+
+        <rect x="1042" y="276" width="112" height="52" rx="5" fill="none" stroke="currentColor" stroke-width="1.2"></rect>
+        <text x="1098" y="298" font-size="12" text-anchor="middle">write</text>
+        <text x="1098" y="314" font-size="10.5" text-anchor="middle" opacity="0.66">JSON string</text>
+
+        <line x1="864" y1="302" x2="894" y2="302" stroke="currentColor" stroke-width="1.2" marker-end="url(#ar)"></line>
+        <line x1="1010" y1="302" x2="1038" y2="302" stroke="currentColor" stroke-width="1.2" marker-end="url(#ar)"></line>
+
+        <path d="M 90 88 L 90 396 L 1098 396 L 1098 332" fill="none" stroke="#a8423a" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#arL)"></path>
+        <text x="330" y="388" font-size="11" fill="#a8423a">any failure anywhere &rarr; calibrated fallback string, exit 0</text>
+
+        <text x="706" y="418" font-size="10.5" opacity="0.62">teal = where new work plugs in</text>
+        <text x="960" y="418" font-size="10.5" opacity="0.62">dashed = optional / failure</text>
+      </g>
+    </svg>
+  </div>
+  <figcaption>The whole container, one case. Two lanes &mdash; pixels and words &mdash; meet only at the very end, and everything the video contributed has already been compressed to about twenty numbers by the time they do.</figcaption>
+</figure>
+
+<h2>Before the steps: what a point is worth</h2>
+
+<p>The pros and cons below are unreadable without this. The metric is BERTScore-F1 against <em>five</em> references, and it takes the <strong>maximum</strong>. Reference one is always the terse answer, so an exact <code>"Yes"</code> scores 1.0000. Measured on the eleven public cases:</p>
+
+<div class="tablewrap">
+<table>
+  <thead><tr><th>Situation</th><th>Score</th><th>What it means</th></tr></thead>
+  <tbody>
+    <tr><td>Polar question, right</td><td class="n yes">1.0000</td><td>exact match on reference one</td></tr>
+    <tr><td>Polar question, wrong</td><td class="n">0.7015</td><td>&ldquo;Yes&rdquo; and &ldquo;No&rdquo; are semantically close &mdash; being backwards is <strong>cheap</strong></td></tr>
+    <tr><td>Open question, right</td><td class="n yes">1.0000</td><td></td></tr>
+    <tr><td>Open question, wrong specific noun</td><td class="n no">0.2402</td><td>&ldquo;Bipolar Forceps&rdquo; when gold is &ldquo;Cadiere Forceps&rdquo;</td></tr>
+    <tr><td>Open question, generic sentence</td><td class="n">0.2562</td><td><strong>higher than being confidently wrong</strong></td></tr>
+    <tr><td>Empty or missing answer</td><td class="n no">crash</td><td>the scorer dies; the case is worth nothing</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>So the stakes per question type are wildly unequal: <strong>0.2985 rides on a polar answer, 0.7598 on an open one.</strong> Open questions are worth two and a half times as much &mdash; and almost the entire engineering effort of this project has gone into tool-presence perception, which only ever feeds polar questions.</p>
+
+<div class="note warn">
+  <span class="lbl">The number that frames everything below</span>
+  <p>A version of this pipeline that <strong>never opens the video</strong> &mdash; question text and hard-coded constants only &mdash; scores <strong>0.8294</strong> on the eleven public cases. The full v4 with both CNNs scores <strong>0.8766</strong>.</p>
+  <p>Every model in this project is worth <strong>+0.0472</strong>. The leaderboard has returned <strong>0.8015</strong> three times, from three different builds.</p>
+</div>
+
+<h2>The pipeline, in order</h2>
+
+<div class="step">
+  <div class="gutter">
+    <div class="num">00</div>
+    <span class="chip inert">Contract</span>
+  </div>
+  <div>
+    <h3>The container wakes up, once per case</h3>
+    <p>Grand Challenge starts the container fresh for <em>every single case</em> and hands it exactly two files: a 30-second MP4 and a JSON file holding one question string. It writes one JSON file holding one answer string. Then it dies.</p>
+    <pre><code>read   /input/endoscopic-robotic-surgery-video.mp4
+read   /input/visual-context-question.json     &larr; a JSON-encoded STRING
+write  /output/visual-context-response.json    &larr; a JSON-encoded STRING</code></pre>
+    <p>Budget: <strong>10 minutes, 32 GB RAM, either one T4 GPU or no GPU at all.</strong> The T4 is sm_75 &mdash; no bf16, no FlashAttention-2.</p>
+    <div class="ledger">
+      <div class="col up"><h4>Buys</h4><ul>
+        <li>Dead simple contract. Nothing to orchestrate, nothing to batch.</li>
+        <li>One case failing cannot take another case with it.</li>
+      </ul></div>
+      <div class="col down"><h4>Costs</h4><ul>
+        <li><strong>Model loading is paid fresh every case</strong> &mdash; nothing amortises. This is what makes a large VLM an expensive question rather than a free one.</li>
+        <li>Both JSON files hold <em>encoded strings</em>. Writing bare <code>Yes</code> instead of <code>"Yes"</code> is malformed JSON and scores zero however right the answer was.</li>
+      </ul></div>
+    </div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="gutter">
+    <div class="num">01</div>
+    <span class="chip shapes">Shapes the answer</span>
+  </div>
+  <div>
+    <h3>Decode sixteen frames</h3>
+    <p>Open the MP4, count its frames, pick <strong>16 evenly spaced across the full 30 seconds</strong>, decode only those. Each one gets its black side pillars cropped and its <strong>bottom UI band blurred out</strong> &mdash; that is a challenge rule, not an optimisation. We are not allowed to read instrument names off the on-screen display, so there is deliberately no code path into a model that skips the blur.</p>
+    <p>Sampling is by frame <em>index</em>, not by timestamp, so the same code covers the 60 fps sample clips and the 1 fps test clips without a hidden time-base bug. A frame whose seek fails is skipped rather than ending the clip.</p>
+    <div class="ledger">
+      <div class="col up"><h4>Buys</h4><ul>
+        <li>About one second of wall clock against a 600-second budget.</li>
+        <li>Covers the whole clip instead of one moment.</li>
+        <li>Robust to a corrupt frame late in the file.</li>
+      </ul></div>
+      <div class="col down"><h4>Costs</h4><ul>
+        <li>16 of 1800 frames is <strong>0.9% of the video</strong>. Anything between samples is invisible.</li>
+        <li>A 30-second clip is a <em>story</em> &mdash; a tool enters, acts, leaves. Sixteen stills are handed downstream as an unordered bag, and the ordering is never recovered.</li>
+      </ul></div>
+    </div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="gutter">
+    <div class="num">01<small>b</small></div>
+    <span class="chip inert">Optional branch</span>
+  </div>
+  <div>
+    <h3>The motion branch grabs neighbours</h3>
+    <p>With <code>--motion</code> on &mdash; it is on in v4 &mdash; the decoder also grabs each sampled moment&rsquo;s two neighbours at &plusmn;67 ms. Sixteen &ldquo;bursts&rdquo; of three frames, <strong>48 frames instead of 16</strong>.</p>
+    <pre><code>burst 0          burst 1          burst 2    ...    burst 15
+[t-67  t  t+67]  [t-67  t  t+67]  [ ... ]           [ ... ]
+ &#9492;&#9472;&#9472;&#9472; 0.2 s &#9472;&#9472;&#9472;&#9496;
+         &#9492;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472; 1.875 s apart &#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9496;</code></pre>
+    <p><strong>The safety contract:</strong> the 16 <em>centre</em> frames are byte-identical to what plain decoding produces. The CNNs see exactly the same input either way, and a test asserts that rather than trusting it &mdash; so turning motion on physically cannot move an appearance-model answer.</p>
+    <p>A burst whose flank fails to read is recorded as <code>None</code> &mdash; <strong>&ldquo;unmeasurable&rdquo;, not &ldquo;still&rdquo;.</strong> Same at the clip edges, where it refuses to clamp, because differencing a frame against itself would read as perfect stillness: a lie with a plausible value.</p>
+    <div class="ledger">
+      <div class="col up"><h4>Buys</h4><ul>
+        <li>Measured cost is <strong>+6%</strong> &mdash; 6.6 s to 7.0 s per case. Cost was never the argument against this.</li>
+        <li>Zero blast radius on the shipped appearance path, by construction.</li>
+      </ul></div>
+      <div class="col down"><h4>Costs</h4><ul>
+        <li>Three times the video seeks, and seeking is the slow half of decoding.</li>
+      </ul></div>
+    </div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="gutter">
+    <div class="num">01<small>c</small></div>
+    <span class="chip inert">Optional branch</span>
+  </div>
+  <div>
+    <h3>Two motion numbers, computed not learned</h3>
+    <p>Every frame shrinks to <strong>64&times;64 grayscale</strong>; take the mean absolute pixel difference between consecutive frames. That is the entire algorithm. No network, no labels, no training, nothing to overfit, and nothing that goes stale when a checkpoint is retrained.</p>
+    <div class="tablewrap">
+    <table>
+      <thead><tr><th></th><th>Measures</th><th>Count</th><th>High means</th></tr></thead>
+      <tbody>
+        <tr><td><code>micro</code></td><td>inside one burst, 67 ms apart</td><td class="n">16</td><td>something is moving <em>right now</em></td></tr>
+        <tr><td><code>macro</code></td><td>between burst centres, 1.875 s apart</td><td class="n">15</td><td>the scene is <em>changing across the clip</em></td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p>They are not redundant. Micro-still and macro-active is a camera cut. Micro-active and macro-still is sustained work in one place &mdash; <strong>which is what active surgery looks like.</strong> Units are 0&ndash;255 brightness difference, chosen so the number is comparable across cases with no per-case calibration.</p>
+    <div class="ledger">
+      <div class="col up"><h4>Buys</h4><ul>
+        <li>Free, instant, deterministic, and immune to a retrain invalidating it.</li>
+        <li>Genuinely the right first move at supplying event evidence.</li>
+      </ul></div>
+      <div class="col down"><h4>Costs</h4><ul>
+        <li><strong>It cannot tell camera motion from instrument motion.</strong> A scope push moves every pixel and reads as maximum activity. Separating them needs optical flow or a learned model.</li>
+        <li>64&times;64 is coarse &mdash; a needle tip travelling three millimetres may not cross a single pixel.</li>
+      </ul></div>
+    </div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="gutter">
+    <div class="num">02</div>
+    <span class="chip shapes">Shapes the answer</span>
+  </div>
+  <div>
+    <h3>Two CNNs look at the frames</h3>
+    <p>Each of the 16 frames passes through <strong>two separate ResNet-50 networks</strong>, both at 384&times;384:</p>
+    <div class="tablewrap">
+    <table>
+      <thead><tr><th>Head</th><th>Shape</th><th>Asks</th><th>Validation</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Tools</strong></td><td>multi-label, 12 outputs, sigmoid</td><td>which instruments are installed</td><td class="n">0.7673 macro-F1</td></tr>
+        <tr><td><strong>Task</strong></td><td>multi-class, 8 outputs, softmax</td><td>which activity is this</td><td class="n">0.9454 accuracy</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p>The activations are not interchangeable: several instruments are installed at once, so they must not compete for one unit of probability mass; one activity is happening, so they must.</p>
+    <div class="ledger">
+      <div class="col up"><h4>Buys</h4><ul>
+        <li>Small, fast, reliable, runs on CPU if the GPU is missing.</li>
+        <li>Well validated across 4,635 held-out windows.</li>
+      </ul></div>
+      <div class="col down"><h4>Costs</h4><ul>
+        <li><strong>These are the only two questions the system can ever ask of the video.</strong> Not what the surgeon is doing with the tool, not whether it is moving, not what tissue that is &mdash; just <em>which of 12 instruments</em> and <em>which of 8 activities</em>. Everything downstream is a rearrangement of those twenty numbers.</li>
+        <li>The 12 classes are <em>classes</em>, not products. &ldquo;Large Needle Driver&rdquo;, &ldquo;Mega Needle Driver&rdquo; and &ldquo;SutureCut&rdquo; all collapse into <code>needle driver</code>. Three of the eleven public questions name a variant, and the distinction is <strong>not recoverable</strong> from the model output at all &mdash; it is answered from the class with a measured 6.9% error.</li>
+      </ul></div>
+    </div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="gutter">
+    <div class="num">03</div>
+    <span class="chip decides">Decides the answer</span>
+  </div>
+  <div>
+    <h3>Squash sixteen frames into one number per class</h3>
+    <p>Average the 16 per-frame probabilities into a single clip-level probability, then apply a <strong>per-class threshold</strong> to decide which tools count as present. The thresholds are tuned individually and span 0.05 to 0.95, because the corpus is ninety-fold imbalanced and a shared 0.5 would drop every rare class while admitting every common one &mdash; and still produce a list that looks entirely reasonable.</p>
+    <div class="ledger">
+      <div class="col up"><h4>Buys</h4><ul>
+        <li>Averaging probabilities is the right reduction; re-tuning the cuts to the clip mean is worth +0.0196 macro-F1 for no retrain.</li>
+        <li>Turns a variable-length clip into a fixed record the router can be tested against.</li>
+      </ul></div>
+      <div class="col down"><h4>Costs</h4><ul>
+        <li><strong>This is where time dies.</strong> After the mean, a clip and its exact reverse produce identical numbers. Motion, order, &ldquo;the scissors closed&rdquo; &mdash; all gone.</li>
+        <li>The threshold is a cliff. 0.36 versus 0.34 flips a tool from present to absent, and that flip is worth 0.2985 or 0.7598 depending on the question. <strong>Every gradation of confidence is discarded here</strong> &mdash; which is exactly the information a confidence-aware answer layer would need.</li>
+      </ul></div>
+    </div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="gutter">
+    <div class="num">04</div>
+    <span class="chip seam">Plug-in point</span>
+  </div>
+  <div>
+    <h3>The perception record &mdash; the bottleneck</h3>
+    <p>Everything above collapses into one small dictionary. This is the <em>entire</em> memory of the video. Nothing downstream ever re-opens the file.</p>
+    <pre><code>{
+  tools:         {bipolar forceps: 0.12, cadiere forceps: 0.88, ...12 floats},
+  tools_present: ["cadiere forceps", "needle driver"],
+  task:          {suturing: 0.91, ...8 floats},
+  task_top:      "suturing",
+  n_frames:      16,
+  motion: {                                   &larr; only with --motion
+    bursts: 16,  bursts_measured: 14,
+    micro: {per_burst: [16 floats], mean: 2.97, max: ..., std: ...},
+    macro: {per_gap:   [15 floats], mean: ..., max: ..., std: ...}
+  }
+}</code></pre>
+    <p>The motion block is <strong>purely additive</strong> &mdash; omit it and the record is byte-identical to the pre-motion version, same keys, same order, same values.</p>
+    <div class="ledger">
+      <div class="col up"><h4>Buys</h4><ul>
+        <li>A clean seam. The router is fast, deterministic and testable because it reads a dict, not a video.</li>
+        <li>This record is what gets logged and diffed between builds &mdash; it is how we know six perception changes reached zero answers.</li>
+      </ul></div>
+      <div class="col down"><h4>Costs</h4><ul>
+        <li><strong>Whatever is not in this dict cannot influence the answer, ever.</strong> No boxes, no spatial layout, no counts, no per-instance confidence, no text, no scene description.</li>
+        <li>The router reads <strong>exactly one number</strong> out of the whole motion block &mdash; <code>micro.mean</code>. The macro statistic, the per-burst array, max, std and <code>bursts_measured</code> are all computed, all stored, and <strong>none of them are consumed by anything.</strong> That is unfinished, not broken &mdash; and it means the data is already there for free.</li>
+      </ul></div>
+    </div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="gutter">
+    <div class="num">05</div>
+    <span class="chip seam">Plug-in point</span>
+  </div>
+  <div>
+    <h3>Classify the question with regexes</h3>
+    <p>A chain of regular expressions reads the question text &mdash; and <em>only</em> the question text &mdash; and sorts it into <strong>one of twelve intents</strong>:</p>
+    <pre><code>polar:  tool_presence &middot; cutting &middot; suture &middot; unknown_polar
+open:   tool_identity &middot; organ &middot; procedure &middot; purpose
+        task &middot; count &middot; unknown_open</code></pre>
+    <p>Order is hand-tuned and load-bearing: <code>count</code> before the tool rules because &ldquo;how many instruments&rdquo; contains &ldquo;instruments&rdquo;; <code>organ</code> before <code>procedure</code> because &ldquo;what organ is manipulated in this procedure&rdquo; contains &ldquo;procedure&rdquo;. A separate guard sends <em>when / where / who / how long / which arm</em> straight to <code>unknown_open</code>.</p>
+    <div class="ledger">
+      <div class="col up"><h4>Buys</h4><ul>
+        <li>Instant, free, fully deterministic, and <strong>it never fails</strong> &mdash; it still works when everything else in the container has crashed, which is what makes the safety net intelligent rather than blind.</li>
+      </ul></div>
+      <div class="col down"><h4>Costs</h4><ul>
+        <li><strong>It only recognises what someone thought to write a pattern for.</strong> Validated against eleven real questions and some synthetic probes.</li>
+        <li>We have <strong>never measured what fraction of the hidden test set lands in <code>unknown_open</code></strong> and receives one fixed sentence worth 0.2562&ndash;0.4436.</li>
+        <li>It fails silently. An off-pattern phrasing drops to a fallback and nothing anywhere reports that it happened.</li>
+      </ul></div>
+    </div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="gutter">
+    <div class="num">06</div>
+    <span class="chip decides">Decides the answer</span>
+  </div>
+  <div>
+    <h3>Each intent has a hard-coded recipe</h3>
+    <div class="tablewrap">
+    <table>
+      <thead><tr><th>Intent</th><th>How the answer is built</th><th>Reads video?</th></tr></thead>
+      <tbody>
+        <tr><td>tool presence</td><td>is the named tool in <code>tools_present</code> &rarr; Yes / No</td><td class="yes">yes</td></tr>
+        <tr><td>cutting</td><td>cutting tool present <em>and</em> scene moving &rarr; Yes / No</td><td class="yes">yes</td></tr>
+        <tr><td>suture</td><td>task is <code>suturing</code>, or a needle driver is present</td><td class="yes">yes</td></tr>
+        <tr><td>tool identity</td><td>highest-scoring tool class &rarr; its display name</td><td class="yes">yes</td></tr>
+        <tr><td>organ</td><td><code>task_top</code> &rarr; 8-entry lookup table &rarr; organ name</td><td class="yes">yes</td></tr>
+        <tr><td>count</td><td>size of <code>tools_present</code>, written as a word</td><td class="yes">yes</td></tr>
+        <tr><td>task</td><td><code>task_top</code> &rarr; display name</td><td class="yes">yes</td></tr>
+        <tr><td>procedure</td><td><strong>a constant string.</strong> Always the same.</td><td class="no">no</td></tr>
+        <tr><td>purpose</td><td>look up the tool the <em>question</em> named &rarr; canned sentence</td><td class="no">no</td></tr>
+        <tr><td>unknown polar</td><td><strong>constant &ldquo;Yes&rdquo;</strong></td><td class="no">no</td></tr>
+        <tr><td>unknown open</td><td><strong>constant generic sentence</strong></td><td class="no">no</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p>This is also the only place motion is consumed, and it is one branch of one recipe:</p>
+    <pre><code>def _answer_cutting(question, perception):
+    if not (credible_tools(perception) &amp; CUTTING_TOOLS):
+        return "No"                       # no scissors -&gt; No
+    if scene_is_static(perception) is True:
+        return "No"                       # scissors, but nothing moving -&gt; No
+    return "Yes"</code></pre>
+    <p><code>scene_is_static</code> is <strong>tri-state</strong>, and the third state is the important one:</p>
+    <pre><code>micro.mean &lt; 1.283                     &rarr; True   "still"    &larr; the ONLY state that
+micro.mean &ge; 1.283                    &rarr; False  "moving"      changes an answer
+no motion block, or threshold = None   &rarr; None   "cannot know" &rarr; fall through</code></pre>
+    <p>The threshold <strong>1.283</strong> is the tenth percentile of the <em>eleven graded clips</em>, not of training. Training&rsquo;s bottom decile is 2.512, but graded clips are systematically calmer &mdash; median 2.970 against training&rsquo;s 4.326 &mdash; so 2.512 would have fired on 27% of them instead of the intended 10%.</p>
+    <div class="ledger">
+      <div class="col up"><h4>Buys</h4><ul>
+        <li>Every recipe was measured, not guessed. <code>procedure</code> returns the literal gold answer and scores 1.0000 on every case, forever.</li>
+        <li>Degrades gracefully &mdash; bad perception yields a mediocre answer, never a crash.</li>
+        <li>The cutting rule closes a real conceptual gap: an <em>event</em> question was being answered by a <em>presence</em> proxy, and no improvement to the tool head could ever have fixed that.</li>
+      </ul></div>
+      <div class="col down"><h4>Costs</h4><ul>
+        <li><strong>The entire output vocabulary is about twenty strings</strong> &mdash; Yes, No, 12 tool names, 8 organ names, four constants. This is why three genuinely different systems produced byte-identical output.</li>
+        <li><strong>There is no &ldquo;unsure&rdquo; state anywhere in here.</strong> We now know that costs us: a confidently wrong noun on an open question scores 0.2402, below the 0.2562 of saying nothing.</li>
+        <li>The motion gate fires on <strong>zero</strong> of the eleven graded cases, flips roughly one cutting answer in ten from Yes to No on unseen data against a corpus whose golds skew Yes, and <strong>there is no cutting label in this corpus</strong> &mdash; so not one flip can be checked offline.</li>
+      </ul></div>
+    </div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="gutter">
+    <div class="num">07</div>
+    <span class="chip decides">Decides the answer</span>
+  </div>
+  <div>
+    <h3>Negation flip</h3>
+    <p>If the question carries an existential negation &mdash; &ldquo;Is there <em>no</em> needle driver?&rdquo; &mdash; flip Yes/No. Applied centrally, after the recipe, so one rule covers every polar intent and cannot be half-implemented across them. It deliberately does <em>not</em> apply to the <code>unknown_polar</code> constant: flipping a calibrated guess just moves the coin to the side the corpus does not favour.</p>
+    <div class="ledger">
+      <div class="col up"><h4>Buys</h4><ul><li>Correct, cheap, and structurally impossible to apply inconsistently.</li></ul></div>
+      <div class="col down"><h4>Costs</h4><ul><li>Regex-detected, so it inherits every brittleness of step 05.</li></ul></div>
+    </div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="gutter">
+    <div class="num">08</div>
+    <span class="chip inert">Mechanical</span>
+  </div>
+  <div>
+    <h3>Finalise and write</h3>
+    <p>Capitalise, collapse whitespace, and <code>json.dump</code> it &mdash; which is what puts the quotes on. One exit point, and it is impossible for it to write an empty string: an empty answer is replaced by the generic fallback, because an empty string crashes the scorer outright.</p>
+  </div>
+</div>
+
+<h2>Wrapped around all of it</h2>
+
+<div class="step">
+  <div class="gutter">
+    <div class="num">&#9651;</div>
+    <span class="chip inert">Safety net</span>
+  </div>
+  <div>
+    <h3>Any failure still produces an answer</h3>
+    <p>The whole pipeline sits inside a try/except. Unreadable video, missing checkpoint, CUDA error, our own bug &mdash; it logs loudly to stderr, writes an <strong>intent-aware</strong> fallback, and exits 0.</p>
+    <p>Intent-aware matters: questions whose recipe never consulted the video anyway (<code>procedure</code>, <code>purpose</code>) are still routed properly and still score 1.0000 even with a dead video. Everything else takes the calibrated floor &mdash; &ldquo;Yes&rdquo; if polar, the generic sentence otherwise &mdash; because re-routing a presence question against an empty record answers &ldquo;No&rdquo; to everything, and the golds skew Yes.</p>
+    <div class="ledger">
+      <div class="col up"><h4>Buys</h4><ul>
+        <li>Genuinely excellent engineering, and why we have never scored a zero. A crash converts a ~0.70 case into 0.00.</li>
+      </ul></div>
+      <div class="col down"><h4>Costs</h4><ul>
+        <li><strong>It is so good at hiding failure that a broken pipeline and a working one look similar from outside.</strong> We would not necessarily know if perception had silently died.</li>
+      </ul></div>
+    </div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="gutter">
+    <div class="num">&#9671;</div>
+    <span class="chip seam">Built &middot; OFF</span>
+  </div>
+  <div>
+    <h3>The VLM seam</h3>
+    <p>A <code>--vlm</code> flag already exists, wired and tested. When on, a Qwen VLM is offered <strong>only <code>unknown_open</code> questions</strong> &mdash; the ones where the alternative is that single generic sentence. It receives the <em>blurred, preprocessed frames</em>, never the raw video, so it cannot read the UI. Returning nothing, or raising, costs nothing: the router&rsquo;s answer stands.</p>
+    <p>Two measured findings sit on it. Putting perception facts in the prompt made it <strong>worse</strong> &mdash; asked &ldquo;what procedure is this?&rdquo; with <code>task_top = rectal artery/vein</code> in context, it answered &ldquo;Rectal artery/vein dissection using bipolar forceps&rdquo; for 0.0834, against the 0.4790 the generic sentence gets. Without the context line, the same weights scored 0.4015. And on/off is byte-identical across all eleven sample cases.</p>
+    <div class="ledger">
+      <div class="col up"><h4>Buys</h4><ul>
+        <li>The seam exists, is tested, and is fail-safe by construction.</li>
+        <li>Construction is free &mdash; no import, no weights, no CUDA context until an unrouted question actually arrives.</li>
+      </ul></div>
+      <div class="col down"><h4>Costs</h4><ul>
+        <li>It is gated so narrowly that it <strong>can never fire on any question type we have ever observed.</strong> A door with no room behind it.</li>
+        <li>Naming perception in the prompt invites the model to parrot a taxonomy label as if it were an answer.</li>
+      </ul></div>
+    </div>
+  </div>
+</div>
+
+<h2>Where new work can actually reach the score</h2>
+
+<p>Three seams, and only three. Everything between them is plumbing that works.</p>
+
+<div class="tablewrap">
+<table>
+  <thead><tr><th>Seam</th><th>Step</th><th>What lands there</th><th>Why it reaches the score</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>The record</strong></td><td class="n">04</td>
+      <td>YOLO boxes, per-instance confidence, counts, spatial layout, the unused motion statistics</td>
+      <td>Anything that becomes a key in this dict is visible to every recipe. Anything that does not is invisible forever.</td>
+    </tr>
+    <tr>
+      <td><strong>Intent coverage</strong></td><td class="n">05</td>
+      <td>a wider or learned question classifier; measuring what actually lands in <code>unknown_open</code></td>
+      <td>An unrecognised question is worth 0.2562&ndash;0.4436 no matter how good perception is. We do not know how often that happens.</td>
+    </tr>
+    <tr>
+      <td><strong>The answer layer</strong></td><td class="n">06</td>
+      <td>an &ldquo;unsure&rdquo; state, confidence-gated abstention, a wider output vocabulary, the VLM ungated</td>
+      <td>Open questions carry 0.7598 each and abstention beats a wrong noun. This is the only step that can change what the system is <em>allowed to say</em>.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="note">
+  <span class="lbl">The one-sentence version</span>
+  <p>The pipeline is a well-built funnel that narrows an 1800-frame video to twenty numbers and then to one of about twenty strings &mdash; and the last three submissions proved that improving what enters the funnel does not change what leaves it.</p>
+</div>
+
+<footer>
+  SurgVU 2026 Category 2 &middot; build v4, gate open at 1.283 &middot; figures from cluster 9663487 (official BERTScore, 11 public cases) and the v4 report &middot; leaderboard 0.8015 on v1, v2 and v4
+</footer>
+
+</div>

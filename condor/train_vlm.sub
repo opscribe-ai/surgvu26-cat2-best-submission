@@ -1,0 +1,132 @@
+# LoRA fine-tune of Qwen2.5-VL-7B-Instruct on the SurgVU QA corpus (Task 4 of
+# v5 plan3; docs/design/plans/2026-08-25-v5-plan3-vlm-training.md).
+#
+# Modelled directly on condor/train_variant.sub, which works: same universe
+# (container_image=file:///staging/.../surgvu26-train.sif, +WantStagingMount,
+# the same machine blacklist and max_retries reasoning). What differs is
+# sized deliberately for THIS job's much heavier footprint -- see below.
+#
+# Run from the repo root, after: mkdir -p logs
+#   condor_submit condor/train_vlm.sub \
+#       args="--output-dir /staging/n/nkalthoff/surgvu26/models/vlm_lora"
+#
+# `args` is a submit-time macro with no default; scripts/train_vlm.py's own
+# --output-dir default (/staging/n/nkalthoff/surgvu26/models/vlm_lora) already
+# points at a persistent staging path, so `args=""` (or omitting `args`
+# entirely, which condor/train_vlm.sh treats as empty) is itself a valid
+# invocation -- the override above is shown for clarity, not because it is
+# required. A follow-up sweep overrides hyperparameters the same way, e.g.
+#   condor_submit condor/train_vlm.sub \
+#       args="--output-dir /staging/n/nkalthoff/surgvu26/models/vlm_lora_r32 --lora-r 32"
+#
+# RESUME AFTER EVICTION: re-submit with the SAME --output-dir. scripts/
+# train_vlm.py's own Trainer checkpoints (save_steps, save_total_limit=3)
+# land on /staging, not job scratch, so a resubmitted job auto-resumes from
+# the latest one (see train_vlm.py's `_latest_checkpoint`) rather than
+# restarting from step 0.
+
+universe        = container
+# `sif` is a submit-time macro so a run can be pointed at a different image
+# without editing this file, e.g.
+#   condor_submit condor/train_vlm.sub sif=surgvu26-train-torch26.sif args="..."
+# Default is the image v5 and v6 stage 1/2 trained on. surgvu26-train-torch26.sif
+# is the torch 2.6 build, which is the one where checkpoint resume works.
+# `if ! defined` is LOAD-BEARING. condor_submit applies command-line macros
+# BEFORE parsing this file, so a bare `sif = ...` here silently overwrites
+# `condor_submit ... sif=other.sif` and the job runs the default image anyway.
+# That is how smoke job 9713202 ran on torch 2.5.1 while reporting success for
+# a run whose whole purpose was to exercise torch 2.6.
+if ! defined sif
+  sif = surgvu26-train.sif
+endif
+container_image = file:///staging/n/nkalthoff/surgvu26/$(sif)
+
+executable   = condor/train_vlm.sh
+arguments    = "scripts/train_vlm.py $(args)"
+
+# The cluster id, so the preserved copy in the .sh is named after this run.
+environment  = "CONDOR_CLUSTER=$(Cluster)"
+
++WantStagingMount = true
+
+should_transfer_files   = YES
+when_to_transfer_output = ON_EXIT
+transfer_input_files    = src, scripts, config
+# Everything this job produces (the LoRA adapter, the processor, Trainer
+# checkpoints, trainable_parameters.json, eval_report.json) is written
+# straight to --output-dir on /staging -- never to job scratch -- for the
+# same reason condor/train_variant.sub's transfer_output_files is empty: it
+# survives eviction, and an unset transfer_output_files with ON_EXIT would
+# otherwise ship back the __pycache__ trees this job creates inside the
+# transferred src/ and scripts/ directories.
+transfer_output_files   =
+
+request_cpus    = $(cpus:8)
+request_memory  = $(memory:64GB)
+# DISK SIZING, deliberate, not the bare minimum (a 2GB request held a job on
+# this same project earlier today):
+#   - surgvu26-train.sif itself: 2.97GB, per the task brief's own figure.
+#   - Qwen2.5-VL-7B-Instruct's full-precision weights (~16-17GB of
+#     safetensors, including the vision tower -- NF4 quantisation happens
+#     IN MEMORY at load time via bitsandbytes, so the download is full
+#     precision regardless of how the model is loaded) -- cached to
+#     HF_HOME=/staging/n/nkalthoff/surgvu26/hf_cache (condor/train_vlm.sh),
+#     not job scratch, so a retry does not re-download it, but the FIRST
+#     download on a fresh cache still has to land somewhere before the
+#     cache write completes, and a node's local disk under the container is
+#     what mediates that.
+#   - peft + bitsandbytes, installed fresh into scratch (condor/train_vlm.sh
+#     reuses /staging/n/nkalthoff/surgvu26/vlm_pypkgs2's pruned transformers/
+#     accelerate/tokenizers/safetensors install for everything else) --
+#     tens of MB, negligible next to the above but included for completeness.
+#   - HTCondor's own execute-directory bookkeeping, logs, and a safety
+#     margin -- the checkpoints and adapter themselves live on /staging via
+#     --output-dir, not here, so this does not need to cover repeated
+#     multi-GB checkpoint growth.
+# 60GB is roughly 2x the image+model-weights floor (~20GB), which is the
+# margin the 2GB-held-a-job precedent argues for: underestimating this
+# wastes a full GPU-hours run on a job HTCondor holds before it ever reaches
+# scripts/train_vlm.py, which costs far more than the extra disk headroom.
+request_disk    = $(disk:60GB)
+request_gpus    = 1
+# 24GB floor: 4-bit NF4 base (~4GB) + the (unquantised) vision tower in
+# fp16 (~1-2GB) + LoRA adapter + optimizer state for only the LoRA's own
+# trainable parameters (small) + activations for --batch-size 1 x 4 images
+# at 512x512 x --grad-accum 16's backward graph + gradient checkpointing
+# (already enabled in scripts/train_vlm.py to reduce this further). This is
+# NOT the T4 deployment target's 16GB floor -- like condor/train_variant.sub,
+# training runs on whatever GPU is large enough to train quickly; the T4
+# numeric-parity check is a separate, later validation step per the plan's
+# Global Constraints, not this job's concern.
+require_gpus    = (GlobalMemoryMb >= $(gpumem:24000))
+
+# Same blacklist as condor/train.sub/condor/train_variant.sub:
+# dbrundage-chtcgpu5000 advertises the staging mount and does not deliver
+# it, which condor/train_vlm.sh's guard turns into a fast, clean exit (75)
+# instead of a confusing one -- this line is what stops that from being a
+# retry loop.
+# BOTH chtcgpu5000 boxes advertise staging but do not mount it: a job
+# landing there dies at "FATAL: /staging is not mounted". dbrundage was
+# found first; zliu-chtcgpu5000 hit the v6 smoke train (job 9710296,
+# 2026-08-27) the same way. The guard in the .sh exits in seconds, but
+# nothing requeues the job, so it must not be scheduled there at all.
+requirements = (Machine != "dbrundage-chtcgpu5000.chtc.wisc.edu") && \
+               (Machine != "zliu-chtcgpu5000.chtc.wisc.edu")
+
+output = logs/train_vlm_$(Cluster).out
+error  = logs/train_vlm_$(Cluster).err
+# Stream stdout/stderr live rather than transferring them at exit. Without
+# this a multi-hour training run is INVISIBLE until it finishes: cluster
+# 9697941 ran 45+ minutes with no readable .out, and the only progress
+# signal was checkpoint files appearing on /staging. Live output costs
+# nothing and turns a blind wait into a monitorable one.
+stream_output   = True
+stream_error    = True
+log    = logs/train_vlm_$(Cluster).log
+
+# 5, matching condor/train_variant.sub: condor/train_vlm.sh exits 75
+# immediately on a node where +WantStagingMount did not take effect, which
+# is a node-specific fault a retry genuinely fixes.
+max_retries = 5
+
+queue 1

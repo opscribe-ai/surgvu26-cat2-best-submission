@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "mode": "per_intent",
+  "vlm_intents": ["tool_identity_open"],
+  "router_confidence_floor": 0.5,
+  "vlm_confidence_ceiling": 0.66,
+  "vlm_evidence_context": true
+}

@@ -1,0 +1,182 @@
+{
+  "classes": {
+    "bipolar forceps": {
+      "p_class_present": 0.4541,
+      "variants": [
+        {
+          "name": "Maryland Bipolar Forceps",
+          "p_present": 0.5369
+        },
+        {
+          "name": "Fenestrated Bipolar Forceps",
+          "p_present": 0.4573
+        },
+        {
+          "name": "Fenestrated Bipolar, Single Site",
+          "p_present": 0.0045
+        },
+        {
+          "name": "Long Bipolar Grasper",
+          "p_present": 0.0023
+        }
+      ],
+      "windows": 31705
+    },
+    "cadiere forceps": {
+      "p_class_present": 0.5825,
+      "variants": [
+        {
+          "name": "Cadiere Forceps",
+          "p_present": 1.0
+        }
+      ],
+      "windows": 40664
+    },
+    "clip applier": {
+      "p_class_present": 0.0302,
+      "variants": [
+        {
+          "name": "Large Clip Applier",
+          "p_present": 0.982
+        },
+        {
+          "name": "Medium-Large Clip, Single Site",
+          "p_present": 0.0161
+        },
+        {
+          "name": "Small Clip Applier",
+          "p_present": 0.0019
+        }
+      ],
+      "windows": 2109
+    },
+    "force bipolar": {
+      "p_class_present": 0.0634,
+      "variants": [
+        {
+          "name": "Force Bipolar",
+          "p_present": 1.0
+        }
+      ],
+      "windows": 4424
+    },
+    "grasping retractor": {
+      "p_class_present": 0.1379,
+      "variants": [
+        {
+          "name": "Small Grasping Retractor",
+          "p_present": 1.0
+        }
+      ],
+      "windows": 9626
+    },
+    "monopolar curved scissors": {
+      "p_class_present": 0.4455,
+      "variants": [
+        {
+          "name": "Monopolar Curved Scissors",
+          "p_present": 1.0
+        }
+      ],
+      "windows": 31105
+    },
+    "needle driver": {
+      "p_class_present": 0.3949,
+      "variants": [
+        {
+          "name": "Large SutureCut Needle Driver",
+          "p_present": 0.8779
+        },
+        {
+          "name": "Large Needle Driver",
+          "p_present": 0.8414
+        },
+        {
+          "name": "Mega SutureCut Needle Driver",
+          "p_present": 0.1205
+        },
+        {
+          "name": "Mega Needle Driver",
+          "p_present": 0.0751
+        },
+        {
+          "name": "Wristed Needle Driver SingleSite",
+          "p_present": 0.0035
+        }
+      ],
+      "windows": 27571
+    },
+    "permanent cautery hook/spatula": {
+      "p_class_present": 0.0383,
+      "variants": [
+        {
+          "name": "Permanent Cautery Hook",
+          "p_present": 0.8842
+        },
+        {
+          "name": "Cautery Hook, Single Site",
+          "p_present": 0.1121
+        },
+        {
+          "name": "Permanent Cautery Spatula",
+          "p_present": 0.0037
+        }
+      ],
+      "windows": 2677
+    },
+    "prograsp forceps": {
+      "p_class_present": 0.1091,
+      "variants": [
+        {
+          "name": "ProGrasp Forceps",
+          "p_present": 1.0
+        }
+      ],
+      "windows": 7614
+    },
+    "stapler": {
+      "p_class_present": 0.0042,
+      "variants": [
+        {
+          "name": "SureForm Stapler 60",
+          "p_present": 0.6564
+        },
+        {
+          "name": "SureForm Stapler 45",
+          "p_present": 0.1649
+        },
+        {
+          "name": "Stapler 45",
+          "p_present": 0.1649
+        },
+        {
+          "name": "Stapler 30 Curved-Tip",
+          "p_present": 0.0137
+        }
+      ],
+      "windows": 291
+    },
+    "tip-up fenestrated grasper": {
+      "p_class_present": 0.0045,
+      "variants": [
+        {
+          "name": "Tip-Up Fenestrated Grasper",
+          "p_present": 1.0
+        }
+      ],
+      "windows": 312
+    },
+    "vessel sealer": {
+      "p_class_present": 0.0394,
+      "variants": [
+        {
+          "name": "Vessel Sealer Extend",
+          "p_present": 1.0
+        }
+      ],
+      "windows": 2750
+    }
+  },
+  "total_windows": 69813,
+  "window_seconds": 30.0
+}

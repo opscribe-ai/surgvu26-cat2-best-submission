@@ -1,0 +1,40 @@
+# The answer-FORM experiment: is the terse answer form safe if the test set's
+# references are shaped differently?
+#
+#   condor_submit condor/answer_form.sub
+#
+# Scores three answer forms and three fallback arms against the 11 public
+# sample cases under four REFERENCE conditions, all derived from one vector of
+# per-reference BERTScores per row (with a runtime self-check that the
+# derivation is valid). See scripts/answer_form_eval.py.
+#
+# universe=vanilla, not container: condor/answer_form.sh runs `apptainer exec`
+# on the extract .sif, which cannot be nested inside a container-universe job.
+
+universe   = vanilla
+executable = condor/answer_form.sh
+arguments  = "answer_forms.json perception_serving.json answer_form_results.json"
+
++WantStagingMount = true
+
+# The two JSON inputs land in the scratch ROOT as bare filenames, which is why
+# the arguments above are not repo paths.
+transfer_input_files = src, scripts, tests/fixtures/answer_forms.json, outputs/perception_serving.json
+
+request_cpus   = 4
+request_memory = 16GB
+request_disk   = 8GB
+
+output = logs/answerform_$(Cluster).out
+error  = logs/answerform_$(Cluster).err
+log    = logs/answerform_$(Cluster).log
+
+should_transfer_files   = YES
+when_to_transfer_output = ON_EXIT
+# Only the results file comes home; left unset, ON_EXIT would drag back the
+# __pycache__ trees Python writes into the transferred src/ and scripts/.
+transfer_output_files   = answer_form_results.json
+
+max_retries = 2
+
+queue 1

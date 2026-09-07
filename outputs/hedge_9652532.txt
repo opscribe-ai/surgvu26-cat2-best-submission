@@ -1,0 +1,41 @@
+host: e4078  start: Thu Aug 13 12:43:48 CDT 2026
+PART A -- how often is the argmax right? (validation dump)
+dump: /staging/n/nkalthoff/surgvu26/v2/frame_probs_resnetlong_val.npz
+family: bipolar forceps, cadiere forceps, force bipolar, prograsp forceps
+well-posed windows (exactly one of the family present): 2563
+  top-1 0.9290   gold in top-2 0.9700
+
+margin               n     top1     top2
+[0.00,0.05)         80   0.4625   0.9125
+[0.05,0.10)         54   0.6111   0.8704
+[0.10,0.20)         99   0.6869   0.8889
+[0.20,0.40)        175   0.7314   0.8743
+[0.40,0.70)        211   0.8436   0.8910
+[0.70,1.01)       1944   0.9964   0.9964
+
+PART B -- what does each answer FORM score? (roberta-large)
+references are case124's five templates with the noun substituted; the templates are the organizers', the substitution is ours.
+form            mean F1      n
+single_hit       1.0000      4
+single_miss      0.2665     12
+hedge_first      0.5131     12
+hedge_second     0.4783     12
+hedge_miss       0.3068      4
+
+PART C -- expected score per policy, per margin band
+margin               n    single     hedge     delta  policy
+[0.00,0.05)         80    0.6057    0.4794   -0.1264  single
+[0.05,0.10)         54    0.7147    0.4773   -0.2374  single
+[0.10,0.20)         99    0.7703    0.4831   -0.2872  single
+[0.20,0.40)        175    0.8030    0.4822   -0.3208  single
+[0.40,0.70)        211    0.8853    0.4889   -0.3963  single
+[0.70,1.01)       1944    0.9974    0.5123   -0.4850  single
+
+always-single, over all well-posed windows   0.9479
+hedge only where it wins                     0.9479
+gain                                         +0.0000
+
+VERDICT: hedging never wins. A two-name answer does not recover enough of the metric to pay for what it costs when the argmax was already right. Leave _answer_tool_identity alone.
+
+wrote hedge_results.json
+exit: 0  end: Thu Aug 13 12:49:38 CDT 2026

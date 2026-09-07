@@ -1,0 +1,32 @@
+# Pre-flight for v6: prove the NVIDIA surgical base is visible and loadable
+# from a COMPUTE node before spending a GPU job finding out it is not.
+#
+# It lives in /staging/n/nkalthoff/hf_cache -- a DIFFERENT tree from the
+# HF_HOME condor/train_vlm.sh exports (/staging/n/nkalthoff/surgvu26/hf_cache) --
+# which is exactly why evidence_vlm.DEFAULT_FINETUNE_BASE is an absolute
+# snapshot path rather than a hub id. This job checks that reasoning holds on
+# a real execute node.
+#
+# No GPU: nothing here touches CUDA. AutoProcessor.from_pretrained is CPU-only
+# and is the load that would fail first if the path or the cache were wrong.
+universe        = container
+container_image = file:///staging/n/nkalthoff/surgvu26/surgvu26-train.sif
+
+executable   = condor/preflight_base_model.sh
+arguments    = ""
+
++WantStagingMount = true
+
+transfer_input_files    = src, scripts, config
+should_transfer_files   = YES
+when_to_transfer_output = ON_EXIT
+
+request_cpus    = 2
+request_memory  = 8GB
+request_disk    = 4GB
+
+output = logs/preflight_$(Cluster).out
+error  = logs/preflight_$(Cluster).err
+log    = logs/preflight_$(Cluster).log
+
+queue 1

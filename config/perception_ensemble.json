@@ -1,0 +1,208 @@
+{
+  "schema_version": 2,
+  "generated_by": "scripts/build_perception_config.py",
+  "decode": {
+    "frames": 16,
+    "size": 512
+  },
+  "experts": {
+    "tools": {
+      "role": "tools",
+      "checkpoint": "/staging/n/nkalthoff/surgvu26/models/tools_v2.pt",
+      "checkpoint_name": "tools_v2.pt",
+      "source": "primary",
+      "sha256": "9447b0a0faddf7722ae06d594a2f642d3ff859e6c9db290d434a6e4709f05cd6",
+      "size_bytes": 81672040,
+      "backbone": "efficientnet_v2_s",
+      "image_size": 384,
+      "frames_per_window": 8,
+      "activation": "sigmoid",
+      "classes": [
+        "bipolar forceps",
+        "cadiere forceps",
+        "clip applier",
+        "force bipolar",
+        "grasping retractor",
+        "monopolar curved scissors",
+        "needle driver",
+        "permanent cautery hook/spatula",
+        "prograsp forceps",
+        "stapler",
+        "tip-up fenestrated grasper",
+        "vessel sealer"
+      ],
+      "thresholds": [
+        0.05999999865889549,
+        0.5099999308586121,
+        0.9499998092651367,
+        0.05000000074505806,
+        0.779999852180481,
+        0.6899998784065247,
+        0.9499998092651367,
+        0.49999991059303284,
+        0.7499998807907104,
+        0.309999942779541,
+        0.05000000074505806,
+        0.8899998068809509
+      ],
+      "metrics": {
+        "macro_f1": 0.6605197787284851,
+        "per_class_f1": {
+          "bipolar forceps": 0.767798125743866,
+          "cadiere forceps": 0.8434755206108093,
+          "clip applier": 0.6228315830230713,
+          "force bipolar": 0.4149094820022583,
+          "grasping retractor": 0.8126831650733948,
+          "monopolar curved scissors": 0.9073954820632935,
+          "needle driver": 0.9587774872779846,
+          "permanent cautery hook/spatula": 0.7600567936897278,
+          "prograsp forceps": 0.7160562872886658,
+          "stapler": 0.4129353165626526,
+          "tip-up fenestrated grasper": 0.0,
+          "vessel sealer": 0.7093177437782288
+        },
+        "epochs": 4
+      },
+      "thresholds_by_class": {
+        "bipolar forceps": 0.05999999865889549,
+        "cadiere forceps": 0.5099999308586121,
+        "clip applier": 0.9499998092651367,
+        "force bipolar": 0.05000000074505806,
+        "grasping retractor": 0.779999852180481,
+        "monopolar curved scissors": 0.6899998784065247,
+        "needle driver": 0.9499998092651367,
+        "permanent cautery hook/spatula": 0.49999991059303284,
+        "prograsp forceps": 0.7499998807907104,
+        "stapler": 0.309999942779541,
+        "tip-up fenestrated grasper": 0.05000000074505806,
+        "vessel sealer": 0.8899998068809509
+      },
+      "serving_thresholds": {
+        "values": [
+          0.4599999189376831,
+          0.5199999213218689,
+          0.9199998378753662,
+          0.4299999475479126,
+          0.489999920129776,
+          0.46999990940093994,
+          0.5499998927116394,
+          0.6999998688697815,
+          0.489999920129776,
+          0.35999995470046997,
+          0.05000000074505806,
+          0.729999840259552
+        ],
+        "provenance": {
+          "checkpoint_sha256": "9447b0a0faddf7722ae06d594a2f642d3ff859e6c9db290d434a6e4709f05cd6",
+          "note": "ENSEMBLE cuts: tools_v2.pt + tools_resnet50.pt averaged per frame, 16 frames, top5. Tuned self-tuned on all 4635 splits_v2 val windows, the same way v1 tuned its own. The sha256 above names the PRIMARY member only, so the drift guard still fires if that checkpoint changes.",
+          "members": [
+            "tools_v2.pt",
+            "tools_resnet50.pt"
+          ],
+          "aggregation": "top5",
+          "frames": 16,
+          "macro_f1_self_tuned": 0.74179607629776,
+          "date": "2026-08-12",
+          "checkpoint_thresholds": [
+            0.05999999865889549,
+            0.5099999308586121,
+            0.9499998092651367,
+            0.05000000074505806,
+            0.779999852180481,
+            0.6899998784065247,
+            0.9499998092651367,
+            0.49999991059303284,
+            0.7499998807907104,
+            0.309999942779541,
+            0.05000000074505806,
+            0.8899998068809509
+          ],
+          "measurements": {
+            "baseline": "primary checkpoint per-frame cuts, single model, mean",
+            "baseline_macro_f1": 0.697,
+            "retuned_macro_f1": 0.74179607629776,
+            "delta_macro_f1": 0.04479607629776006,
+            "split": "splits_v2 val, all 4635 windows, self-tuned"
+          }
+        },
+        "by_class": {
+          "bipolar forceps": 0.4599999189376831,
+          "cadiere forceps": 0.5199999213218689,
+          "clip applier": 0.9199998378753662,
+          "force bipolar": 0.4299999475479126,
+          "grasping retractor": 0.489999920129776,
+          "monopolar curved scissors": 0.46999990940093994,
+          "needle driver": 0.5499998927116394,
+          "permanent cautery hook/spatula": 0.6999998688697815,
+          "prograsp forceps": 0.489999920129776,
+          "stapler": 0.35999995470046997,
+          "tip-up fenestrated grasper": 0.05000000074505806,
+          "vessel sealer": 0.729999840259552
+        },
+        "tuned_against_checkpoint_thresholds": [
+          0.05999999865889549,
+          0.5099999308586121,
+          0.9499998092651367,
+          0.05000000074505806,
+          0.779999852180481,
+          0.6899998784065247,
+          0.9499998092651367,
+          0.49999991059303284,
+          0.7499998807907104,
+          0.309999942779541,
+          0.05000000074505806,
+          0.8899998068809509
+        ]
+      },
+      "ensemble": [
+        "/staging/n/nkalthoff/surgvu26/models/tools_resnet50.pt"
+      ],
+      "aggregation": "top5"
+    },
+    "task": {
+      "role": "task",
+      "checkpoint": "/staging/n/nkalthoff/surgvu26/models/task_v2.pt",
+      "checkpoint_name": "task_v2.pt",
+      "source": "primary",
+      "sha256": "ea964fe8ee04f29813a2e1635f2b374a5d6aaaab6c6a49dd806bcd63ca76a5eb",
+      "size_bytes": 81650198,
+      "backbone": "efficientnet_v2_s",
+      "image_size": 384,
+      "frames_per_window": 8,
+      "activation": "softmax",
+      "classes": [
+        "other",
+        "range of motion",
+        "rectal artery/vein",
+        "retraction and collision avoidance",
+        "skills application",
+        "suspensory ligaments",
+        "suturing",
+        "uterine horn"
+      ],
+      "thresholds": null,
+      "metrics": {
+        "accuracy": 0.8694983818770227,
+        "macro_f1": 0.6802740097045898,
+        "per_class_f1": {
+          "other": 0.0,
+          "range of motion": 0.2567811906337738,
+          "rectal artery/vein": 0.8517162203788757,
+          "retraction and collision avoidance": 0.9626509547233582,
+          "skills application": 0.6831858158111572,
+          "suspensory ligaments": 0.8724853992462158,
+          "suturing": 0.9572373628616333,
+          "uterine horn": 0.8581349849700928
+        },
+        "description_accuracy": 0.8803398058252427,
+        "epochs": 4,
+        "v2_ensemble_val_accuracy": 0.9379
+      },
+      "aggregation": "mean",
+      "ensemble": [
+        "/staging/n/nkalthoff/surgvu26/models/task_resnet50.pt"
+      ]
+    }
+  },
+  "v2_note": "EXPERIMENTAL: tools AND task both ensembled with ResNet-50 partners. config/perception.json remains v1."
+}

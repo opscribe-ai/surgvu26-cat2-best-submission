@@ -1,0 +1,61 @@
+# Rebuilds config/perception.json on an execute node, and brings it home.
+#
+#   condor_submit condor/build_config.sub
+#   condor_submit condor/build_config.sub \
+#       args="--tools-serving-thresholds serving_thresholds.json"
+#
+# WHY THIS IS A JOB AND NOT A COMMAND. `build_perception_config.py` reads the
+# `meta` block out of two 82 MB `.pt` files, which needs torch -- and there is
+# no torch on the login node (the same reason condor/pytest.sub exists). It is
+# also the guardrail: nothing that opens a checkpoint runs on ap2001.
+#
+# The config is written IN PLACE over the transferred `config/perception.json`
+# and comes home flattened to `perception.json` in the repo root, which is
+# where HTCondor puts a returned output file whatever directory it lived in.
+# Writing it in place is not cosmetic: the builder carries an existing
+# config's serving thresholds forward by reading the file it is about to
+# replace, so an `--out` pointing anywhere else would silently produce a
+# config with no serving thresholds at all. Move the returned file into
+# config/ deliberately, after reading it.
+#
+# `--tools-serving-thresholds` takes a report from
+# scripts/tune_serving_thresholds.py. Add the report to `transfer` so it lands
+# in scratch:
+#
+#   condor_submit condor/build_config.sub \
+#       transfer=outputs/serving_thresholds.json \
+#       args="--tools-serving-thresholds serving_thresholds.json"
+#
+# With no arguments the builder carries any serving thresholds the existing
+# config already holds forward onto the same weights, and aborts rather than
+# carrying them onto different ones.
+
+universe                = container
+container_image         = file:///staging/n/nkalthoff/surgvu26/surgvu26-train.sif
+
+executable              = condor/train.sh
+arguments               = "scripts/build_perception_config.py --out config/perception.json $(args)"
+
++WantStagingMount       = true
+
+should_transfer_files   = YES
+when_to_transfer_output = ON_EXIT
+transfer_input_files    = src, scripts, config, $(transfer)
+
+# No GPU and no model forward pass: this reads two `meta` blocks and hashes
+# two files.
+request_cpus            = 1
+request_memory          = 8GB
+request_disk            = 4GB
+
+# The config only. Left unset, ON_EXIT would drag back the __pycache__ trees
+# Python writes into the transferred src/ and scripts/.
+transfer_output_files   = config/perception.json
+
+log                     = logs/build_config_$(Cluster).log
+error                   = logs/build_config_$(Cluster).err
+output                  = logs/build_config_$(Cluster).out
+
+max_retries             = 2
+
+queue 1

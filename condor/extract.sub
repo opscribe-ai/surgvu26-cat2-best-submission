@@ -1,0 +1,49 @@
+# One job per (case, part). cases.txt rows are `case_id, part, video`;
+# the shard name carries the part so a case's two jobs cannot collide.
+#
+# Run from the repo root, after:
+#   mkdir -p logs
+#   python scripts/build_cases_txt.py VIDEO_ROOT LABELS_ROOT condor/cases.txt
+#   python scripts/build_tool_frequency.py LABELS_ROOT config/splits.json \
+#                                          config/tool_frequency.json
+#   condor_submit condor/extract.sub
+#
+# Videos are NOT transferred. HTCondor refuses to transfer files out of
+# /staging at all ("Jobs cannot transfer files directly from /staging/ or
+# /projects/ - use the osdf:/// or file:/// plugin"), and shipping a 2 GB video
+# per job would be pointless when the staging mount makes it directly readable.
+# +WantStagingMount gives the job that mount; the script reads the video and
+# writes the shard in place. For the same reason there is no
+# transfer_output_remaps.
+
+universe                = container
+container_image         = file:///staging/n/nkalthoff/surgvu26/surgvu26-extract.sif
+
+executable              = condor/extract.sh
+arguments               = $(case_id) $(part) $(video)
+
++WantStagingMount       = true
+
+should_transfer_files   = YES
+when_to_transfer_output = ON_EXIT
+# Transfer `config` as a DIRECTORY. HTCondor flattens transferred file paths,
+# so `config/tool_frequency.json` would arrive as bare `tool_frequency.json`
+# and the script's path check would fail (it did, on the first run).
+transfer_input_files    = src, scripts, config
+
+request_cpus            = 2
+# Peak measured at 2,887 MB on a full 160-window job after frames moved to
+# JPEG, which removed the raw double-stack. 8 GB leaves ample headroom.
+request_memory          = 8GB
+# Nothing large lands in scratch: the shard is written straight to staging.
+request_disk            = 8GB
+
+log                     = logs/extract_$(case_id)_part$(part).log
+error                   = logs/extract_$(case_id)_part$(part).err
+output                  = logs/extract_$(case_id)_part$(part).out
+
+# 46 of 281 (case, part) pairs legitimately hold no task segments and exit
+# non-zero by design, so do not retry blindly on failure.
+max_retries             = 1
+
+queue case_id, part, video from condor/cases.txt

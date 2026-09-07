@@ -1,0 +1,103 @@
+# Runs scripts/build_qa_pairs.py --extract-frames inside surgvu26-train.sif
+# (v5 Plan 3, Task 3): Task 2's qa_pairs.jsonl (377,557 records / 144 cases,
+# already excludes the 11 heldout cases) -> a case-stratified,
+# tool_presence_polar answer-balanced sample -> frames decoded via
+# surgvu.perceive.decode_clip_multiscale (applies preprocess.prepare_frame --
+# crop + UI-band blur, exactly as serving) -> a manifest JSONL pairing each
+# sampled QA record with its frame paths. See condor/build_qa_frames.sh for
+# what each argument means and scripts/build_qa_pairs.py's module docstring
+# for the sampling policy.
+#
+# A DRY RUN first is strongly recommended -- it resolves every video and
+# reports real drop counts without paying for the decode:
+#
+#   mkdir -p logs
+#   condor_submit condor/build_qa_frames.sub dry_run=1
+#
+# Then the real run (same defaults, dry_run omitted):
+#
+#   mkdir -p logs
+#   condor_submit condor/build_qa_frames.sub
+#
+# To override the sampling size/seed/frame budget:
+#
+#   condor_submit condor/build_qa_frames.sub max_per_intent=3000 seed=1 frames_per_window=6
+
+universe                = container
+container_image         = file:///staging/n/nkalthoff/surgvu26/surgvu26-train.sif
+
+executable              = condor/convert_stage1_frames.sh
+arguments               = "$(workers:8)"
+
+# SUFFIX steers the three OUTPUT paths (see build_qa_frames.sh). Empty by
+# default, which reproduces the historical v1 paths exactly; pass
+# suffix=_v2 to write a parallel tree so a rebuild at a different
+# --frames-per-window cannot replace the corpus the trained adapters were
+# fitted on.
+
+
+# Required to reach the .sif in /staging/n/nkalthoff (same as every other
+# container_image=file:///staging/... job in this repo) AND to read/write
+# the shared corpus this job actually touches:
+#   /staging/n/nkalthoff/surgvu26/qa_pairs.jsonl              (input, Task 2)
+#   /staging/groups/bhaskar_opscribe/surgvu/videos/surgvu24 (input, source video)
+#   /staging/n/nkalthoff/surgvu26/qa_frames/                  (output, JPEG frames)
+#   /staging/n/nkalthoff/surgvu26/qa_frames_manifest.jsonl    (output, manifest)
+#   /staging/n/nkalthoff/surgvu26/qa_frames_report.json       (output, full report)
++WantStagingMount       = true
+
+should_transfer_files   = YES
+when_to_transfer_output = ON_EXIT
+# Neither the source videos nor the output frames/manifest are transferred:
+# HTCondor refuses to transfer files directly from/to /staging at all, and
+# the staging mount already makes both directly read/writable in place --
+# same reasoning as condor/extract.sub, whose shard is likewise "written
+# straight to staging" rather than transferred out.
+transfer_input_files    = src, scripts
+
+# decode_clip_multiscale here only seeks/crops/blurs/resizes/differences
+# frames, and this job discards the "probes" half of its return value -- no
+# model forward pass runs. surgvu.perceive still imports torch at module
+# scope (deferred inside build_qa_pairs.py's _decode_window_frames, but the
+# CONTAINER itself needs torch installed to satisfy that import at all),
+# which is why this runs inside surgvu26-train.sif rather than the lighter
+# surgvu26-extract.sif condor/extract.sub uses. Same reasoning and same
+# request_cpus/request_memory as condor/dump_motion_v2.sub, which already
+# runs this identical image doing the identical kind of seek-decode work.
+request_cpus            = $(cpus:8)
+request_memory          = 8GB
+
+# SIZED DELIBERATELY -- read this before changing it. The .sif image ALONE
+# is 2.97GB (3,189,559,296 bytes measured on staging) and has to land on the
+# execute node's LOCAL disk before the container can even start; nothing
+# about this job's actual work (decoded frames, the manifest) adds to that,
+# because every JPEG and the manifest are written straight through the
+# staging mount, never to local scratch -- exactly like condor/extract.sub's
+# shard output. Two data points from this project's own history rule out
+# guessing low: a 2GB request HELD a job outright (the image alone doesn't
+# fit), and a 4GB request leaves only ~1GB of local disk for everything else
+# once the .sif lands -- the transferred src/scripts tree, the container's
+# own overlay filesystem, and whatever /tmp usage python3/cv2 need inside
+# it, which is too tight to trust across 144 cases' worth of video seeking.
+# 8GB is the same value condor/dump_motion_v2.sub already runs this
+# IDENTICAL image at successfully, leaving ~5GB of headroom above the .sif
+# itself.
+# 8GB held the v1 (4-frame) tree at 3.1GB used. Frame COUNT scales this
+# almost linearly -- the decode is per clip but every frame is JPEG-encoded
+# and written -- so a 16-frame rebuild needs ~12.5GB and would die partway
+# through on the old request, after hours of decoding. $(disk) lets one
+# submit raise it without editing this file.
+request_disk            = $(disk:40GB)
+
+log                     = logs/build_stage1_$(Cluster).log
+error                   = logs/build_stage1_$(Cluster).err
+output                  = logs/build_stage1_$(Cluster).out
+# STREAM, do not buffer. Condor holds .out until the job ENDS, so a
+# multi-hour run gives no progress signal at all -- which is how a job
+# that is silently training zero parameters, or sweeping a resumable
+# tree writing nothing, looks identical to one making progress. The
+# extra network writes are negligible next to what these jobs do.
+stream_output = True
+stream_error  = True
+
+queue 1

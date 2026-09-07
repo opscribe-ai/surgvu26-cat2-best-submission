@@ -1,0 +1,12 @@
+# Waits for named clusters to leave the queue. Scheduler universe: it calls
+# condor_q, which only works on the submit machine.
+
+universe   = scheduler
+executable = condor/gate_cluster.sh
+arguments  = "$(clusters)"
+
+output = logs/gatecluster_$(Cluster).out
+error  = logs/gatecluster_$(Cluster).err
+log    = logs/gatecluster_$(Cluster).log
+
+queue 1

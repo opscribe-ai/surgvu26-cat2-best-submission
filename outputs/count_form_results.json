@@ -1,0 +1,58 @@
+{
+  "bare_only": false,
+  "rows": [
+    {
+      "count": 1,
+      "word": "One",
+      "numeral": "1",
+      "word_vs_word": 0.9999985694885254,
+      "numeral_vs_numeral": 1.0000007152557373,
+      "word_vs_numeral": 0.7162632942199707,
+      "numeral_vs_word": 0.7162632942199707,
+      "off_by_one": 0.8275305032730103,
+      "off_by_two": 0.7699923515319824
+    },
+    {
+      "count": 2,
+      "word": "Two",
+      "numeral": "2",
+      "word_vs_word": 1.0,
+      "numeral_vs_numeral": 1.0,
+      "word_vs_numeral": 0.8229281306266785,
+      "numeral_vs_word": 0.8229281306266785,
+      "off_by_one": 0.8678287863731384,
+      "off_by_two": 0.8626701235771179
+    },
+    {
+      "count": 3,
+      "word": "Three",
+      "numeral": "3",
+      "word_vs_word": 1.0000007152557373,
+      "numeral_vs_numeral": 1.0000007152557373,
+      "word_vs_numeral": 0.7929136157035828,
+      "numeral_vs_word": 0.7929136157035828,
+      "off_by_one": 0.8743301630020142,
+      "off_by_two": 0.8709990978240967
+    },
+    {
+      "count": 4,
+      "word": "Four",
+      "numeral": "4",
+      "word_vs_word": 0.9999982118606567,
+      "numeral_vs_numeral": 1.0,
+      "word_vs_numeral": 0.8234356045722961,
+      "numeral_vs_word": 0.8234356045722961,
+      "off_by_one": 0.8573080897331238,
+      "off_by_two": 0.8707017302513123
+    }
+  ],
+  "means": {
+    "word_vs_word": 0.9999993741512299,
+    "numeral_vs_numeral": 1.0000003576278687,
+    "word_vs_numeral": 0.788885161280632,
+    "numeral_vs_word": 0.788885161280632
+  },
+  "word_floor": 0.788885161280632,
+  "numeral_floor": 0.788885161280632,
+  "crossover_p": 0.5
+}

@@ -1,0 +1,131 @@
+# The SHIPPED IMAGE over all eleven sample cases. See condor/validate_image.sh.
+#
+#   condor_submit condor/validate_image.sub
+#
+# VANILLA, not container universe: this script RUNS a container itself, and
+# nesting apptainer inside a container image is what broke condor/metric.sh.
+universe   = vanilla
+executable = condor/validate_image.sh
+# NO DEFAULT VALUE HERE, and the reason is a silent HTCondor bug worth knowing.
+# A HYPHEN in a $(macro:default) prevents expansion entirely -- condor_submit
+# emits no error, it just passes the literal "$(image:...)" through as the
+# argument. Bisected 2026-08-16:
+#
+#     $(image:/staging/nk/su26/x.sif)    -> /staging/nk/su26/x.sif
+#     $(image:/staging/nk/su26/a-b.sif)  -> $(image:/staging/nk/su26/a-b.sif)
+#
+# Every .sif this project builds has a hyphen in its name, so every default of
+# that shape is silently broken. The first run of this job died with
+# "FATAL: no image at $(image:/staging/...)" for exactly that reason.
+#
+# So the DEFAULT LIVES IN THE SCRIPT, which handles it with ${1:-...} and is
+# not subject to condor's macro parser. An undefined macro expands to empty,
+# the script substitutes its own default, and `image=/path/to/other.sif` on the
+# command line still overrides -- which a bare assignment here would not.
+arguments  = "$(image)"
+
+# THE SIDECAR TRAVELS AS AN ENVIRONMENT VARIABLE, NOT A POSITIONAL ARGUMENT.
+# Tried positionally first and it was actively dangerous: $(image) has no
+# default here on purpose (a hyphen in a $(macro:default) silently breaks
+# expansion -- see the note above), so `arguments = "$(image) $(sidecar)"` with
+# only a sidecar given collapses to ONE argument, and the script's
+# IMAGE=${1:-...} would then treat the SIDECAR PATH as the image. It would fail
+# loudly, but for a reason nobody would connect to this line.
+#
+#   condor_submit condor/validate_image.sub gpus=1 #       sidecar=/staging/n/nkalthoff/surgvu26/models_sidecar
+#
+# `sample` rides the same way, and for the same reason -- see the long note in
+# condor/validate_image.sh. The DEFAULT sample's question files are not the
+# questions the grader asks: four of eleven differ, and two of those four were
+# answered wrong on the leaderboard while this harness reported 11/11.
+#
+#   condor_submit condor/validate_image.sub gpus=1 #       sample=/staging/n/nkalthoff/surgvu26/cat2_sample_graded
+#
+# Both must be emitted from ONE `environment` line: a second assignment
+# replaces the first rather than adding to it, so writing them as two `if`
+# blocks silently drops whichever came first.
+# `t4sim` rides here too, and the same one-line rule applies: a second
+# `environment` assignment REPLACES the first, so every combination has to be
+# spelled out rather than accumulated.
+if defined sidecar
+  if defined sample
+    environment = "SIDECAR_DIR=$(sidecar) SAMPLE_DIR=$(sample) SURGVU_T4SIM=$(t4sim:0)"
+  else
+    environment = "SIDECAR_DIR=$(sidecar) SURGVU_T4SIM=$(t4sim:0)"
+  endif
+else
+  if defined sample
+    environment = "SAMPLE_DIR=$(sample) SURGVU_T4SIM=$(t4sim:0)"
+  else
+    environment = "SURGVU_T4SIM=$(t4sim:0)"
+  endif
+endif
+
++WantStagingMount = true
+transfer_input_files = condor
+
+request_cpus   = $(cpus:4)
+request_memory = $(memory:16GB)
+request_disk   = $(disk:20GB)
+
+# GPU IS OPT-IN, AND THE OPT-IN MATTERS FOR --vlm.
+#
+# This job ran CPU-only for its whole history, which was right while the image
+# was CNN+router. It is now wrong in a specific way: `--vlm` is in the image
+# ENTRYPOINT, and `try_vlm_result` checks `torch.cuda.is_available()` FIRST and
+# skips the VLM entirely when there is no CUDA device -- correctly, since the
+# NF4 weights are bitsandbytes/CUDA-only. So a CPU-only validation of a
+# VLM-carrying image passes eleven cases without the VLM ever loading. That is
+# a green run proving nothing about the headline component, which is the
+# silent-nothing shape this project has now hit eight times.
+#
+# Both draws must be validated before submitting, because the grader may give
+# either:
+#
+#   condor_submit condor/validate_image.sub                 # No-GPU draw
+#   condor_submit condor/validate_image.sub gpus=1          # T4-like draw
+#
+# `if defined` keeps the default submission byte-identical to its old self --
+# with no `gpus`, neither GPU line is emitted at all, so a CPU validation can
+# never sit idle waiting for a card it does not need.
+if defined gpus
+  request_gpus = $(gpus)
+  # The grader's card is a T4: 16 GiB, compute capability 7.5.
+  #
+  # The capability floor is NOT cosmetic. 4-bit bitsandbytes requires CC >= 7.5,
+  # and this pool contains 11 Tesla P100 (6.0) and 5 GTX 1080 Ti (6.1) that
+  # physically cannot run the NF4 weights. Landing on one would fail for a
+  # reason the grader will never reproduce, and -- worse -- `try_vlm_result`
+  # would swallow it, leaving eleven correct router answers and no sign the
+  # VLM never ran.
+  #
+  # To validate on the SAME ARCHITECTURE the grader uses rather than merely a
+  # sufficient one, pin the ceiling too:
+  #
+  #   condor_submit condor/validate_image.sub gpus=1 gpucapmax=7.5 gpumem=10000
+  #
+  # That lands on sm_75 hardware (RTX 2080 Ti / Quadro RTX 6000/8000 -- this
+  # pool has no literal T4). The 2080 Ti carries 11 GiB, LESS than a T4's 16,
+  # so a pass there is strictly stronger evidence than a pass on a big card:
+  # the checkpoint is ~5 GiB and if it fits in 11 GiB on sm_75 it fits on a T4.
+  # Quantising happened on an H200 (sm_90); nothing about that run proves an
+  # sm_75 kernel exists for these weights.
+  require_gpus = (GlobalMemoryMb >= $(gpumem:15000)) && \
+                 (Capability >= $(gpucapmin:7.5)) && \
+                 (Capability <= $(gpucapmax:99))
+endif
+
+output = logs/validimage_$(Cluster).out
+error  = logs/validimage_$(Cluster).err
+log    = logs/validimage_$(Cluster).log
+stream_output = True
+stream_error  = True
+
+should_transfer_files   = YES
+when_to_transfer_output = ON_EXIT
+transfer_output_files   = image_validation.json, image_vlm.tsv, image_answers.tsv
+
+retry_until = (ExitCode =?= 0 || ExitCode =?= 1)
+max_retries = 3
+
+queue 1

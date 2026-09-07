@@ -1,0 +1,43 @@
+# The gated VLM fallback: what it answers, and proof it changes nothing else.
+#
+#   condor_submit condor/vlm_eval.sub
+#
+# GPU REQUIRED, and not for speed. The weights are NF4-quantised, which is a
+# bitsandbytes format that only loads on CUDA -- there is no CPU arm of this
+# measurement to fall back to. Capability >= 7.5 keeps us off cards older than
+# the deployment T4; the memory floor is because the model's measured peak is
+# 7.24 GB and a card that cannot hold it would report a fail-safe decline,
+# which is a true result about the card and a useless one about the model.
+
+universe                = container
+container_image         = file:///staging/n/nkalthoff/surgvu26/surgvu26-train.sif
+
+executable              = condor/vlm_eval.sh
+
++WantStagingMount       = true
+
+should_transfer_files   = YES
+when_to_transfer_output = ON_EXIT
+# `tests` is here only for tests/fixtures/question_variants.json, which the
+# paraphrase arm reads. Transferring the single file would land it in the
+# scratch root, not at the path the script resolves.
+transfer_input_files    = src, scripts, config, tests
+
+request_cpus            = 4
+request_memory          = 32GB
+# 6.0 GB of VLM weights + 11 sample videos copied per case + pip's scratch.
+request_disk            = 40GB
+request_gpus            = 1
+require_gpus            = Capability >= 7.5 && GlobalMemoryMb >= 15000
+
+# Only the JSON reports come home; work_off/ and work_on/ are eleven copies
+# of the sample videos each, and vlm/ is 6 GB.
+transfer_output_files   = shipped_candidates.json, fallbackopen_candidates.json, vlmcontext_candidates.json, vlmnocontext_candidates.json, vlmoff_candidates.json, vlmon_candidates.json, vlm_fallback_pairs.json, vlm_offon_diff.json
+
+log                     = logs/vlmeval_$(Cluster).log
+error                   = logs/vlmeval_$(Cluster).err
+output                  = logs/vlmeval_$(Cluster).out
+
+max_retries             = 2
+
+queue 1

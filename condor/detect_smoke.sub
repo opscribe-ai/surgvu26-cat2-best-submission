@@ -1,0 +1,64 @@
+# Runs tests/test_detect_weights.py -- and ONLY that test -- inside
+# surgvu26-train.sif.
+#
+# Task 6b: src/surgvu/detect.py's Detector.detect() (Task 6, merged) has 9
+# passing tests but none of them ever load best.pt or call detect() itself --
+# they are deliberately torch-free (see tests/test_detect.py's docstring).
+# This is the one place that actually happens: real weights, the real
+# yolov5 checkout, a real decoded surgical frame, and an assertion that every
+# returned box lands inside the frame (the empirical check on the
+# letterbox/scale_coords geometry, not just a read-the-code check).
+#
+# A SEPARATE job from condor/pytest.sub on purpose: this exercises a real
+# torch forward pass through a checkout with import-time dependencies
+# (pandas, requests, tqdm, matplotlib, seaborn -- see condor/detect_smoke.sh)
+# that pytest.sub's suite has never needed. A missing dependency or an
+# import error here must show up as ITS OWN red job, not as one of a
+# thousand results in the full suite where it could be misattributed.
+#
+# Run from the repo root, after:
+#   mkdir -p logs
+#   condor_submit condor/detect_smoke.sub
+
+universe                = container
+container_image         = file:///staging/n/nkalthoff/surgvu26/surgvu26-train.sif
+
+executable              = condor/detect_smoke.sh
+
+# Required for two independent reasons: reaching the .sif under
+# /staging/n/nkalthoff (same as every other container_image=file:///staging/...
+# job in this repo), and reaching best.pt / the yolov5 checkout / the sample
+# clip under /staging/groups/bhaskar_opscribe, which the test reads by
+# absolute path rather than via transfer_input_files (HTCondor refuses to
+# transfer files directly out of /staging -- see condor/extract.sub).
++WantStagingMount       = true
+
+should_transfer_files   = YES
+when_to_transfer_output = ON_EXIT
+# pyproject.toml is intentionally not transferred, same reasoning as
+# condor/pytest.sub: conftest.py puts `src` on sys.path itself.
+#
+# config/ and scripts/ are NOT needed here: tests/test_detect_weights.py
+# imports only surgvu.detect and surgvu.perceive, and neither reads a
+# config/ file at import time (checked against src/surgvu/*.py -- the
+# config/*.json reads in router.py, sampling.py and train.py are all
+# call-time, behind functions this test never calls).
+transfer_input_files    = src, tests, conftest.py
+
+# CPU-only: DetectMultiBackend loads fine on cpu (Detector defaults to
+# device="cpu") and this is a smoke test, not a throughput benchmark.
+request_cpus            = 2
+request_memory          = 8GB
+# Headroom for best.pt (14 MB), the yolov5 checkout (read in place from
+# staging, not transferred) and the pip --target install in
+# condor/detect_smoke.sh (pandas/matplotlib/seaborn pull in a handful of
+# transitive wheels).
+request_disk            = 4GB
+
+transfer_output_files   =
+
+log                     = logs/detect_smoke_$(Cluster).log
+error                   = logs/detect_smoke_$(Cluster).err
+output                  = logs/detect_smoke_$(Cluster).out
+
+queue 1

@@ -1,0 +1,95 @@
+# Stages the Docker build context and builds the Apptainer content-proof image.
+#
+#   condor_submit containers/build_submission.sub
+#
+# On a COMPUTE node, never the login node: an apptainer build wedges ap2001.
+#
+# Both artifacts are written straight to /staging/n/nkalthoff/surgvu26 by
+# containers/build_submission.sh, which is why transfer_output_files is empty
+# -- with it unset, ON_EXIT would copy the multi-GB .sif and the whole staged
+# context back into the repo (this has happened before; see condor/train.sub).
+
+universe   = vanilla
+executable = containers/build_submission.sh
+
+transfer_input_files = containers/surgvu26-submission.def, containers/Dockerfile, containers/.dockerignore, src, scripts, config
+
++WantStagingMount = true
+
+request_cpus   = 4
+request_memory = 16GB
+# The base image unpacks to ~8GB, plus the SIF built beside it, plus the
+# apptainer cache and tmpdir, plus a 165MB context and its tarball.
+#
+# Raised 60GB -> 80GB for the VLM build: a merged+quantised NF4 checkpoint adds
+# ~6GB to the context, is then copied again into the tarball, and lands a third
+# time inside the SIF -- roughly +20GB across the build. R33 was a build that
+# died at 4,095,696 KB of 4,194,304 KB with a green-looking log; disk is the
+# cheapest thing to over-request here.
+request_disk   = 80GB
+
+output = logs/build_submission_$(Cluster).out
+error  = logs/build_submission_$(Cluster).err
+log    = logs/build_submission_$(Cluster).log
+
+# Stream, do not transfer on exit. Without these, a 25-minute build is
+# completely silent until it finishes -- cluster 9698689 ran 17 minutes with
+# an empty .out, so there was no way to tell a working build from a wedged
+# one, and no way to see the VLM staging gate's verdict until it no longer
+# mattered. Every other long-running job in this repo already streams
+# (train_vlm.sub, merge_quantise.sub, validate_image.sub); this one was the
+# outlier.
+stream_output = True
+stream_error  = True
+
+should_transfer_files   = YES
+when_to_transfer_output = ON_EXIT
+transfer_output_files   =
+
+# REQUIRE_VLM=1 makes containers/build_submission.sh REFUSE to build when the
+# NF4 checkpoint is missing, instead of quietly shipping --vlm as a no-op.
+# Uncomment for the build that is meant to ship the VLM; leave commented for a
+# deliberate CNN-only build.
+#
+# DELIBERATELY COMMENTED OUT FOR v6 (2026-08-29): the VLM ships in the SIDECAR,
+# not in the image.
+#
+# v6 follows v5.2's packaging: a CNN-only image plus a separate model tarball
+# extracted to /opt/ml/model/ at runtime. `scripts/inference.py`'s
+# `resolve_vlm_model_dir` documents the sidecar as "THE PRIMARY LOCATION, not a
+# fallback", and checks
+#
+#     /opt/ml/model/qwen25vl-7b-int8      <- where v6 goes
+#     /opt/ml/model/qwen25vl-7b-nf4
+#     <in-image>                          <- LAST; "what v5 shipped"
+#
+# in that order. Baking weights in therefore does NOT make the image
+# authoritative -- an uploaded tarball silently outranks it, which is how a v6
+# image plus a stale v5 tarball would score v5 while looking like v6. Keeping
+# the image CNN-only removes that ambiguity entirely: there is exactly one copy
+# of the answering VLM in a submission, and it is the one in the model slot.
+#
+# It also buys back the ceiling. Baked in, the image measured 8.82 GB as a .sif
+# and PROJECTS to ~9.3 GB through `docker save | gzip` against a 10 GB limit --
+# NF4 barely compresses (measured ratio 0.9625). CNN-only it is ~3.5 GiB, and
+# the model tarball has no documented size limit.
+#
+# `VLM_MODEL_SRC=none` MUST BE STATED. Leaving `environment` empty does NOT
+# give a CNN-only image: VLM_MODEL_SRC then defaults to
+# $DEST/models/qwen25vl-7b-nf4 where DEST=/staging/n/nkalthoff/surgvu26, and that
+# directory EXISTS -- it is v5.2's merge. Job 9714497 was submitted with no
+# environment line at all and silently baked V5 weights into what was meant to
+# be v6's sidecar image. It was caught only because the context tarball came
+# out at 5.49 GB instead of ~200 MB.
+environment = "VLM_MODEL_SRC=none"
+#
+# To go back to a baked-in build (the v5 shape), replace the line above with
+# the one below and point VLM_MODEL_SRC at a self-contained checkpoint
+# directory. REQUIRE_VLM=1 makes containers/build_submission.sh REFUSE to build
+# when that path is missing, instead of quietly shipping --vlm as a no-op.
+#
+# environment = "REQUIRE_VLM=1 VLM_MODEL_SRC=/staging/n/nkalthoff/surgvu26/models/qwen25vl-7b-v6-nf4"
+
+max_retries = 2
+
+queue 1

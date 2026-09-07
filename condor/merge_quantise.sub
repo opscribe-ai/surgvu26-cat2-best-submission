@@ -1,0 +1,140 @@
+# Merges the SurgVU VLM LoRA adapter into its fp16 base and quantises the
+# result to 4-bit NF4 (scripts/merge_and_quantise_vlm.py -- see that
+# script's own module docstring for the full design, and why this
+# deliberately reverses scripts/train_vlm.py's own "never merge" note with
+# the user's approval).
+#
+# Modelled directly on condor/train_vlm.sub, which works: same universe
+# (container_image=file:///staging/.../surgvu26-train.sif), same
+# +WantStagingMount, same machine blacklist and max_retries reasoning. What
+# differs is sized for THIS job's very different memory/GPU profile -- a
+# one-shot merge+quantise, not an iterative training loop -- see below.
+#
+# Run from the repo root, after: mkdir -p logs
+#   condor_submit condor/merge_quantise.sub
+#
+# scripts/merge_and_quantise_vlm.py's own defaults already point at the
+# right places (the trained adapter at
+# /staging/n/nkalthoff/surgvu26/models/vlm_lora, the final artefact at
+# /staging/n/nkalthoff/surgvu26/models/qwen25vl-7b-nf4 -- BYTE-IDENTICAL to
+# containers/build_submission.sh's VLM_MODEL_SRC default, so nothing further
+# needs wiring once this job succeeds), so `args=""` (or omitting it, which
+# condor/merge_quantise.sh treats as empty) is itself a valid invocation. To
+# skip a stage that already finished before an eviction:
+#
+#   condor_submit condor/merge_quantise.sub \
+#       args="--force-requantise"   # e.g. re-run stage 2 only
+#
+# RESUME AFTER EVICTION: re-submit with no arguments (or the same ones).
+# scripts/merge_and_quantise_vlm.py's own `_looks_like_a_saved_model_dir`
+# check makes stage 1 and stage 2 each independently skip-if-already-done,
+# so a resubmitted job does not redo a merge or a quantisation that already
+# landed on /staging.
+
+universe        = container
+container_image = file:///staging/n/nkalthoff/surgvu26/surgvu26-train.sif
+
+executable   = condor/merge_quantise.sh
+arguments    = "scripts/merge_and_quantise_vlm.py $(args)"
+
++WantStagingMount = true
+
+should_transfer_files   = YES
+when_to_transfer_output = ON_EXIT
+# config/ IS REQUIRED, and its absence was a real bug until 2026-08-29.
+# check_evidence_parity() calls arbiter.load_config(), which resolves
+# config/arbiter.json RELATIVE TO src/surgvu/arbiter.py. With config/ not
+# transferred that file is simply missing in the scratch dir, load_config
+# degrades quietly to DEFAULT_CONFIG -- which has NO vlm_evidence_context key
+# at all, so `.get("vlm_evidence_context", False)` yields False
+# unconditionally. The guard was therefore comparing every adapter against a
+# hardcoded False: it could only ever pass for a bare-trained adapter, and
+# ALWAYS failed an evidence-trained one no matter what the repo config said.
+# Job 9714365 died on exactly that. Ten other .sub files already transfer
+# config/; this one was the outlier.
+transfer_input_files    = src, scripts, config
+# Everything this job produces (the intermediate merged fp16 checkpoint,
+# the final quantised checkpoint) is written straight to /staging -- never
+# to job scratch -- for the same reason condor/train_vlm.sub's
+# transfer_output_files is empty: it survives eviction, and an unset
+# transfer_output_files with ON_EXIT would otherwise ship back the
+# __pycache__ trees this job creates inside the transferred src/ and
+# scripts/ directories.
+transfer_output_files   =
+
+request_cpus    = $(cpus:8)
+# MEMORY SIZING, deliberate, not the training job's number reused blindly:
+#   - Stage 1 (merge) loads the FULL fp16 base (measured 16GB on disk) onto
+#     CPU deliberately (see the script's own docstring for why CPU, not
+#     GPU) -- `merge_and_unload()` is elementwise weight arithmetic per
+#     targeted Linear layer, modifying the base's own tensors in place, so
+#     this does NOT need a second full-model-sized copy the way a naive
+#     "clone then merge" would.
+#   - Stage 2 (quantise) reloads the merged fp16 checkpoint from disk,
+#     shard by shard, converting each shard to 4-bit as it lands -- peak
+#     residency there is nowhere near the full 16GB at once, but the
+#     process as a whole (Python/torch/transformers/accelerate overhead,
+#     tokenizer/processor objects, the quantised model's own ~5-6GB result
+#     held alongside whatever of stage 1 has not yet been garbage-collected)
+#     still needs real headroom.
+#   - 64GB is ~4x the single largest resident object (16GB) -- generous
+#     padding in the same spirit as condor/train_vlm.sub's disk-sizing
+#     comment ("a 2GB request held a job on this same project earlier
+#     today"): underestimating this holds the job in the queue before it
+#     ever reaches the merge, which costs far more than the extra RAM
+#     headroom.
+request_memory  = $(memory:64GB)
+# DISK SIZING: unlike condor/train_vlm.sub, this job downloads NOTHING --
+# find_local_snapshot_dir refuses to fall back to a network fetch, and the
+# base model is already cached on /staging from the training job. Both this
+# job's inputs (the HF cache, the adapter) and its outputs (the merged and
+# quantised checkpoints) live on /staging, not job scratch, so local disk
+# only has to cover: the container image, peft/bitsandbytes pip installs
+# (tens of MB), HTCondor's own bookkeeping/logs, and Python bytecode caches.
+# 30GB is generous headroom over that real floor, not a bare minimum.
+request_disk    = $(disk:30GB)
+request_gpus    = 1
+# 24GB floor, matching condor/train_vlm.sub's own default: stage 1 (merge)
+# runs on CPU and needs no GPU memory at all; stage 2 (quantise) only ever
+# holds one fp16 shard (~3.3GB, 5 shards of 16GB total) plus the
+# already-quantised result-so-far (up to ~5-6GB) on the GPU at once --
+# comfortably under even a 24GB MIG slice, let alone a full card. This job
+# is GPU-memory-LIGHT compared to training (no optimizer state, no
+# activations, no gradient checkpointing), so there is no reason to require
+# the 80GB floor training's own require_gpus documents wanting for speed.
+require_gpus    = (GlobalMemoryMb >= $(gpumem:24000))
+
+# Same blacklist as condor/train_vlm.sub/condor/train_variant.sub:
+# dbrundage-chtcgpu5000 advertises the staging mount and does not deliver
+# it, which condor/merge_quantise.sh's guard turns into a fast, clean exit
+# (75) instead of a confusing one -- this line is what stops that from
+# being a retry loop.
+# BOTH chtcgpu5000 boxes advertise staging but do not mount it: a job
+# landing there dies at "FATAL: /staging is not mounted". dbrundage was
+# found first; zliu-chtcgpu5000 hit the v6 smoke train (job 9710296,
+# 2026-08-27) the same way. The guard in the .sh exits in seconds, but
+# nothing requeues the job, so it must not be scheduled there at all.
+requirements = (Machine != "dbrundage-chtcgpu5000.chtc.wisc.edu") && \
+               (Machine != "zliu-chtcgpu5000.chtc.wisc.edu")
+
+output = logs/merge_quantise_$(Cluster).out
+error  = logs/merge_quantise_$(Cluster).err
+# Stream stdout/stderr live rather than transferring them at exit -- the
+# same lesson condor/train_vlm.sub's own comment records: cluster 9697941
+# ran 45+ minutes with no readable .out because output was not streamed,
+# and the only progress signal was checkpoint files appearing on /staging.
+# This job's stage 1 (loading + merging a 16GB fp16 model on CPU) and stage
+# 2 (reloading + quantising) can each run for many minutes with no other
+# visible progress; live output turns that blind wait into a monitorable
+# one.
+stream_output   = True
+stream_error    = True
+log    = logs/merge_quantise_$(Cluster).log
+
+# 5, matching condor/train_vlm.sub/condor/train_variant.sub: the
+# staging-mount guard in condor/merge_quantise.sh exits 75 immediately on a
+# node where +WantStagingMount did not take effect, which is a
+# node-specific fault a retry genuinely fixes.
+max_retries = 5
+
+queue 1

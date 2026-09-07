@@ -1,0 +1,88 @@
+# Runs scripts/variant_sample_report.py -- the first time the trained
+# Large-vs-Mega needle-driver head (surgvu.variant.VariantHead) is pointed at
+# the actual 11 graded public-sample clips rather than its own held-out
+# corpus validation pool -- inside surgvu26-train.sif.
+#
+# THE QUESTION THIS ANSWERS. case126 ("Was a LARGE needle driver used in
+# this clip?", gold Yes, we currently answer No) and case132 ("Was a LARGE
+# needle driver used during the surgery?", gold No, we currently answer Yes)
+# both have a needle driver visibly present per the detector -- only the
+# size family separates their gold answers. This job is the empirical check
+# of whether the just-trained head (val_accuracy 0.9011 at val_coverage
+# 0.9990 on 30 held-out corpus cases) actually tells case126 and case132
+# apart on the real graded clips, and reports the crop-vs-whole-frame split
+# behind every one of the 11 cases' decisions (open review finding R29).
+#
+# Modelled closely on condor/detect_sample.sub, which already handles the
+# container, the staging mount, and the scratch pip-install of yolov5's
+# missing dependencies. THIS IS A MEASUREMENT TOOL, NOT A PIPELINE CHANGE: it
+# reads baselines/shipped_candidates.json for comparison and writes its own
+# JSON; it does not touch src/, does not change any answer, and decides
+# nothing.
+#
+# Run from the repo root, after:
+#   mkdir -p logs
+#   condor_submit condor/variant_sample.sub
+
+universe                = container
+container_image         = file:///staging/n/nkalthoff/surgvu26/surgvu26-train.sif
+
+executable              = condor/variant_sample.sh
+
+# Required for two independent reasons, same as condor/detect_sample.sub:
+# reaching the .sif under /staging/n/nkalthoff, and reaching best.pt / the
+# yolov5 checkout / the 11 sample clips / the trained variant_head.pt and
+# .json under /staging/groups/bhaskar_opscribe and /staging/n/nkalthoff, which
+# the script reads by absolute --weights/--yolov5-dir/--variant-weights/
+# --variant-config rather than via transfer_input_files (HTCondor refuses to
+# transfer files directly out of /staging -- see condor/extract.sub).
++WantStagingMount       = true
+
+should_transfer_files   = YES
+when_to_transfer_output = ON_EXIT
+# pyproject.toml is intentionally not transferred, same reasoning as
+# condor/detect_sample.sub: the script puts `src` on sys.path itself.
+#
+#   src               surgvu.variant, surgvu.detect, surgvu.perceive,
+#                      surgvu.router and surgvu.sampling, plus everything
+#                      they import (models, motion, predict, preprocess,
+#                      train, frames, flow, taxonomy) -- none of that chain
+#                      reads config/ at import time
+#   scripts            variant_sample_report.py itself, plus detect_sample_
+#                      report.py (for its _video_path helper) and score_
+#                      sample.py (for load_sample_cases/load_candidates/
+#                      build_pairs) that it reuses rather than re-parsing
+#                      the sample layout by hand
+#   baselines          shipped_candidates.json, the CURRENT pipeline's 11
+#                      answers this report prints next to the head's for
+#                      comparison
+#   config/variant_labels.json   the head's full labelled corpus (152
+#                      cases), read only to classify a normalized-id overlap
+#                      with the sample cases as train-split vs held-out vs
+#                      not-in-corpus-at-all for the sanity check
+transfer_input_files    = src, scripts, baselines, config/variant_labels.json
+
+# CPU-only: both DetectMultiBackend and VariantHead's ResNet-18 load fine on
+# cpu (both default to device="cpu") and this is 11 clips of diagnostic
+# evidence-gathering, not a throughput benchmark.
+request_cpus            = 2
+request_memory          = 8GB
+# Same headroom as condor/detect_sample.sub: best.pt (14 MB), variant_head.pt
+# (a ResNet-18, ~45 MB), the yolov5 checkout (read in place from staging, not
+# transferred), and the pip --target install (pandas/matplotlib/seaborn pull
+# in a handful of transitive wheels). 11 clips decoded sequentially adds
+# negligible disk -- decode_clip never writes frames to disk, only to memory.
+request_disk            = 4GB
+
+# The per-case JSON report -- the whole point of this job, kept for diffing
+# later. Lands in the submit directory (the repo root), which is
+# `*_results.json`-gitignored; a copy worth keeping gets curated into
+# outputs/ by hand, same convention as every other validate_*.sub / score.sub
+# run in this repo.
+transfer_output_files   = variant_sample_results.json
+
+log                     = logs/variant_sample_$(Cluster).log
+error                   = logs/variant_sample_$(Cluster).err
+output                  = logs/variant_sample_$(Cluster).out
+
+queue 1

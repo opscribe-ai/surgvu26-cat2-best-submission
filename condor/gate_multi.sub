@@ -1,0 +1,26 @@
+# Waits for the multi-burst pool to settle. The gate node of condor/v4.dag.
+#
+# Tiny on purpose: it sleeps and counts files, so it must never compete with
+# the extraction jobs it is waiting for.
+
+universe   = vanilla
+executable = condor/gate_multi.sh
+arguments  = "$(min_shards) $(stable_checks) $(sleep_seconds)"
+
++WantStagingMount = true
+
+request_cpus   = 1
+request_memory = 1GB
+request_disk   = 1GB
+
+output = logs/gate_$(Cluster).out
+error  = logs/gate_$(Cluster).err
+log    = logs/gate_$(Cluster).log
+
+should_transfer_files   = YES
+when_to_transfer_output = ON_EXIT
+transfer_output_files   =
+
+max_retries = 3
+
+queue 1

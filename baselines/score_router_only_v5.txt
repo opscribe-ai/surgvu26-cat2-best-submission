@@ -1,0 +1,35 @@
+host: e2609  start: Wed Aug 26 14:04:07 CDT 2026
+
+================================================================
+SCORING cand_router_only.json  as 'cand_router_only.json'
+================================================================
+{
+  "case122": "No",
+  "case123": "No",
+  "case124": "Bipolar Forceps",
+  "case125": "Yes",
+  "case126": "Yes",
+  "case127": "Uterine horn",
+  "case128": "Yes",
+  "case129": "Endoscopic surgery or a laparoscopic surgery",
+  "case130": "To grasp and hold tissues or objects during the surgery.",
+  "case131": "Yes",
+  "case132": "No"
+}== cand_router_only.json ==
+case      question                           candidate                          best reference                      bert_f1
+---------------------------------------------------------------------------------------------------------------------------
+case122   Are there forceps being used here? No                                 No                                   1.0000
+case123   Is a large needle driver among th… No                                 No                                   1.0000
+case124   What type of forceps is mentioned? Bipolar Forceps                    Cadiere Forceps are the type ment…   0.2402
+case125   Is a suture required in this surg… Yes                                Yes                                  1.0000
+case126   Was a large needle driver used in… Yes                                Yes                                  1.0000
+case127   What organ is being manipulated?   Uterine horn                       Uterine horn                         1.0000
+case128   Is a needle driver involved in th… Yes                                Yes                                  1.0000
+case129   What procedure is this summary de… Endoscopic surgery or a laparosco… Endoscopic surgery or a laparosco…   1.0000
+case130   What is the purpose of using forc… To grasp and hold tissues or obje… To grasp and hold tissues or obje…   1.0000
+case131   Is tissue being cut during this c… Yes                                Yes                                  1.0000
+case132   Was a large needle driver used du… No                                 No                                   1.0000
+---------------------------------------------------------------------------------------------------------------------------
+MEAN                                                                                                                 0.9309
+score exit 0 for cand_router_only.json
+exit: 0  end: Wed Aug 26 14:33:20 CDT 2026

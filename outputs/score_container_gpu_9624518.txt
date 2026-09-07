@@ -1,0 +1,35 @@
+host: e2599  start: Mon Aug 10 22:49:40 CDT 2026
+
+================================================================
+SCORING container_gpu_candidates.json  as 'container_gpu'
+================================================================
+{
+  "case122": "No",
+  "case123": "No",
+  "case124": "Bipolar Forceps",
+  "case125": "Yes",
+  "case126": "No",
+  "case127": "Uterine horn",
+  "case128": "Yes",
+  "case129": "Endoscopic surgery or a laparoscopic surgery",
+  "case130": "To grasp and hold tissues or objects during the surgery.",
+  "case131": "Yes",
+  "case132": "Yes"
+}== container_gpu ==
+case      question                           candidate                          best reference                      bert_f1
+---------------------------------------------------------------------------------------------------------------------------
+case122   Are there forceps being used here? No                                 No                                   1.0000
+case123   Is a large needle driver among th… No                                 No                                   1.0000
+case124   What type of forceps is mentioned? Bipolar Forceps                    Cadiere Forceps are the type ment…   0.2402
+case125   Is a suture required in this surg… Yes                                Yes                                  1.0000
+case126   Was a large needle driver used in… No                                 Yes                                  0.7015
+case127   What organ is being manipulated?   Uterine horn                       Uterine horn                         1.0000
+case128   Is a needle driver involved in th… Yes                                Yes                                  1.0000
+case129   What procedure is this summary de… Endoscopic surgery or a laparosco… Endoscopic surgery or a laparosco…   1.0000
+case130   What is the purpose of using forc… To grasp and hold tissues or obje… To grasp and hold tissues or obje…   1.0000
+case131   Is tissue being cut during this c… Yes                                Yes                                  1.0000
+case132   Was a large needle driver used du… Yes                                No                                   0.7015
+---------------------------------------------------------------------------------------------------------------------------
+MEAN                                                                                                                 0.8766
+score exit 0 for container_gpu
+exit: 0  end: Mon Aug 10 22:56:08 CDT 2026

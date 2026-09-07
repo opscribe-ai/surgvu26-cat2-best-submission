@@ -1,0 +1,59 @@
+# Build a v2 perception config and run it over the 11 public sample cases.
+#
+#   condor_submit condor/validate_v2.sub \
+#       tools=tools_resnet50_long.pt task=task_resnet50_long.pt \
+#       probs=/staging/n/nkalthoff/surgvu26/v2/frame_probs_resnetlong_val.npz \
+#       label=resnetlong
+#
+# Deployment is a single T4 (sm_75) or no GPU at all; >= 7.5 keeps us off
+# cards older than the target, where a timing would be pessimistic in a way we
+# could not interpret. Correctness is what this run is for, not timing -- the
+# quotable timing comes from condor/validate_gpu.sub with the capability
+# pinned to 7.5.
+
+universe                = container
+container_image         = file:///staging/n/nkalthoff/surgvu26/surgvu26-train.sif
+
+tools                   = tools_resnet50_long.pt
+task                    = task_resnet50_long.pt
+probs                   = /staging/n/nkalthoff/surgvu26/v2/frame_probs_resnetlong_val.npz
+# $(label:...) so a command-line macro WINS. A bare assignment here overrides
+# condor_submit's own argument, which is why `label=routerv4` silently ran as
+# resnetlong.
+label                   = $(label:resnetlong)
+
+executable              = condor/validate_v2.sh
+arguments               = "$(tools) $(task) $(probs) $(label)"
+
++WantStagingMount       = true
+
+# Nodes that advertise the staging mount and do not deliver it. train.sub
+# carries the same blacklist for dbrundage-chtcgpu5000; zliu-chtcgpu5000 fails
+# the same way and cost cluster 9655757.
+requirements = (Machine != "zliu-chtcgpu5000.chtc.wisc.edu") && \
+               (Machine != "dbrundage-chtcgpu5000.chtc.wisc.edu")
+
+should_transfer_files   = YES
+when_to_transfer_output = ON_EXIT
+transfer_input_files    = src, scripts, config
+
+request_cpus            = 8
+# The deployment cap is 32GB; asking for exactly that is the point.
+request_memory          = 32GB
+request_disk            = 16GB
+request_gpus            = 1
+capability              = Capability >= 7.5
+require_gpus            = $(capability)
+
+# The built config comes home too: it is the artifact this job produces, and
+# rebuilding it outside the container is not possible without torch.
+transfer_output_files   = $(label)_candidates.json, $(label)_results.json, config/perception_$(label).json, serving_$(label).json
+
+log                     = logs/validate_v2_$(Cluster).log
+error                   = logs/validate_v2_$(Cluster).err
+output                  = logs/validate_v2_$(Cluster).out
+
+# The staging-mount guard exits 75; retries land it somewhere /staging works.
+max_retries             = 5
+
+queue 1

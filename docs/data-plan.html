@@ -1,0 +1,443 @@
+<title>SurgVU Cat 2 — Training Data Plan</title>
+
+<style>
+  :root {
+    --paper:#F4F7F8; --surface:#FFFFFF; --sunk:#EAF0F1;
+    --ink:#0F191D; --ink-2:#465A61; --ink-3:#6F848B;
+    --rule:#D2DFE2; --rule-soft:#E4EDEF;
+    --accent:#0B6E78; --accent-bg:#E0EFF0;
+    --flag:#9C4A21; --flag-bg:#F8ECE4;
+    --display:"Palatino Linotype",Palatino,"Iowan Old Style",Charter,Georgia,serif;
+    --body:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,"Cascadia Mono",Consolas,"SF Mono",Menlo,monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --paper:#0A1013; --surface:#111B1F; --sunk:#162327; --ink:#E1ECEE;
+      --ink-2:#97AAB1; --ink-3:#74888F; --rule:#21333A; --rule-soft:#1A2A30;
+      --accent:#4CBDC5; --accent-bg:#0F2E34; --flag:#DC9163; --flag-bg:#291A12; }
+  }
+  :root[data-theme="dark"] { --paper:#0A1013; --surface:#111B1F; --sunk:#162327;
+    --ink:#E1ECEE; --ink-2:#97AAB1; --ink-3:#74888F; --rule:#21333A; --rule-soft:#1A2A30;
+    --accent:#4CBDC5; --accent-bg:#0F2E34; --flag:#DC9163; --flag-bg:#291A12; }
+  :root[data-theme="light"] { --paper:#F4F7F8; --surface:#FFFFFF; --sunk:#EAF0F1;
+    --ink:#0F191D; --ink-2:#465A61; --ink-3:#6F848B; --rule:#D2DFE2; --rule-soft:#E4EDEF;
+    --accent:#0B6E78; --accent-bg:#E0EFF0; --flag:#9C4A21; --flag-bg:#F8ECE4; }
+
+  body { background:var(--paper); color:var(--ink); font-family:var(--body);
+    font-size:16.5px; line-height:1.62; -webkit-font-smoothing:antialiased; }
+  .shell { max-width:880px; margin:0 auto; padding:0 28px 120px; }
+
+  header.top { padding:72px 0 34px; border-bottom:1px solid var(--rule); margin-bottom:40px; }
+  .eyebrow { font-family:var(--mono); font-size:11.5px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--accent); margin-bottom:18px; }
+  h1 { font-family:var(--display); font-size:clamp(32px,5vw,46px); line-height:1.1;
+    font-weight:600; letter-spacing:-.015em; text-wrap:balance; margin-bottom:16px; }
+  .standfirst { font-size:18.5px; line-height:1.55; color:var(--ink-2); text-wrap:pretty; }
+
+  h2 { font-family:var(--display); font-size:27px; font-weight:600; line-height:1.2;
+    letter-spacing:-.012em; text-wrap:balance; margin:60px 0 18px; padding-bottom:12px;
+    border-bottom:1px solid var(--rule); }
+  h3 { font-family:var(--body); font-size:14px; font-weight:700; margin:32px 0 10px; }
+  h3 .marker { font-family:var(--mono); color:var(--accent); margin-right:9px; }
+
+  p { margin-bottom:15px; text-wrap:pretty; }
+  ul,ol { margin:0 0 18px 0; padding-left:22px; }
+  li { margin-bottom:8px; }
+  li::marker { color:var(--ink-3); }
+  strong { font-weight:650; } em { font-style:italic; color:var(--ink-2); }
+  code { font-family:var(--mono); font-size:.875em; background:var(--sunk);
+    padding:1.5px 5px; border-radius:2px; }
+  pre { background:var(--sunk); border:1px solid var(--rule-soft); border-radius:3px;
+    padding:16px 18px; overflow-x:auto; margin-bottom:20px; font-size:13px; line-height:1.6; }
+  pre code { background:none; padding:0; }
+
+  .scroller { overflow-x:auto; margin-bottom:22px; }
+  table { border-collapse:collapse; width:100%; min-width:480px; font-size:14.5px; }
+  th,td { text-align:left; padding:9px 16px 9px 0; border-bottom:1px solid var(--rule-soft);
+    vertical-align:top; }
+  th { font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--ink-3); font-weight:600; border-bottom-color:var(--rule); white-space:nowrap; }
+  td.num { font-family:var(--mono); font-variant-numeric:tabular-nums; white-space:nowrap; }
+  tr:last-child td { border-bottom:none; }
+  .lbl { font-family:var(--mono); font-size:13px; white-space:nowrap; }
+
+  .note { border-left:2px solid var(--accent); padding:2px 0 2px 20px; margin:0 0 22px; }
+  .note.is-risk { border-left-color:var(--flag); }
+  .note-k { display:block; font-family:var(--mono); font-size:10.5px; letter-spacing:.13em;
+    text-transform:uppercase; color:var(--accent); margin-bottom:6px; }
+  .note.is-risk .note-k { color:var(--flag); }
+  .note p:last-child { margin-bottom:0; }
+
+  .finding { background:var(--accent-bg); padding:22px 26px; margin:24px 0; }
+  .finding p { margin-bottom:0; } .finding p + p { margin-top:10px; }
+
+  .bar { font-family:var(--mono); font-size:12px; color:var(--accent); letter-spacing:-1px; }
+
+  footer { margin-top:70px; border-top:1px solid var(--rule); padding-top:22px;
+    font-family:var(--mono); font-size:12px; color:var(--ink-3); line-height:1.7; }
+  a { color:var(--accent); }
+  :focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+</style>
+
+<div class="shell">
+
+<header class="top">
+  <div class="eyebrow">SurgVU 2026 · Category 2 · Data plan</div>
+  <h1>What we need to collect, and how</h1>
+  <p class="standfirst">
+    Four trainable components — and almost all the labels already exist inside the two CSV files
+    we've had since day one. The work is not annotation. It's deriving labels from intervals,
+    extracting frames at scale, and avoiding three traps that would quietly poison the training set.
+  </p>
+</header>
+
+<h2>First: a measurement that changes the design</h2>
+
+<p>
+  The tool recogniser was specified as a <strong>constrained top-3 selection</strong> — always
+  exactly three instruments, because the da Vinci has four arms and one holds the camera. I
+  checked that against the actual label tables rather than trusting the challenge's prose.
+</p>
+
+<p>
+  Sampling ~10,800 timestamps <em>inside task segments</em> (which is where test clips come from),
+  after removing duplicate rows and part-spanning intervals:
+</p>
+
+<div class="scroller">
+<table>
+  <thead><tr><th>Instruments installed</th><th>Share</th><th></th></tr></thead>
+  <tbody>
+    <tr><td class="num">0</td><td class="num">4.3%</td><td class="bar">██</td></tr>
+    <tr><td class="num">1</td><td class="num">7.1%</td><td class="bar">████</td></tr>
+    <tr><td class="num">2</td><td class="num">6.9%</td><td class="bar">████</td></tr>
+    <tr><td class="num"><strong>3</strong></td><td class="num"><strong>78.1%</strong></td><td class="bar">██████████████████████████████████████████████</td></tr>
+    <tr><td class="num">4</td><td class="num">2.6%</td><td class="bar">█</td></tr>
+    <tr><td class="num">5+</td><td class="num">1.0%</td><td class="bar"></td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="finding">
+  <p>
+    <strong>"Exactly three" is a strong prior, not a hard constraint.</strong> It holds for 78% of
+    sampled timestamps overall, and 82% of those with at least one instrument installed.
+  </p>
+  <p>
+    So hard-constraining the output to exactly three would force a wrong answer roughly one time in
+    five. <strong>Revised: 12 independent sigmoid outputs, threshold tuned on validation, with the
+    observed cardinality distribution used as a soft prior rather than a constraint.</strong> Top-3
+    remains the tie-break when the thresholded set is ambiguous.
+  </p>
+</div>
+
+<p>
+  The 4-and-above cases are almost certainly genuine tool exchanges, where a replacement is
+  installed before the outgoing instrument is recorded as removed. The 0-tool cases are real gaps.
+  Neither is a data error; both are reasons the constraint has to be soft.
+</p>
+
+<h2>What we have, and what it costs</h2>
+
+<p>
+  Confirmed against the challenge's own download page. The corpus is the published SurgVU dataset
+  (<a href="https://arxiv.org/pdf/2501.09209">arXiv 2501.09209</a>), with Cat 2 labels added on
+  top — which also closes an open risk: the 2026 official download <em>is</em> the 2024 bucket,
+  so our labels are not stale.
+</p>
+
+<div class="scroller">
+<table>
+  <thead><tr><th>File</th><th>Size</th><th>What it gives us</th></tr></thead>
+  <tbody>
+    <tr><td class="lbl">surgvu24_videos_only.zip</td><td class="num">344 GB</td><td>280 videos, 155 sessions, 60 fps, 720p — all pixel data</td></tr>
+    <tr><td class="lbl">SURGVU25_cat2_train_labels.zip</td><td class="num">557 KB</td><td><strong>The Cat 2 labels.</strong> Per case: <code>tools.csv</code> install intervals, <code>tasks.csv</code> segments with <code>matched_description</code></td></tr>
+    <tr><td class="lbl">surgvu24_labels_updated_v2.zip</td><td class="num">343 KB</td><td>The 2024 label revision. Contains duplicate rows — use the Cat 2 set as source of truth</td></tr>
+    <tr><td class="lbl">cat1_test_set_public.zip</td><td class="num">172 MB</td><td><strong>Labelled "Cat 1 Validation set" on the download page</strong> — clevis bounding boxes. Relevant to the detector, see below</td></tr>
+    <tr><td class="lbl">SurgToolLoc 2022</td><td class="num">external</td><td>~24,600 30-second clips with tool presence. Public, and the rules explicitly permit prior-challenge data</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>The four components — and why it's really three</h2>
+
+<div class="scroller">
+<table>
+  <thead><tr><th>Component</th><th>Where labels come from</th><th>Annotation needed</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="lbl">Tool recogniser</td>
+      <td>Derived from <code>tools.csv</code> install intervals — free</td>
+      <td class="num">none</td>
+    </tr>
+    <tr>
+      <td class="lbl">Task classifier</td>
+      <td>Derived from <code>tasks.csv</code> segments — free</td>
+      <td class="num">none</td>
+    </tr>
+    <tr>
+      <td class="lbl">Action recogniser</td>
+      <td>Derived from the 21 <code>matched_description</code> strings, mapped to action tags — weak</td>
+      <td class="num">~1 hour of mapping</td>
+    </tr>
+    <tr>
+      <td class="lbl">Detector</td>
+      <td>Off the shelf first; boxes exist in the Cat 1 validation set if needed</td>
+      <td class="num">defer</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="note">
+  <span class="note-k">On the detector — my recommendation changed</span>
+  <p>
+    I had assumed there were no bounding boxes available and that training a detector meant solving
+    Category 1's weak-supervision problem from scratch. The download page labels
+    <code>cat1_test_set_public.zip</code> as a <strong>validation</strong> set, and it carries
+    clevis bounding boxes — so real boxes do exist, in-domain.
+  </p>
+  <p>
+    Even so, I'd still <strong>start with an off-the-shelf open-vocabulary detector</strong>
+    (GroundingDINO or OWLv2) and train nothing. The detector is only an arbiter: it needs to beat
+    a whole-frame classifier on occluded instruments, not to be state of the art. If measurement
+    shows it's the weak link, fine-tune on the Cat 1 validation boxes then. Training it first
+    would be the single largest time sink in the project, spent on the least certain component.
+  </p>
+</div>
+
+<p>
+  There is also a fifth trainable thing that needs no video at all: the <strong>learned router
+  gate</strong>. It trains on the synthetic Q&amp;A validation set, mapping (question type,
+  perception outputs, confidence) to a branch. Cheap, and it comes last.
+</p>
+
+<h2>The unit of training data</h2>
+
+<p>
+  Test clips are <strong>30 seconds, sampled at 1 fps</strong>. So that is the unit we train on —
+  a 30-second window, 30 frames, labelled with the instruments installed, the task, and its
+  description. Matching test conditions exactly removes a whole class of distribution mismatch,
+  and it is also what the 2025 winner did.
+</p>
+
+<p>
+  840 hours yields roughly 100,000 non-overlapping windows. We do not need all of them. Target
+  <strong>~25,000 windows, stratified</strong> by tool class and task so the rare instruments are
+  not drowned out.
+</p>
+
+<div class="note">
+  <span class="note-k">The efficiency that matters</span>
+  <p>
+    <strong>Extract the frame pool once; derive three training sets from it.</strong> The tool
+    recogniser, task classifier, and action model all want frames from the same windows — they
+    differ only in labels and in how many consecutive frames they consume. Decoding 344 GB of
+    60 fps video is the expensive step, and it should happen exactly once.
+  </p>
+</div>
+
+<p>
+  Storage: 25,000 windows × 30 frames ≈ 750,000 JPEGs. Cropped to roughly 896×675 and saved at
+  quality 85, that lands around <strong>40–50 GB</strong> — comfortable inside the 2,000 GB staging
+  allocation, alongside the 344 GB archive.
+</p>
+
+<h2>Three traps that would poison the training set</h2>
+
+<div class="note is-risk">
+  <span class="note-k">Trap 1 — the answer is printed on every training frame, and using it is banned</span>
+  <p>
+    Every <em>training</em> video carries a <strong>UI bar burned into the bottom</strong> listing the
+    instrument on each arm by commercial name, plus the endoscope angle:
+  </p>
+  <pre><code>1  MEGA NEEDLE DRIVER   2  [scope] 1x 30°   3  MEGA SUTURECUT NEEDLE DRIVER   4  SMALL GRASPING RETRACTOR</code></pre>
+  <p>
+    It is legible in all 11 Cat 2 sample clips and matches ground truth exactly. It is also
+    <strong>explicitly out of bounds</strong>: <em>"using the information available in the UI to make
+    predictions is not allowed. To enforce this, the UI will be blurred from the test set eliminating
+    this information."</em>
+  </p>
+  <p>
+    So blurring is <strong>compliance, not tuning</strong>. A model trained on unblurred frames uses
+    UI information to make predictions whether we intended it or not — and would then collapse at
+    test, where the bar is gone. Crop <strong>192 px from each side</strong> and Gaussian-blur the
+    <strong>bottom 45 px</strong> with a 51-pixel kernel, identically at training and inference.
+    <strong>Match the organizers' published example blurred frame</strong> rather than approximating
+    it, so the CNN sees the same distribution in both places.
+  </p>
+  <p>
+    This is also why the 2025 winner blurred the bar before inference, and it closes the
+    commercial-name question in the negative: the one place that information appeared is removed by
+    construction, so <em>Large</em> versus <em>Mega</em> is genuinely unrecoverable from pixels.
+  </p>
+</div>
+
+<div class="note is-risk">
+  <span class="note-k">Trap 2 — splitting by frame instead of by case</span>
+  <p>
+    Frames from the same session are near-duplicates. A random frame-level split puts near-identical
+    images in train and validation, and every number you measure becomes fiction. <strong>Split by
+    case</strong> — one canonical split file, ~124 train / 31 validation, used by every model so
+    results stay comparable.
+  </p>
+</div>
+
+<div class="note is-risk">
+  <span class="note-k">Trap 3 — the part boundary</span>
+  <p>
+    Cases are split into up to two video parts and <strong>timestamps reset at the boundary</strong>
+    (mean 1.77 parts per case). Both CSVs carry <code>*_part</code> columns for exactly this reason.
+    Ignore them and you will label frames from part 2 with part 1's tools. The tell that this is
+    already biting: naively summing task durations gives <em>negative</em> hours for
+    rectal artery/vein, because segments spanning the boundary have <code>stop_time &lt; start_time</code>.
+  </p>
+</div>
+
+<p>
+  A fourth, smaller one: <code>tasks.csv</code> in the Cat 2 label set has <strong>50% duplicate
+  rows</strong> (3,673 rows → 1,850 unique). <code>tools.csv</code> is clean by comparison
+  (7 duplicates in 8,885). Dedupe tasks before computing anything.
+</p>
+
+<h2>Class balance — the real picture</h2>
+
+<p>
+  Only the 12 test-relevant classes matter. Within those the imbalance is manageable; it is the
+  seven out-of-scope classes that look catastrophic, and we don't have to predict them.
+</p>
+
+<div class="scroller">
+<table>
+  <thead><tr><th>Class</th><th>Intervals</th><th>Hours</th><th>Ratio to top</th></tr></thead>
+  <tbody>
+    <tr><td>needle driver</td><td class="num">2,042</td><td class="num">552.8</td><td class="num">1 : 1</td></tr>
+    <tr><td>monopolar curved scissors</td><td class="num">1,369</td><td class="num">238.5</td><td class="num">1 : 1</td></tr>
+    <tr><td>clip applier</td><td class="num">895</td><td class="num">12.5</td><td class="num">1 : 2</td></tr>
+    <tr><td>bipolar forceps</td><td class="num">819</td><td class="num">243.7</td><td class="num">1 : 2</td></tr>
+    <tr><td>cadiere forceps</td><td class="num">662</td><td class="num">308.2</td><td class="num">1 : 3</td></tr>
+    <tr><td>prograsp forceps</td><td class="num">509</td><td class="num">122.2</td><td class="num">1 : 4</td></tr>
+    <tr><td>stapler</td><td class="num">381</td><td class="num">16.8</td><td class="num">1 : 5</td></tr>
+    <tr><td>vessel sealer</td><td class="num">225</td><td class="num">43.7</td><td class="num">1 : 9</td></tr>
+    <tr><td>grasping retractor</td><td class="num">217</td><td class="num">81.9</td><td class="num">1 : 9</td></tr>
+    <tr><td>permanent cautery hook/spatula</td><td class="num">174</td><td class="num">22.0</td><td class="num">1 : 12</td></tr>
+    <tr><td>force bipolar</td><td class="num">97</td><td class="num">31.6</td><td class="num">1 : 21</td></tr>
+    <tr><td>tip-up fenestrated grasper</td><td class="num">22</td><td class="num">3.1</td><td class="num">1 : 93</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>
+  Note that <em>intervals</em> and <em>hours</em> disagree sharply — clip applier appears in 895
+  intervals but only 12.5 hours, because it is installed briefly and often. Stratify by
+  <strong>interval</strong>, not by duration, or the brief-but-common instruments will be
+  under-sampled. <strong>SurgToolLoc pre-training matters most for the bottom four rows</strong>,
+  where we have little to work with.
+</p>
+
+<p>Task classes are far better behaved:</p>
+
+<div class="scroller">
+<table>
+  <thead><tr><th>Task</th><th>Segments</th><th>Hours</th></tr></thead>
+  <tbody>
+    <tr><td>suturing</td><td class="num">695</td><td class="num">57.2</td></tr>
+    <tr><td>rectal artery/vein</td><td class="num">290</td><td class="num">—</td></tr>
+    <tr><td>retraction and collision avoidance</td><td class="num">246</td><td class="num">12.4</td></tr>
+    <tr><td>uterine horn</td><td class="num">204</td><td class="num">63.3</td></tr>
+    <tr><td>suspensory ligaments</td><td class="num">190</td><td class="num">13.5</td></tr>
+    <tr><td>skills application</td><td class="num">94</td><td class="num">21.3</td></tr>
+    <tr><td>range of motion</td><td class="num">78</td><td class="num">7.5</td></tr>
+    <tr><td>other</td><td class="num">53</td><td class="num">7.6</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>How we build it, on CHTC</h2>
+
+<h3><span class="marker">1</span>Label engine — pure Python, no video, build first</h3>
+<p>
+  One function, shared by everything downstream:
+  <code>labels_at(case, part, seconds) → {installed_tools, task, description}</code>. It parses both
+  CSVs into interval trees, dedupes, respects part boundaries, and maps the 20 raw classes down to
+  the 12 that matter. Testable in isolation against the 557 KB label file we already have — no
+  video required, so it can be written and unit-tested today.
+</p>
+
+<h3><span class="marker">2</span>Frame extraction — 280 embarrassingly parallel Condor jobs</h3>
+<p>
+  One job per video file. Each pulls its video from staging, decodes once, emits the sampled
+  windows as a tar shard, writes the shard back, exits. This is the shape HTCondor is best at, and
+  it turns a multi-day serial decode into a few hours of wall clock.
+</p>
+<pre><code>for each video:
+    windows = stratified_sample(labels, n≈90 per video)
+    for w in windows:
+        frames = decode(w.start, w.start+30s, fps=1)   # 30 frames
+        frames = crop_sides(frames, 192)               # black margins
+        frames = blur_bottom(frames, 45, kernel=51)    # the overlay — never skip
+        write_shard(frames, labels_at(w))</code></pre>
+
+<h3><span class="marker">3</span>Canonical split — one file, every model</h3>
+<p>
+  <code>splits.json</code>: ~124 training cases, ~31 validation cases, chosen once and stratified so
+  rare instruments appear on both sides. Every model reads it. Never regenerate it.
+</p>
+
+<h3><span class="marker">4</span>Train, in dependency order</h3>
+<ol>
+  <li><strong>Tool recogniser</strong> — optionally SurgToolLoc-pretrained, then fine-tuned. Needed by everything else.</li>
+  <li><strong>Task classifier</strong> — same frame pool, different labels. Unlocks description retrieval, which is the single biggest scoring advantage.</li>
+  <li><strong>Action recogniser</strong> — weakest supervision, so it is gated: if it does not beat the VLM on action questions in validation, drop it and route those questions back through dense re-sampling.</li>
+  <li><strong>Detector</strong> — off the shelf, zero training, unless measurement says otherwise.</li>
+</ol>
+
+<h2>Before training anything — four checks</h2>
+
+<p>
+  These are cheap, and each one can invalidate a component. Run them the moment the first shard
+  lands.
+</p>
+
+<ol>
+  <li>
+    <strong>Eyeball 50 frames against their derived labels.</strong> Does a frame labelled
+    "monopolar curved scissors" actually show scissors? This single check validates the entire
+    time-base alignment — part handling, timestamp parsing, interval logic — and nothing downstream
+    is trustworthy until it passes.
+  </li>
+  <li>
+    <strong>Confirm the blur mask covers the overlay in every case.</strong> The 45 px figure comes
+    from the 2025 winner's code and assumes a consistent layout. Verify on a sample spanning many
+    sessions before committing 25,000 windows to it.
+  </li>
+  <li>
+    <strong>Check the cardinality distribution on extracted windows</strong> matches the 78/82%
+    figures measured above. A large deviation means the extraction is sampling somewhere the label
+    engine and I disagree about.
+  </li>
+  <li>
+    <strong>Train a deliberately tiny tool classifier on 2,000 windows.</strong> If it cannot beat
+    chance, something is wrong with the labels, not the model — and finding that out costs an hour
+    rather than a week.
+  </li>
+</ol>
+
+<div class="note is-risk">
+  <span class="note-k">The check I would not skip</span>
+  <p>
+    Number 1. Every label we use is <em>derived</em> from timestamps rather than read off a frame,
+    so a single off-by-one in part handling or timestamp parsing would silently mislabel the entire
+    corpus in a way that no loss curve would reveal — the model would simply learn the wrong thing
+    confidently.
+  </p>
+</div>
+
+<footer>
+  Measurements in this document were computed from
+  <code>SURGVU25_cat2_train_labels.zip</code> (155 cases) on 2026-08-08 ·
+  scripts in <code>scratchpad/check_labels.py</code>, <code>check2.py</code> ·
+  repo <code>surgvu26-cat2</code>
+</footer>
+
+</div>

@@ -1,0 +1,22 @@
+# Waits for a dump, then runs its fusion test. See condor/fuse_after.sh.
+universe        = container
+container_image = file:///staging/n/nkalthoff/surgvu26/surgvu26-train.sif
+executable      = condor/fuse_after.sh
+arguments       = "$(dump) $(script) $(out) $(args)"
+
++WantStagingMount = true
+transfer_input_files = src, scripts, config
+
+request_cpus   = 1
+request_memory = 8GB
+request_disk   = 4GB
+
+output = logs/fuse_$(Cluster).out
+error  = logs/fuse_$(Cluster).err
+log    = logs/fuse_$(Cluster).log
+
+should_transfer_files   = YES
+when_to_transfer_output = ON_EXIT
+transfer_output_files   = $(out)
+max_retries = 1
+queue 1

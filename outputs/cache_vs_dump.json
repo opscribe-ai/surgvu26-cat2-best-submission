@@ -1,0 +1,13 @@
+{
+  "cache": "/staging/n/nkalthoff/surgvu26/dumps/cache_task_val.npz",
+  "dump": "/staging/n/nkalthoff/surgvu26/dumps/base_residual_task.npz",
+  "arm": "bursts",
+  "head": "task",
+  "cache_windows": 4635,
+  "dump_windows": 4635,
+  "cases_aligned": true,
+  "max_abs_diff": 1.7816903513656612e-07,
+  "mean_abs_diff": 4.763704222822533e-09,
+  "argmax_agreement": 1.0,
+  "verdict": "MATCH"
+}

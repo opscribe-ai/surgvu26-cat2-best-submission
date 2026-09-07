@@ -1,0 +1,49 @@
+# Measure v6.1's VLM memory on a SIMULATED T4. See condor/probe_t4_memory.py.
+#
+#   condor_submit condor/probe_t4_memory.sub
+#
+universe   = vanilla
+executable = condor/probe_t4_memory.sh
+
++WantStagingMount = true
+transfer_input_files = condor
+
+request_cpus   = $(cpus:4)
+request_memory = $(memory:24GB)
+request_disk   = $(disk:20GB)
+request_gpus   = 1
+
+# CAPABILITY PINNED TO 7.5 EXACTLY, AND THAT IS THE WHOLE EXPERIMENT.
+#
+# This project has already been burned once by a GPU that was merely
+# SUFFICIENT rather than REPRESENTATIVE: job 9716130 validated the NF4 fix on
+# an H200 (sm_90, 139.8 GiB), reported peak 6.89 GiB and zero OOM, and the
+# same image then OOM'd on every graded case on the grader's T4.
+#
+# The difference is not size, it is the ARCHITECTURE. PyTorch's flash SDPA
+# backend requires sm_80+; on sm_75 it falls back to a kernel that
+# materialises the full [heads x tokens x tokens] score matrix -- 3.0 GiB at
+# 5184 tokens, held twice. Job 9716098, on a Quadro RTX 8000 (sm_75, 47.3
+# GiB), peaked at 16.5 GiB running the identical image. That is the number a
+# T4's 14.56 GiB has to hold, and only an sm_75 card can produce it.
+#
+# So an UPPER bound as well as a lower one. `Capability >= 7.5` alone would
+# happily hand us another sm_90 card and we would learn nothing, twice.
+#
+# GlobalMemoryMb >= 16000 because the probe SIMULATES a T4 by capping the
+# allocator downward: we need a card at least as large as the one we are
+# pretending to be. The pool's 11 GiB 2080 Tis are sm_75 but cannot be capped
+# UP to 14.56 GiB, so they are excluded rather than silently measured.
+require_gpus = (GlobalMemoryMb >= $(gpumem:20000))
+
+output = logs/probet4_$(Cluster).out
+error  = logs/probet4_$(Cluster).err
+log    = logs/probet4_$(Cluster).log
+stream_output = True
+stream_error  = True
+
+should_transfer_files   = YES
+when_to_transfer_output = ON_EXIT
+transfer_output_files   = results.jsonl
+
+queue 1

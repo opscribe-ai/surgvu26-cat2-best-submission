@@ -1,0 +1,39 @@
+# Validates the submission entrypoint on a CPU-only execute node.
+#
+#   condor_submit condor/validate_cpu.sub
+#
+# This is the arm that decides whether we ship at decode.frames=16. The
+# deployment instance may legitimately be No GPU, and a login-node CPU run
+# previously spent 186s of the 600s budget with 16 frames. Three passes run
+# here: 16 frames, 8 frames, and 16 frames pinned to 4 threads (the number of
+# vCPUs the grader provides is not documented, so an 8-thread measurement on
+# its own would be optimistic).
+#
+# request_gpus is deliberately absent AND --device cpu is passed explicitly:
+# landing on a GPU node by chance would silently produce a GPU measurement.
+
+universe                = container
+container_image         = file:///staging/n/nkalthoff/surgvu26/surgvu26-train.sif
+
+executable              = condor/validate.sh
+arguments               = "cpu"
+
++WantStagingMount       = true
+
+should_transfer_files   = YES
+when_to_transfer_output = ON_EXIT
+transfer_input_files    = src, scripts, config
+
+request_cpus            = 8
+request_memory          = 32GB
+request_disk            = 16GB
+
+transfer_output_files   = cpu_f16_tall_candidates.json, cpu_f16_tall_results.json, cpu_f8_tall_candidates.json, cpu_f8_tall_results.json, cpu_f16_t4_candidates.json, cpu_f16_t4_results.json
+
+log                     = logs/validate_cpu_$(Cluster).log
+error                   = logs/validate_cpu_$(Cluster).err
+output                  = logs/validate_cpu_$(Cluster).out
+
+max_retries             = 2
+
+queue 1

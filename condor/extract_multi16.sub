@@ -1,0 +1,119 @@
+# One job per (case, part), producing the SIXTEEN-BURST shard pool.
+#
+#   condor_submit condor/extract_multi.sub
+#
+# Reuses condor/cases.txt, so the (case, part, video) triples are exactly the
+# ones the sparse pool was built from. That is deliberate: the dense shards
+# have to hold the same windows as their sparse twins, or a 3D-vs-2D result
+# measures the dataset instead of the architecture.
+#
+# Videos are NOT transferred -- HTCondor refuses to transfer out of /staging
+# at all, and shipping a 2 GB video per job would be pointless when the
+# staging mount makes it directly readable. +WantStagingMount gives the job
+# that mount; the script reads the video and writes the shard in place.
+
+universe                = container
+container_image         = file:///staging/n/nkalthoff/surgvu26/surgvu26-extract.sif
+
+executable              = condor/extract_multi16.sh
+arguments               = $(case_id) $(part) $(video)
+
++WantStagingMount       = true
+
+should_transfer_files   = YES
+when_to_transfer_output = ON_EXIT
+# EMPTY ON PURPOSE, the same guard condor/train.sub carries. Shards are written
+# straight to /staging, so there is nothing to bring home -- and with this
+# unset, ON_EXIT sends back everything the job touched in scratch, which means
+# the __pycache__ trees Python creates inside the transferred src/ and scripts/
+# directories land in the repo root. Harmless here only because .gitignore
+# catches them; it is the same mechanism that once copied a 3.2 GB .sif in.
+transfer_output_files   =
+# `config` as a DIRECTORY: HTCondor flattens transferred file paths, so
+# config/tool_frequency.json would arrive as bare tool_frequency.json and the
+# script's path check would fail (it did, on the sparse run's first attempt).
+transfer_input_files    = src, scripts, config
+
+# 1 CPU and 4 GB, NOT the dense run's 2 and 8. This is a throughput fix, not
+# a guess: counted against the live pool, 8GB/2cpu matches 735 slots and
+# 4GB/1cpu matches 14,596 -- twenty times as many. The first submission of
+# these 281 jobs sat with "2 slots match and are willing to run your job" and
+# nothing started for ten minutes.
+#
+# THE HEADROOM ESTIMATE BELOW WAS WRITTEN FOR THE 32-FRAME POOL AND IS WRONG
+# FOR THIS ONE. Kept, corrected rather than deleted, because the reasoning is
+# still how to think about it:
+#
+#   "the sparse run peaked at 2,887 MB on a full 160-window job, and this
+#    holds 32 frames per window against 30 ... 1.2 GB of margin"
+#
+# At 48 frames a 160-window case holds 160 x 48 x 512x512x3 = 6.04 GB of RAW
+# frames before write_shard encodes any of them, and five such cases measured
+# 9,766 MB on cluster 9659991. So 4 GB is right for the overwhelming majority
+# and the big cases need ~12-16 GB, not 8. condor/release_held.sh now
+# escalates from the MEASURED usage rather than to a flat 8 GB -- releasing
+# repeatedly at a value the job has already died at is a livelock, and it cost
+# proc 6 six restarts before anyone looked.
+request_cpus            = 1
+request_disk            = 8GB
+
+log                     = logs/multi16_$(case_id)_part$(part).log
+error                   = logs/multi16_$(case_id)_part$(part).err
+output                  = logs/multi16_$(case_id)_part$(part).out
+
+# 46 of the 281 pairs legitimately hold no task segments and exit non-zero by
+# design, so do not retry blindly. The staging-mount guard exits 75 and IS
+# worth retrying, which is what the retry budget is for.
+#
+# AND THIS IS NOW ENFORCED, not merely intended. The first run of this pool
+# said exactly the sentence above and then set max_retries=5 with nothing to
+# discriminate on, which is the definition of retrying blindly: measured on
+# cluster 9659991, 38 pairs that legitimately hold no windows each ran SIX
+# times for 228 starts, of which 190 were re-running a job whose answer cannot
+# change. retry_until stops the moment the exit code is one the retry cannot
+# help -- 0 (done) or 1 (nothing to do here, or a deterministic bad input) --
+# and keeps retrying 75, OOM kills and signals, which are the faults a
+# different node genuinely fixes.
+retry_until = (ExitCode =?= 0 || ExitCode =?= 1)
+# SELF-HEALING MEMORY, so the next run of this pool does not need a human
+# releasing jobs by hand. The 4 GB request is right for the overwhelming
+# majority -- counted live, the pool holds 14,604 slots at >=4 GB and only
+# 1,602 at >=6 GB, so the cliff is between those two and asking for 6 costs
+# nine tenths of the cluster. The cases that cross it are the big ones: a
+# 160-window case holds 160 x 32 frames of 512x512x3 in memory before
+# write_shard encodes any of them, which is about 4.0 GB.
+#
+# HoldReasonCode 34 is "exceeded cgroup memory". Escalating on retry gives
+# those cases 8 GB on their second attempt while everything else keeps the
+# wide match. JobRunCount bounds it: a job that dies twice is a bug, not a
+# big case, and should stay held where it can be seen.
+# A PLAIN INTEGER, and the reason is worth keeping. The first attempt at
+# self-healing was
+#
+#     request_memory = ifthenelse(JobRunCount > 0, 8192, 4096)
+#
+# and it took the cluster from 28 running to 5. JobRunCount is UNDEFINED at
+# match time, so the ifthenelse evaluated to undefined, so
+# `TARGET.Memory >= RequestMemory` was undefined, so it matched ZERO slots --
+# condor_q -better-analyze reported "387 slots are rejected by your job's
+# requirements" with no other diagnosis. An expression that references an
+# attribute the machine-side context does not carry does not fail loudly; it
+# silently matches nothing.
+#
+# Escalation therefore lives in condor/release_held.sh, which edits the
+# memory on a HELD job -- where JobRunCount and MemoryUsage are both defined --
+# and releases it. Less elegant, but it works, and it fails visibly.
+request_memory   = $(memory:4096)
+
+# 5, not 2. The staging mount is advertised by nodes that do not deliver it --
+# the smoke test hit e2548 this way -- and condor/extract_multi16.sh exits 75
+# in seconds when that happens, so a retry costs nothing and lands elsewhere.
+# Across 281 jobs, two retries is not enough headroom to walk past two bad
+# nodes in a row; train.sub carries 5 for exactly this reason.
+max_retries             = 5
+
+# A MACRO WITH A DEFAULT, not a bare path -- the same lesson as `label`. A
+# hardcoded list here cannot be narrowed from the command line, so re-running
+# the eight pairs that a bad staging mount cost us would mean re-running all
+# 281. condor/rescue_missing.sh passes cases=condor/generated/cases_rescue.txt.
+queue case_id, part, video from $(cases:condor/cases.txt)

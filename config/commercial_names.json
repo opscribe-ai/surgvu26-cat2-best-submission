@@ -1,0 +1,222 @@
+{
+  "bipolar forceps": {
+    "total": 668,
+    "variants": [
+      {
+        "count": 485,
+        "name": "Maryland Bipolar Forceps",
+        "share": 0.726
+      },
+      {
+        "count": 169,
+        "name": "Fenestrated Bipolar Forceps",
+        "share": 0.253
+      },
+      {
+        "count": 10,
+        "name": "Long Bipolar Grasper",
+        "share": 0.015
+      },
+      {
+        "count": 2,
+        "name": "Micro Bipolar Forceps",
+        "share": 0.003
+      },
+      {
+        "count": 1,
+        "name": "Fenestrated Bipolar, Single Site",
+        "share": 0.0015
+      },
+      {
+        "count": 1,
+        "name": "Maryland Bipolar, Single Site",
+        "share": 0.0015
+      }
+    ]
+  },
+  "cadiere forceps": {
+    "total": 545,
+    "variants": [
+      {
+        "count": 545,
+        "name": "Cadiere Forceps",
+        "share": 1.0
+      }
+    ]
+  },
+  "clip applier": {
+    "total": 724,
+    "variants": [
+      {
+        "count": 686,
+        "name": "Large Clip Applier",
+        "share": 0.9475
+      },
+      {
+        "count": 25,
+        "name": "Small Clip Applier",
+        "share": 0.0345
+      },
+      {
+        "count": 13,
+        "name": "Medium-Large Clip, Single Site",
+        "share": 0.018
+      }
+    ]
+  },
+  "force bipolar": {
+    "total": 70,
+    "variants": [
+      {
+        "count": 70,
+        "name": "Force Bipolar",
+        "share": 1.0
+      }
+    ]
+  },
+  "grasping retractor": {
+    "total": 172,
+    "variants": [
+      {
+        "count": 172,
+        "name": "Small Grasping Retractor",
+        "share": 1.0
+      }
+    ]
+  },
+  "monopolar curved scissors": {
+    "total": 1097,
+    "variants": [
+      {
+        "count": 1097,
+        "name": "Monopolar Curved Scissors",
+        "share": 1.0
+      }
+    ]
+  },
+  "needle driver": {
+    "total": 1629,
+    "variants": [
+      {
+        "count": 624,
+        "name": "Large SutureCut Needle Driver",
+        "share": 0.3831
+      },
+      {
+        "count": 398,
+        "name": "Large Needle Driver",
+        "share": 0.2443
+      },
+      {
+        "count": 318,
+        "name": "Mega Needle Driver",
+        "share": 0.1952
+      },
+      {
+        "count": 285,
+        "name": "Mega SutureCut Needle Driver",
+        "share": 0.175
+      },
+      {
+        "count": 2,
+        "name": "Mega Suturecut Needle Driver",
+        "share": 0.0012
+      },
+      {
+        "count": 1,
+        "name": "DeBakey Forceps",
+        "share": 0.0006
+      },
+      {
+        "count": 1,
+        "name": "Wristed Needle Driver SingleSite",
+        "share": 0.0006
+      }
+    ]
+  },
+  "permanent cautery hook/spatula": {
+    "total": 130,
+    "variants": [
+      {
+        "count": 121,
+        "name": "Permanent Cautery Hook",
+        "share": 0.9308
+      },
+      {
+        "count": 6,
+        "name": "Cautery Hook, Single Site",
+        "share": 0.0462
+      },
+      {
+        "count": 3,
+        "name": "Permanent Cautery Spatula",
+        "share": 0.0231
+      }
+    ]
+  },
+  "prograsp forceps": {
+    "total": 404,
+    "variants": [
+      {
+        "count": 404,
+        "name": "ProGrasp Forceps",
+        "share": 1.0
+      }
+    ]
+  },
+  "stapler": {
+    "total": 329,
+    "variants": [
+      {
+        "count": 220,
+        "name": "SureForm Stapler 60",
+        "share": 0.6687
+      },
+      {
+        "count": 84,
+        "name": "Stapler 45",
+        "share": 0.2553
+      },
+      {
+        "count": 18,
+        "name": "SureForm Stapler 45",
+        "share": 0.0547
+      },
+      {
+        "count": 4,
+        "name": "Stapler 30 Curved-Tip",
+        "share": 0.0122
+      },
+      {
+        "count": 3,
+        "name": "Stapler 45 Curved-Tip",
+        "share": 0.0091
+      }
+    ]
+  },
+  "tip-up fenestrated grasper": {
+    "total": 21,
+    "variants": [
+      {
+        "count": 21,
+        "name": "Tip-Up Fenestrated Grasper",
+        "share": 1.0
+      }
+    ]
+  },
+  "vessel sealer": {
+    "total": 179,
+    "variants": [
+      {
+        "count": 178,
+        "name": "Vessel Sealer Extend",
+        "share": 0.9944
+      },
+      {
+        "count": 1,
+        "name": "Vessel Sealer",
+        "share": 0.0056
+      }
+    ]
+  }
+}

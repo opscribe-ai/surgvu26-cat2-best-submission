@@ -1,0 +1,46 @@
+SurgVU 2026 Category 2 — OpScribe-AI
+Copyright 2026 OpScribe-AI
+
+This product includes software developed by OpScribe-AI, licensed under the
+Apache License, Version 2.0 (see LICENSE).
+
+--------------------------------------------------------------------------------
+THIRD-PARTY COMPONENTS
+--------------------------------------------------------------------------------
+
+The evaluation container is built on, and redistributes, the following. Each is
+used under its own licence; this file is an attribution notice, not a grant.
+
+Base image
+  pytorch/pytorch:2.5.1-cuda12.1-cudnn9-runtime
+  PyTorch — BSD-3-Clause.
+  Includes NVIDIA CUDA and cuDNN redistributable runtime libraries, used under
+  the NVIDIA CUDA Toolkit End User Licence Agreement and the cuDNN Supplement.
+  https://docs.nvidia.com/cuda/eula/
+
+Python packages (pinned in containers/surgvu26-submission.def)
+  transformers 4.57.6            Hugging Face — Apache-2.0
+  accelerate 1.14.0              Hugging Face — Apache-2.0
+  bitsandbytes 0.50.1            MIT
+  opencv-python-headless 4.11.0  Apache-2.0.
+                                 The distributed wheels bundle FFmpeg binaries,
+                                 which are licensed under the LGPL v2.1 or later.
+                                 FFmpeg source: https://ffmpeg.org/
+  pandas 2.2.3                   BSD-3-Clause
+  matplotlib 3.9.2               Matplotlib licence (BSD-compatible)
+  seaborn 0.13.2                 BSD-3-Clause
+
+Model weights
+  Qwen/Qwen2.5-VL-7B-Instruct
+    Alibaba Cloud — Apache-2.0.
+  nvidia/Qwen2.5-VL-7B-Surg-CholecT50
+    NVIDIA. Surgical-domain continuation of the above; consult the model card
+    for its licence and any research-only restriction before redistribution.
+  torchvision ImageNet classification weights
+    Used as initialisation for the two ResNet-50 perception heads.
+    BSD-3-Clause.
+
+Data
+  The SurgVU 2026 dataset is provided by the challenge organizers and Intuitive
+  Surgical under their own data agreement. It is NOT redistributed in this
+  repository, and no gold reference answers are included here.

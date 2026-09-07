@@ -1,0 +1,74 @@
+# Runs the pytest suite inside surgvu26-train.sif.
+#
+# There is no torch on the login node, and surgvu.dataset imports
+# torch.utils.data, so the suite cannot be collected outside the training
+# container once tests/test_dataset.py exists. This is the reusable runner
+# for that suite and for every later task's tests, not just Task 2's.
+#
+# Run from the repo root, after:
+#   mkdir -p logs
+#   condor_submit condor/pytest.sub
+
+universe                = container
+container_image         = file:///staging/n/nkalthoff/surgvu26/surgvu26-train.sif
+
+executable              = condor/pytest.sh
+
+# Required to reach the .sif in /staging/n/nkalthoff — same as every other
+# container_image=file:///staging/... job in this repo (gpu_check.sub,
+# gpu_check_any.sub). This is personal staging holding the container image,
+# not the shared /staging/groups/bhaskar_opscribe corpus.
++WantStagingMount       = true
+
+should_transfer_files   = YES
+when_to_transfer_output = ON_EXIT
+# pyproject.toml is intentionally NOT transferred: conftest.py (also
+# transferred) puts `src` on sys.path itself, so nothing here depends on
+# pytest's ini-file `pythonpath`/`testpaths` options being present.
+#
+# EVERYTHING ELSE HERE IS TRANSFERRED BECAUSE A TEST READS IT, and a file a
+# test reads that is not in this list does not fail loudly -- it fails as an
+# ordinary red test that somebody then explains away. That happened: 11
+# `tests/test_verify_checkpoints.py` failures were attributed to "the
+# concurrent session's file" (commit 5b45f1e) when the real cause was that
+# `containers/` was never transferred, so every build-path parity test was
+# reading a directory that did not exist on the execute node.
+#
+#   containers               the Dockerfile, the two .def files and
+#                            build_submission.sh, read by the build-gate
+#                            parity tests
+#   shipped_candidates.json  the 11 answers the answer-FORM experiment uses as
+#                            its baseline arm
+#   outputs/                 perception_serving.json, the serving perception
+#                            records the fallback arms are composed from
+# `baselines` ADDED: tests/test_arbiter.py loads
+# baselines/echo_question_candidates.json at MODULE level, so without it the
+# whole file fails to COLLECT -- pytest reports one error and silently
+# deselects that file's tests while the other 1,482 pass, which reads as a
+# green-ish run rather than as missing coverage of the arbiter.
+transfer_input_files    = src, scripts, tests, config, containers, outputs, baselines, conftest.py, shipped_candidates.json
+
+# No GPU needed: this suite exercises data plumbing (dataset, extract,
+# sampling, taxonomy, ...), never a model forward pass.
+request_cpus            = 2
+request_memory          = 8GB
+# pytest is installed into scratch (see condor/pytest.sh) and the transferred
+# inputs are all small source/config, so 4GB leaves ample headroom.
+# 4GB was the original request and the suite outgrew it: cluster 9686435 used
+# 4,095,696 KB of 4,194,304 KB and 12 tests ERRORed plus 4 FAILED, all in
+# test_temporal.py and test_train.py -- both of which write checkpoints to
+# scratch. The transferred inputs are only ~2.7MB; the space goes to the
+# scratch pip install and to what the tests themselves write. This looked
+# exactly like a code regression (the previous run was 1026 passed, exit 0)
+# and was not one.
+request_disk            = 16GB
+
+# Nothing produced here is worth copying back into the repo; the suite's
+# result is in the log, not in a file.
+transfer_output_files   =
+
+log                     = logs/pytest_$(Cluster).log
+error                   = logs/pytest_$(Cluster).err
+output                  = logs/pytest_$(Cluster).out
+
+queue 1

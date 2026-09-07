@@ -1,0 +1,44 @@
+# Does the decision VLM pick the better answer? See scripts/judge_probe.py.
+# See scripts/judge_probe.py for what it measures and why the
+# training loss cannot answer it.
+#
+#   condor_submit condor/evidence_probe.sub \
+#       args=""
+#
+# Runs base + LoRA directly, so it can run minutes after training finishes
+# rather than waiting on a merge+quantise cycle.
+universe        = container
+container_image = file:///staging/n/nkalthoff/surgvu26/surgvu26-train.sif
+executable   = condor/train_vlm.sh
+arguments    = "scripts/judge_probe.py $(args)"
+
++WantStagingMount = true
+should_transfer_files   = YES
+when_to_transfer_output = ON_EXIT
+transfer_input_files    = src, scripts, config
+transfer_output_files   =
+
+request_cpus    = 8
+request_memory  = $(memory:48GB)
+request_disk    = $(disk:30GB)
+request_gpus    = 1
+# >= 7.5: the adapter loads over a 4-bit base, and bitsandbytes has no 4-bit
+# path below sm_75. This pool has P100s (6.0) and 1080 Tis (6.1) that would
+# fail for a reason unrelated to the model.
+require_gpus    = (GlobalMemoryMb >= $(gpumem:24000)) && (Capability >= 7.5)
+# BOTH chtcgpu5000 boxes advertise staging but do not mount it: a job
+# landing there dies at "FATAL: /staging is not mounted". dbrundage was
+# found first; zliu-chtcgpu5000 hit the v6 smoke train (job 9710296,
+# 2026-08-27) the same way. The guard in the .sh exits in seconds, but
+# nothing requeues the job, so it must not be scheduled there at all.
+requirements = (Machine != "dbrundage-chtcgpu5000.chtc.wisc.edu") && \
+               (Machine != "zliu-chtcgpu5000.chtc.wisc.edu")
+
+output = logs/judgeprobe_$(Cluster).out
+error  = logs/judgeprobe_$(Cluster).err
+log    = logs/judgeprobe_$(Cluster).log
+stream_output = True
+stream_error  = True
+
+max_retries = 3
+queue 1

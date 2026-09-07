@@ -1,0 +1,210 @@
+{
+  "label": "cpu_f8_tall",
+  "device": "cpu",
+  "frames": 8,
+  "rows": [
+    {
+      "case_id": "case122",
+      "answer": "No",
+      "problem": null,
+      "returncode": 0,
+      "wall_seconds": 11.921633958816528,
+      "timings": {
+        "question": 0.0,
+        "decode": 0.44,
+        "load_tools": 0.56,
+        "load_task": 0.66,
+        "tools_infer": 1.56,
+        "task_infer": 1.43,
+        "route": 0.0,
+        "total": 4.65
+      },
+      "stderr_tail": "[surgvu] torch=2.5.1+cu121 cuda_available=False input=validate_work/case122/input output=validate_work/case122/output\n[surgvu] question: 'Are there forceps being used here?'\n[surgvu] decoded 8 frames at 512x512\n[surgvu] device=cpu\n[surgvu] tools_present=['needle driver'] task_top=suturing\n[surgvu] timings question=0.00s decode=0.44s load_tools=0.56s load_task=0.66s tools_infer=1.56s task_infer=1.43s route=0.00s total=4.65s\n[surgvu] wrote validate_work/case122/output/visual-context-response.json -> \"No\""
+    },
+    {
+      "case_id": "case123",
+      "answer": "No",
+      "problem": null,
+      "returncode": 0,
+      "wall_seconds": 12.024357795715332,
+      "timings": {
+        "question": 0.0,
+        "decode": 0.45,
+        "load_tools": 0.83,
+        "load_task": 1.05,
+        "tools_infer": 1.41,
+        "task_infer": 1.53,
+        "route": 0.0,
+        "total": 5.27
+      },
+      "stderr_tail": "[surgvu] torch=2.5.1+cu121 cuda_available=False input=validate_work/case123/input output=validate_work/case123/output\n[surgvu] question: 'Is a large needle driver among the listed tools?'\n[surgvu] decoded 8 frames at 512x512\n[surgvu] device=cpu\n[surgvu] tools_present=['bipolar forceps', 'grasping retractor', 'monopolar curved scissors'] task_top=suspensory ligaments\n[surgvu] timings question=0.00s decode=0.45s load_tools=0.83s load_task=1.05s tools_infer=1.41s task_infer=1.53s route=0.00s total=5.27s\n[surgvu] wrote validate_work/case123/output/visual-context-response.json -> \"No\""
+    },
+    {
+      "case_id": "case124",
+      "answer": "Bipolar Forceps",
+      "problem": null,
+      "returncode": 0,
+      "wall_seconds": 12.688541650772095,
+      "timings": {
+        "question": 0.0,
+        "decode": 0.5,
+        "load_tools": 0.84,
+        "load_task": 1.05,
+        "tools_infer": 1.29,
+        "task_infer": 1.44,
+        "route": 0.0,
+        "total": 5.13
+      },
+      "stderr_tail": "[surgvu] torch=2.5.1+cu121 cuda_available=False input=validate_work/case124/input output=validate_work/case124/output\n[surgvu] question: 'What type of forceps is mentioned?'\n[surgvu] decoded 8 frames at 512x512\n[surgvu] device=cpu\n[surgvu] tools_present=['bipolar forceps', 'monopolar curved scissors'] task_top=rectal artery/vein\n[surgvu] timings question=0.00s decode=0.50s load_tools=0.84s load_task=1.05s tools_infer=1.29s task_infer=1.44s route=0.00s total=5.13s\n[surgvu] wrote validate_work/case124/output/visual-context-response.json -> \"Bipolar Forceps\""
+    },
+    {
+      "case_id": "case125",
+      "answer": "Yes",
+      "problem": null,
+      "returncode": 0,
+      "wall_seconds": 11.832963943481445,
+      "timings": {
+        "question": 0.0,
+        "decode": 0.46,
+        "load_tools": 0.79,
+        "load_task": 1.03,
+        "tools_infer": 1.5,
+        "task_infer": 1.42,
+        "route": 0.0,
+        "total": 5.2
+      },
+      "stderr_tail": "[surgvu] torch=2.5.1+cu121 cuda_available=False input=validate_work/case125/input output=validate_work/case125/output\n[surgvu] question: 'Is a suture required in this surgical step?'\n[surgvu] decoded 8 frames at 512x512\n[surgvu] device=cpu\n[surgvu] tools_present=['cadiere forceps', 'needle driver'] task_top=suturing\n[surgvu] timings question=0.00s decode=0.46s load_tools=0.79s load_task=1.03s tools_infer=1.50s task_infer=1.42s route=0.00s total=5.20s\n[surgvu] wrote validate_work/case125/output/visual-context-response.json -> \"Yes\""
+    },
+    {
+      "case_id": "case126",
+      "answer": "No",
+      "problem": null,
+      "returncode": 0,
+      "wall_seconds": 11.799964666366577,
+      "timings": {
+        "question": 0.0,
+        "decode": 0.49,
+        "load_tools": 0.78,
+        "load_task": 0.98,
+        "tools_infer": 1.37,
+        "task_infer": 1.28,
+        "route": 0.0,
+        "total": 4.92
+      },
+      "stderr_tail": "[surgvu] torch=2.5.1+cu121 cuda_available=False input=validate_work/case126/input output=validate_work/case126/output\n[surgvu] question: 'Was a large needle driver used in this clip?'\n[surgvu] decoded 8 frames at 512x512\n[surgvu] device=cpu\n[surgvu] tools_present=['bipolar forceps', 'monopolar curved scissors'] task_top=uterine horn\n[surgvu] timings question=0.00s decode=0.49s load_tools=0.78s load_task=0.98s tools_infer=1.37s task_infer=1.28s route=0.00s total=4.92s\n[surgvu] wrote validate_work/case126/output/visual-context-response.json -> \"No\""
+    },
+    {
+      "case_id": "case127",
+      "answer": "Uterine horn",
+      "problem": null,
+      "returncode": 0,
+      "wall_seconds": 11.283897638320923,
+      "timings": {
+        "question": 0.0,
+        "decode": 0.47,
+        "load_tools": 0.75,
+        "load_task": 0.72,
+        "tools_infer": 1.43,
+        "task_infer": 1.35,
+        "route": 0.0,
+        "total": 4.73
+      },
+      "stderr_tail": "[surgvu] torch=2.5.1+cu121 cuda_available=False input=validate_work/case127/input output=validate_work/case127/output\n[surgvu] question: 'What organ is being manipulated?'\n[surgvu] decoded 8 frames at 512x512\n[surgvu] device=cpu\n[surgvu] tools_present=['bipolar forceps', 'cadiere forceps'] task_top=uterine horn\n[surgvu] timings question=0.00s decode=0.47s load_tools=0.75s load_task=0.72s tools_infer=1.43s task_infer=1.35s route=0.00s total=4.73s\n[surgvu] wrote validate_work/case127/output/visual-context-response.json -> \"Uterine horn\""
+    },
+    {
+      "case_id": "case128",
+      "answer": "Yes",
+      "problem": null,
+      "returncode": 0,
+      "wall_seconds": 11.263240337371826,
+      "timings": {
+        "question": 0.0,
+        "decode": 0.82,
+        "load_tools": 0.77,
+        "load_task": 0.95,
+        "tools_infer": 1.49,
+        "task_infer": 1.41,
+        "route": 0.0,
+        "total": 5.46
+      },
+      "stderr_tail": "[surgvu] torch=2.5.1+cu121 cuda_available=False input=validate_work/case128/input output=validate_work/case128/output\n[surgvu] question: 'Is a needle driver involved in the procedure?'\n[surgvu] decoded 8 frames at 512x512\n[surgvu] device=cpu\n[surgvu] tools_present=['needle driver'] task_top=suturing\n[surgvu] timings question=0.00s decode=0.82s load_tools=0.77s load_task=0.95s tools_infer=1.49s task_infer=1.41s route=0.00s total=5.46s\n[surgvu] wrote validate_work/case128/output/visual-context-response.json -> \"Yes\""
+    },
+    {
+      "case_id": "case129",
+      "answer": "Endoscopic surgery or a laparoscopic surgery",
+      "problem": null,
+      "returncode": 0,
+      "wall_seconds": 11.647651672363281,
+      "timings": {
+        "question": 0.0,
+        "decode": 0.43,
+        "load_tools": 0.88,
+        "load_task": 0.96,
+        "tools_infer": 1.66,
+        "task_infer": 1.37,
+        "route": 0.0,
+        "total": 5.31
+      },
+      "stderr_tail": "[surgvu] torch=2.5.1+cu121 cuda_available=False input=validate_work/case129/input output=validate_work/case129/output\n[surgvu] question: 'What procedure is this summary describing?'\n[surgvu] decoded 8 frames at 512x512\n[surgvu] device=cpu\n[surgvu] tools_present=['bipolar forceps'] task_top=rectal artery/vein\n[surgvu] timings question=0.00s decode=0.43s load_tools=0.88s load_task=0.96s tools_infer=1.66s task_infer=1.37s route=0.00s total=5.31s\n[surgvu] wrote validate_work/case129/output/visual-context-response.json -> \"Endoscopic surgery or a laparoscopic surgery\""
+    },
+    {
+      "case_id": "case130",
+      "answer": "To grasp and hold tissues or objects during the surgery.",
+      "problem": null,
+      "returncode": 0,
+      "wall_seconds": 11.312529563903809,
+      "timings": {
+        "question": 0.0,
+        "decode": 0.5,
+        "load_tools": 0.85,
+        "load_task": 1.0,
+        "tools_infer": 1.4,
+        "task_infer": 1.28,
+        "route": 0.0,
+        "total": 5.04
+      },
+      "stderr_tail": "[surgvu] torch=2.5.1+cu121 cuda_available=False input=validate_work/case130/input output=validate_work/case130/output\n[surgvu] question: 'What is the purpose of using forceps in this procedure?'\n[surgvu] decoded 8 frames at 512x512\n[surgvu] device=cpu\n[surgvu] tools_present=['needle driver', 'prograsp forceps'] task_top=retraction and collision avoidance\n[surgvu] timings question=0.00s decode=0.50s load_tools=0.85s load_task=1.00s tools_infer=1.40s task_infer=1.28s route=0.00s total=5.04s\n[surgvu] wrote validate_work/case130/output/visual-context-response.json -> \"To grasp and hold tissues or objects during the surgery.\""
+    },
+    {
+      "case_id": "case131",
+      "answer": "Yes",
+      "problem": null,
+      "returncode": 0,
+      "wall_seconds": 9.943194389343262,
+      "timings": {
+        "question": 0.0,
+        "decode": 0.47,
+        "load_tools": 0.79,
+        "load_task": 0.93,
+        "tools_infer": 1.34,
+        "task_infer": 1.38,
+        "route": 0.0,
+        "total": 4.92
+      },
+      "stderr_tail": "[surgvu] torch=2.5.1+cu121 cuda_available=False input=validate_work/case131/input output=validate_work/case131/output\n[surgvu] question: 'Is tissue being cut during this clip?'\n[surgvu] decoded 8 frames at 512x512\n[surgvu] device=cpu\n[surgvu] tools_present=['bipolar forceps', 'monopolar curved scissors'] task_top=rectal artery/vein\n[surgvu] timings question=0.00s decode=0.47s load_tools=0.79s load_task=0.93s tools_infer=1.34s task_infer=1.38s route=0.00s total=4.92s\n[surgvu] wrote validate_work/case131/output/visual-context-response.json -> \"Yes\""
+    },
+    {
+      "case_id": "case132",
+      "answer": "Yes",
+      "problem": null,
+      "returncode": 0,
+      "wall_seconds": 11.788567304611206,
+      "timings": {
+        "question": 0.0,
+        "decode": 0.45,
+        "load_tools": 0.83,
+        "load_task": 0.99,
+        "tools_infer": 1.33,
+        "task_infer": 1.21,
+        "route": 0.0,
+        "total": 4.82
+      },
+      "stderr_tail": "[surgvu] torch=2.5.1+cu121 cuda_available=False input=validate_work/case132/input output=validate_work/case132/output\n[surgvu] question: 'Was a large needle driver used during the surgery?'\n[surgvu] decoded 8 frames at 512x512\n[surgvu] device=cpu\n[surgvu] tools_present=['bipolar forceps', 'cadiere forceps', 'needle driver'] task_top=suturing\n[surgvu] timings question=0.00s decode=0.45s load_tools=0.83s load_task=0.99s tools_infer=1.33s task_infer=1.21s route=0.00s total=4.82s\n[surgvu] wrote validate_work/case132/output/visual-context-response.json -> \"Yes\""
+    }
+  ],
+  "summary": {
+    "total": 11,
+    "valid": 11,
+    "ok": true
+  }
+}

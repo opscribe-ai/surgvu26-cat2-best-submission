@@ -1,0 +1,78 @@
+{
+  "classes": [
+    "bipolar forceps",
+    "cadiere forceps",
+    "clip applier",
+    "force bipolar",
+    "grasping retractor",
+    "monopolar curved scissors",
+    "needle driver",
+    "permanent cautery hook/spatula",
+    "prograsp forceps",
+    "stapler",
+    "tip-up fenestrated grasper",
+    "vessel sealer"
+  ],
+  "serving_thresholds": [
+    0.309999942779541,
+    0.25999996066093445,
+    0.779999852180481,
+    0.929999828338623,
+    0.9399998188018799,
+    0.40999993681907654,
+    0.35999995470046997,
+    0.5399999022483826,
+    0.9399998188018799,
+    0.23999996483325958,
+    0.05000000074505806,
+    0.5499998927116394
+  ],
+  "checkpoint_thresholds": [
+    0.22999995946884155,
+    0.08999998867511749,
+    0.8199998736381531,
+    0.9399998188018799,
+    0.9499998092651367,
+    0.34999996423721313,
+    0.40999993681907654,
+    0.5399999022483826,
+    0.9499998092651367,
+    0.34999996423721313,
+    0.05000000074505806,
+    0.7699998617172241
+  ],
+  "measurements": {
+    "honest_two_fold": 0.7802010476589203,
+    "honest_measurable": 0.8511285185813904,
+    "self_tuned": 0.7957978844642639,
+    "per_class_f1_honest": {
+      "bipolar forceps": 0.8660188913345337,
+      "cadiere forceps": 0.8861560225486755,
+      "clip applier": 0.8156057000160217,
+      "force bipolar": 0.8312896490097046,
+      "grasping retractor": 0.8836276531219482,
+      "monopolar curved scissors": 0.9889763593673706,
+      "needle driver": 0.9720617532730103,
+      "permanent cautery hook/spatula": 0.8474025726318359,
+      "prograsp forceps": 0.776561439037323,
+      "stapler": 0.6846153736114502,
+      "tip-up fenestrated grasper": 0.0,
+      "vessel sealer": 0.8100975751876831
+    },
+    "note": "serving_thresholds are the SELF-TUNED cuts over all validation windows -- the best cuts available for serving. honest_two_fold is what to expect on unseen cases and is the number to quote."
+  },
+  "provenance": {
+    "checkpoint_sha256": "f71a5bcafd25aa8e18556bf5bf82afdbcd1f207e6b5dd2b8a8ab69059533dd58",
+    "probs": [
+      "/staging/n/nkalthoff/surgvu26/v2/frame_probs_resnetlong_val.npz"
+    ],
+    "members": [
+      "tools_resnet50_long.pt"
+    ],
+    "aggregation": "mean",
+    "frames": 16,
+    "windows": 4635,
+    "split": "splits_v2 val",
+    "tuned_by": "scripts/serving_thresholds_from_dump.py"
+  }
+}

@@ -1,0 +1,53 @@
+# Run a torch script that PRODUCES something, on CPU, bringing nothing back.
+#
+#   condor_submit condor/cpu_torch.sub \
+#       script=scripts/save_temporal_init.py \
+#       args="--mechanism residual --head tools --frames 48 --out /staging/..."
+#
+# NOT condor/verify.sub: that forces `--out <json>` and declares it in
+# transfer_output_files, which is the right contract for a check and the wrong
+# one for a producer writing a checkpoint to /staging.
+#
+# NOT condor/train_temporal.sub either: that requests a GPU. Building a model
+# and calling torch.save is arithmetic and a write; spending a GPU slot on it
+# delays the arms that need one, which is the same reason dump_after.sh asks
+# for gpumem=10000 rather than 16000.
+
+universe        = container
+container_image = file:///staging/n/nkalthoff/surgvu26/surgvu26-train.sif
+
+executable   = condor/run_torch.sh
+arguments    = "$(script) $(args)"
+
++WantStagingMount = true
+transfer_input_files = src, scripts, config
+
+# Macros with defaults, so one file can serve producers of different weights.
+# A bare value here could not be overridden from the command line at all --
+# that trap cost six idle minutes on the residual smoke job when request_cpus
+# was hardcoded to 8 and matched zero free slots.
+request_cpus   = $(cpus:2)
+request_memory = $(memory:8GB)
+request_disk   = $(disk:8GB)
+
+output = logs/cputorch_$(node)_$(Cluster).out
+error  = logs/cputorch_$(node)_$(Cluster).err
+log    = logs/cputorch_$(node)_$(Cluster).log
+
+stream_output = True
+stream_error  = True
+
+should_transfer_files   = YES
+when_to_transfer_output = ON_EXIT
+# EMPTY ON PURPOSE. The product goes to /staging; with this unset, ON_EXIT
+# ships back everything the job touched in scratch, which means the
+# __pycache__ trees Python creates inside the transferred src/ and scripts/
+# directories land in the repo root.
+transfer_output_files   =
+
+# Retry the staging-mount fault (75) and nothing else. A script that raises is
+# deterministic and will raise again on a different node.
+retry_until = (ExitCode =?= 0 || ExitCode =?= 1)
+max_retries = 5
+
+queue 1

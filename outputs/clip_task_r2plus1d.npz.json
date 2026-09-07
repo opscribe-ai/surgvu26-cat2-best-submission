@@ -1,0 +1,47 @@
+{
+  "checkpoint": "/staging/n/nkalthoff/surgvu26/models/task_r2plus1d.pt",
+  "backbone": "r2plus1d_18",
+  "image_size": 112,
+  "clip_length": 16,
+  "normalisation": "kinetics",
+  "checkpoint_selected_epoch": 19,
+  "checkpoint_reported_accuracy": 0.9329018338727076,
+  "windows": 4635,
+  "arms": {
+    "center": {
+      "accuracy": 0.9329018338727076,
+      "macro_f1": 0.7881364822387695,
+      "description_accuracy": 0.9451995685005393,
+      "fold_a_accuracy": 0.9438929650410013,
+      "fold_b_accuracy": 0.9219154443485763
+    },
+    "first": {
+      "accuracy": 0.9352750809061489,
+      "macro_f1": 0.7960038185119629,
+      "description_accuracy": 0.946925566343042,
+      "fold_a_accuracy": 0.9477772982304704,
+      "fold_b_accuracy": 0.9227782571182054
+    },
+    "last": {
+      "accuracy": 0.9320388349514563,
+      "macro_f1": 0.7884280681610107,
+      "description_accuracy": 0.9439050701186623,
+      "fold_a_accuracy": 0.944324557617609,
+      "fold_b_accuracy": 0.9197584124245038
+    },
+    "mean3": {
+      "accuracy": 0.9344120819848976,
+      "macro_f1": 0.7916446328163147,
+      "description_accuracy": 0.9460625674217907,
+      "fold_a_accuracy": 0.9460509279240397,
+      "fold_b_accuracy": 0.9227782571182054
+    },
+    "max3": {
+      "accuracy": 0.9350593311758361,
+      "macro_f1": 0.7912229895591736,
+      "description_accuracy": 0.9464940668824164,
+      "fold_a_accuracy": 0.9460509279240397,
+      "fold_b_accuracy": 0.9240724762726489
+    }
+  }
+}

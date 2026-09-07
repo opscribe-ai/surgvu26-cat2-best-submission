@@ -1,0 +1,46 @@
+# One job per (case, part), producing the DENSE shard pool.
+#
+#   condor_submit condor/extract_dense.sub
+#
+# Reuses condor/cases.txt, so the (case, part, video) triples are exactly the
+# ones the sparse pool was built from. That is deliberate: the dense shards
+# have to hold the same windows as their sparse twins, or a 3D-vs-2D result
+# measures the dataset instead of the architecture.
+#
+# Videos are NOT transferred -- HTCondor refuses to transfer out of /staging
+# at all, and shipping a 2 GB video per job would be pointless when the
+# staging mount makes it directly readable. +WantStagingMount gives the job
+# that mount; the script reads the video and writes the shard in place.
+
+universe                = container
+container_image         = file:///staging/n/nkalthoff/surgvu26/surgvu26-extract.sif
+
+executable              = condor/extract_dense.sh
+arguments               = $(case_id) $(part) $(video)
+
++WantStagingMount       = true
+
+should_transfer_files   = YES
+when_to_transfer_output = ON_EXIT
+# `config` as a DIRECTORY: HTCondor flattens transferred file paths, so
+# config/tool_frequency.json would arrive as bare tool_frequency.json and the
+# script's path check would fail (it did, on the sparse run's first attempt).
+transfer_input_files    = src, scripts, config
+
+request_cpus            = 2
+# The sparse run peaked at 2,887 MB on a full 160-window job. This decodes the
+# same window count at the same frame count and resolution -- 30 frames of
+# 512x512 either way -- so the footprint is unchanged. 8 GB keeps the headroom.
+request_memory          = 8GB
+request_disk            = 8GB
+
+log                     = logs/dense_$(case_id)_part$(part).log
+error                   = logs/dense_$(case_id)_part$(part).err
+output                  = logs/dense_$(case_id)_part$(part).out
+
+# 46 of the 281 pairs legitimately hold no task segments and exit non-zero by
+# design, so do not retry blindly. The staging-mount guard exits 75 and IS
+# worth retrying, which is what the retry budget is for.
+max_retries             = 2
+
+queue case_id, part, video from condor/cases.txt

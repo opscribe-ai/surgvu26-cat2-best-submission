@@ -1,0 +1,22 @@
+Bootstrap: docker
+From: pytorch/pytorch:2.5.1-cuda12.1-cudnn9-runtime
+
+# Training container for SurgVU26 Cat 2 perception models.
+#
+# Independent by construction: a public PyTorch base image plus two pip
+# packages. Nothing from /staging/groups/bhaskar_opscribe.
+#
+# cu121 includes sm_75, so this image also runs on the RTX 2080 Ti we use to
+# validate against the T4 deployment target.
+
+%post
+    pip install --no-cache-dir \
+        "opencv-python-headless==4.11.0.86" \
+        "PyYAML==6.0.2"
+    python -c "import torch, torchvision, cv2, yaml; print(torch.__version__, torchvision.__version__, cv2.__version__)"
+
+%environment
+    export PYTHONUNBUFFERED=1
+
+%labels
+    Purpose SurgVU26 Cat2 perception training

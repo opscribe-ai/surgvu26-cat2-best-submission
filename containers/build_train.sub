@@ -1,0 +1,17 @@
+universe   = vanilla
+executable = containers/build_train_sif.sh
+transfer_input_files = containers/surgvu26-train.def
+output = logs/build_train_$(Cluster).out
+error  = logs/build_train_$(Cluster).err
+log    = logs/build_train_$(Cluster).log
++WantStagingMount = true
+request_cpus   = 4
+request_memory = 16GB
+request_disk   = 40GB
+should_transfer_files   = YES
+when_to_transfer_output = ON_EXIT
+# The build's real output is copied to /staging by build_train_sif.sh; nothing
+# from the job's scratch directory (in particular the multi-GB .sif it builds
+# there first) should be transferred back into the repo.
+transfer_output_files   =
+queue 1

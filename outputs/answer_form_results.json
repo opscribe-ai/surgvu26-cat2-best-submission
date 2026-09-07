@@ -1,0 +1,1438 @@
+{
+ "rows": [
+  {
+   "set": "hedged",
+   "case_id": "case122",
+   "candidate": "No, there are no forceps being used here.",
+   "vector": [
+    0.11654698103666306,
+    0.6688841581344604,
+    0.6890387535095215,
+    0.6333857178688049,
+    0.4672774374485016
+   ],
+   "best_index": 2,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.6890387535095215,
+    "B_drop_terse": 0.6890387535095215,
+    "C_one_sentence": 0.6688841581344604,
+    "D_terse_only": 0.11654698103666306
+   }
+  },
+  {
+   "set": "hedged",
+   "case_id": "case123",
+   "candidate": "No, a large needle driver is not among the listed tools.",
+   "vector": [
+    0.07220996916294098,
+    0.7782054543495178,
+    0.5921805500984192,
+    0.663040041923523,
+    0.7013782262802124
+   ],
+   "best_index": 1,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.7782054543495178,
+    "B_drop_terse": 0.7782054543495178,
+    "C_one_sentence": 0.7782054543495178,
+    "D_terse_only": 0.07220996916294098
+   }
+  },
+  {
+   "set": "hedged",
+   "case_id": "case124",
+   "candidate": "Bipolar Forceps, which is the type of forceps mentioned.",
+   "vector": [
+    0.04973791912198067,
+    0.6034075617790222,
+    0.4403364658355713,
+    0.5192956924438477,
+    0.4184591472148895
+   ],
+   "best_index": 1,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.6034075617790222,
+    "B_drop_terse": 0.6034075617790222,
+    "C_one_sentence": 0.6034075617790222,
+    "D_terse_only": 0.04973791912198067
+   }
+  },
+  {
+   "set": "hedged",
+   "case_id": "case125",
+   "candidate": "Yes, a suture is required in this surgical step.",
+   "vector": [
+    0.22026005387306213,
+    0.6708579659461975,
+    0.7718968987464905,
+    0.6063921451568604,
+    0.6153518557548523
+   ],
+   "best_index": 2,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.7718968987464905,
+    "B_drop_terse": 0.7718968987464905,
+    "C_one_sentence": 0.6708579659461975,
+    "D_terse_only": 0.22026005387306213
+   }
+  },
+  {
+   "set": "hedged",
+   "case_id": "case126",
+   "candidate": "No, a large needle driver was not used in this clip.",
+   "vector": [
+    0.06426629424095154,
+    0.6774232983589172,
+    0.645063042640686,
+    0.6170241236686707,
+    0.5995376110076904
+   ],
+   "best_index": 1,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.6774232983589172,
+    "B_drop_terse": 0.6774232983589172,
+    "C_one_sentence": 0.6774232983589172,
+    "D_terse_only": 0.06426629424095154
+   }
+  },
+  {
+   "set": "hedged",
+   "case_id": "case127",
+   "candidate": "Uterine horn, which is the organ being manipulated.",
+   "vector": [
+    0.5671816468238831,
+    0.6763041019439697,
+    0.650082528591156,
+    0.5540663003921509,
+    0.561707615852356
+   ],
+   "best_index": 1,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.6763041019439697,
+    "B_drop_terse": 0.6763041019439697,
+    "C_one_sentence": 0.6763041019439697,
+    "D_terse_only": 0.5671816468238831
+   }
+  },
+  {
+   "set": "hedged",
+   "case_id": "case128",
+   "candidate": "Yes, a needle driver is involved in the procedure.",
+   "vector": [
+    0.2544729709625244,
+    0.7698284387588501,
+    0.8009551167488098,
+    0.7894737720489502,
+    0.702978789806366
+   ],
+   "best_index": 2,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.8009551167488098,
+    "B_drop_terse": 0.8009551167488098,
+    "C_one_sentence": 0.7698284387588501,
+    "D_terse_only": 0.2544729709625244
+   }
+  },
+  {
+   "set": "hedged",
+   "case_id": "case129",
+   "candidate": "Endoscopic surgery or a laparoscopic surgery, which is what this summary describes.",
+   "vector": [
+    0.676206648349762,
+    0.6168009042739868,
+    0.5765266418457031,
+    0.5281515717506409,
+    0.5955610275268555
+   ],
+   "best_index": 0,
+   "group": "phrase",
+   "scores": {
+    "A_full": 0.676206648349762,
+    "B_drop_terse": 0.6168009042739868,
+    "C_one_sentence": 0.6168009042739868,
+    "D_terse_only": 0.676206648349762
+   }
+  },
+  {
+   "set": "hedged",
+   "case_id": "case130",
+   "candidate": "To grasp and hold tissues or objects, which is the purpose of the forceps in this procedure.",
+   "vector": [
+    0.5781865119934082,
+    0.6248099207878113,
+    0.6276330947875977,
+    0.711643636226654,
+    0.5830184817314148
+   ],
+   "best_index": 3,
+   "group": "phrase",
+   "scores": {
+    "A_full": 0.711643636226654,
+    "B_drop_terse": 0.711643636226654,
+    "C_one_sentence": 0.6248099207878113,
+    "D_terse_only": 0.5781865119934082
+   }
+  },
+  {
+   "set": "hedged",
+   "case_id": "case131",
+   "candidate": "Yes, tissue is being cut during this clip.",
+   "vector": [
+    0.20857886970043182,
+    0.7589150667190552,
+    0.7934383749961853,
+    0.8164628148078918,
+    0.7020182013511658
+   ],
+   "best_index": 3,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.8164628148078918,
+    "B_drop_terse": 0.8164628148078918,
+    "C_one_sentence": 0.7589150667190552,
+    "D_terse_only": 0.20857886970043182
+   }
+  },
+  {
+   "set": "hedged",
+   "case_id": "case132",
+   "candidate": "Yes, a large needle driver was used during the surgery.",
+   "vector": [
+    0.1207164078950882,
+    0.7601758241653442,
+    0.6930743455886841,
+    0.6416825652122498,
+    0.6167821884155273
+   ],
+   "best_index": 1,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.7601758241653442,
+    "B_drop_terse": 0.7601758241653442,
+    "C_one_sentence": 0.7601758241653442,
+    "D_terse_only": 0.1207164078950882
+   }
+  },
+  {
+   "set": "sentence",
+   "case_id": "case122",
+   "candidate": "Forceps are not being used here.",
+   "vector": [
+    -0.041193872690200806,
+    0.6171745657920837,
+    0.7054110169410706,
+    0.4608643651008606,
+    0.5314399003982544
+   ],
+   "best_index": 2,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.7054110169410706,
+    "B_drop_terse": 0.7054110169410706,
+    "C_one_sentence": 0.6171745657920837,
+    "D_terse_only": -0.041193872690200806
+   }
+  },
+  {
+   "set": "sentence",
+   "case_id": "case123",
+   "candidate": "A large needle driver is not among the listed tools.",
+   "vector": [
+    -0.04148028418421745,
+    0.6798194646835327,
+    0.6291636824607849,
+    0.5156185626983643,
+    0.6205959916114807
+   ],
+   "best_index": 1,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.6798194646835327,
+    "B_drop_terse": 0.6798194646835327,
+    "C_one_sentence": 0.6798194646835327,
+    "D_terse_only": -0.04148028418421745
+   }
+  },
+  {
+   "set": "sentence",
+   "case_id": "case124",
+   "candidate": "The type of forceps mentioned is Bipolar Forceps.",
+   "vector": [
+    0.015841785818338394,
+    0.7723782658576965,
+    0.39361807703971863,
+    0.6556151509284973,
+    0.40405789017677307
+   ],
+   "best_index": 1,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.7723782658576965,
+    "B_drop_terse": 0.7723782658576965,
+    "C_one_sentence": 0.7723782658576965,
+    "D_terse_only": 0.015841785818338394
+   }
+  },
+  {
+   "set": "sentence",
+   "case_id": "case125",
+   "candidate": "A suture is required in this surgical step.",
+   "vector": [
+    -0.03509441018104553,
+    0.5417469143867493,
+    0.6486066579818726,
+    0.5013391971588135,
+    0.4920976459980011
+   ],
+   "best_index": 2,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.6486066579818726,
+    "B_drop_terse": 0.6486066579818726,
+    "C_one_sentence": 0.5417469143867493,
+    "D_terse_only": -0.03509441018104553
+   }
+  },
+  {
+   "set": "sentence",
+   "case_id": "case126",
+   "candidate": "A large needle driver was not used in this clip.",
+   "vector": [
+    -0.01603884994983673,
+    0.6719467639923096,
+    0.5937545895576477,
+    0.5766997337341309,
+    0.539555549621582
+   ],
+   "best_index": 1,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.6719467639923096,
+    "B_drop_terse": 0.6719467639923096,
+    "C_one_sentence": 0.6719467639923096,
+    "D_terse_only": -0.01603884994983673
+   }
+  },
+  {
+   "set": "sentence",
+   "case_id": "case127",
+   "candidate": "The surgeon is manipulating the uterine horn.",
+   "vector": [
+    0.3604554533958435,
+    0.6546750664710999,
+    0.5211321711540222,
+    0.7168548703193665,
+    0.5969189405441284
+   ],
+   "best_index": 3,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.7168548703193665,
+    "B_drop_terse": 0.7168548703193665,
+    "C_one_sentence": 0.6546750664710999,
+    "D_terse_only": 0.3604554533958435
+   }
+  },
+  {
+   "set": "sentence",
+   "case_id": "case128",
+   "candidate": "A needle driver is involved in the procedure.",
+   "vector": [
+    -0.034394796937704086,
+    0.6684572100639343,
+    0.6908360123634338,
+    0.6790750026702881,
+    0.579641580581665
+   ],
+   "best_index": 2,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.6908360123634338,
+    "B_drop_terse": 0.6908360123634338,
+    "C_one_sentence": 0.6684572100639343,
+    "D_terse_only": -0.034394796937704086
+   }
+  },
+  {
+   "set": "sentence",
+   "case_id": "case129",
+   "candidate": "This summary is describing endoscopic surgery or laparoscopic surgery.",
+   "vector": [
+    0.5964782238006592,
+    0.8992795944213867,
+    0.6133674383163452,
+    0.564778745174408,
+    0.6072330474853516
+   ],
+   "best_index": 1,
+   "group": "phrase",
+   "scores": {
+    "A_full": 0.8992795944213867,
+    "B_drop_terse": 0.8992795944213867,
+    "C_one_sentence": 0.8992795944213867,
+    "D_terse_only": 0.5964782238006592
+   }
+  },
+  {
+   "set": "sentence",
+   "case_id": "case130",
+   "candidate": "The purpose of using forceps in this procedure is to grasp and hold tissues or objects.",
+   "vector": [
+    0.5644665360450745,
+    0.6719694137573242,
+    0.7012475728988647,
+    0.8241921067237854,
+    0.6424457430839539
+   ],
+   "best_index": 3,
+   "group": "phrase",
+   "scores": {
+    "A_full": 0.8241921067237854,
+    "B_drop_terse": 0.8241921067237854,
+    "C_one_sentence": 0.6719694137573242,
+    "D_terse_only": 0.5644665360450745
+   }
+  },
+  {
+   "set": "sentence",
+   "case_id": "case131",
+   "candidate": "Tissue is being cut during this clip.",
+   "vector": [
+    -0.09082584083080292,
+    0.590388298034668,
+    0.6530053019523621,
+    0.6867178082466125,
+    0.5542877316474915
+   ],
+   "best_index": 3,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.6867178082466125,
+    "B_drop_terse": 0.6867178082466125,
+    "C_one_sentence": 0.590388298034668,
+    "D_terse_only": -0.09082584083080292
+   }
+  },
+  {
+   "set": "sentence",
+   "case_id": "case132",
+   "candidate": "A large needle driver was used during the surgery.",
+   "vector": [
+    0.029706571251153946,
+    0.7269114851951599,
+    0.7460098266601562,
+    0.6825268268585205,
+    0.6286876201629639
+   ],
+   "best_index": 2,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.7460098266601562,
+    "B_drop_terse": 0.7460098266601562,
+    "C_one_sentence": 0.7269114851951599,
+    "D_terse_only": 0.029706571251153946
+   }
+  },
+  {
+   "set": "terse",
+   "case_id": "case122",
+   "candidate": "No",
+   "vector": [
+    1.0,
+    0.13654759526252747,
+    0.054338205605745316,
+    0.18935838341712952,
+    0.17705386877059937
+   ],
+   "best_index": 0,
+   "group": "bare",
+   "scores": {
+    "A_full": 1.0,
+    "B_drop_terse": 0.18935838341712952,
+    "C_one_sentence": 0.13654759526252747,
+    "D_terse_only": 1.0
+   }
+  },
+  {
+   "set": "terse",
+   "case_id": "case123",
+   "candidate": "No",
+   "vector": [
+    1.0,
+    0.13059470057487488,
+    0.11144378781318665,
+    0.07719943672418594,
+    0.16557927429676056
+   ],
+   "best_index": 0,
+   "group": "bare",
+   "scores": {
+    "A_full": 1.0,
+    "B_drop_terse": 0.16557927429676056,
+    "C_one_sentence": 0.13059470057487488,
+    "D_terse_only": 1.0
+   }
+  },
+  {
+   "set": "terse",
+   "case_id": "case124",
+   "candidate": "Bipolar Forceps",
+   "vector": [
+    0.22603178024291992,
+    0.17928090691566467,
+    0.2401893436908722,
+    0.13155566155910492,
+    0.21230967342853546
+   ],
+   "best_index": 2,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.2401893436908722,
+    "B_drop_terse": 0.2401893436908722,
+    "C_one_sentence": 0.17928090691566467,
+    "D_terse_only": 0.22603178024291992
+   }
+  },
+  {
+   "set": "terse",
+   "case_id": "case125",
+   "candidate": "Yes",
+   "vector": [
+    0.9999992847442627,
+    0.2630940079689026,
+    0.22847671806812286,
+    0.12042929232120514,
+    0.28147080540657043
+   ],
+   "best_index": 0,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.9999992847442627,
+    "B_drop_terse": 0.28147080540657043,
+    "C_one_sentence": 0.2630940079689026,
+    "D_terse_only": 0.9999992847442627
+   }
+  },
+  {
+   "set": "terse",
+   "case_id": "case126",
+   "candidate": "No",
+   "vector": [
+    0.7014527916908264,
+    0.185633584856987,
+    0.128219336271286,
+    0.12251012027263641,
+    0.06074350327253342
+   ],
+   "best_index": 0,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.7014527916908264,
+    "B_drop_terse": 0.185633584856987,
+    "C_one_sentence": 0.185633584856987,
+    "D_terse_only": 0.7014527916908264
+   }
+  },
+  {
+   "set": "terse",
+   "case_id": "case127",
+   "candidate": "Uterine horn",
+   "vector": [
+    0.9999992847442627,
+    0.3864591419696808,
+    0.6660624146461487,
+    0.4404996335506439,
+    0.415958046913147
+   ],
+   "best_index": 0,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.9999992847442627,
+    "B_drop_terse": 0.6660624146461487,
+    "C_one_sentence": 0.3864591419696808,
+    "D_terse_only": 0.9999992847442627
+   }
+  },
+  {
+   "set": "terse",
+   "case_id": "case128",
+   "candidate": "Yes",
+   "vector": [
+    0.9999992847442627,
+    0.22775733470916748,
+    0.19517143070697784,
+    0.19670486450195312,
+    0.2823466360569
+   ],
+   "best_index": 0,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.9999992847442627,
+    "B_drop_terse": 0.2823466360569,
+    "C_one_sentence": 0.22775733470916748,
+    "D_terse_only": 0.9999992847442627
+   }
+  },
+  {
+   "set": "terse",
+   "case_id": "case129",
+   "candidate": "Endoscopic surgery or a laparoscopic surgery",
+   "vector": [
+    1.0,
+    0.5680864453315735,
+    0.6204758882522583,
+    0.6045281887054443,
+    0.6253781318664551
+   ],
+   "best_index": 0,
+   "group": "phrase",
+   "scores": {
+    "A_full": 1.0,
+    "B_drop_terse": 0.6253781318664551,
+    "C_one_sentence": 0.5680864453315735,
+    "D_terse_only": 1.0
+   }
+  },
+  {
+   "set": "terse",
+   "case_id": "case130",
+   "candidate": "To grasp and hold tissues or objects during the surgery.",
+   "vector": [
+    0.9999992847442627,
+    0.5247269868850708,
+    0.5822238922119141,
+    0.5462024211883545,
+    0.5444655418395996
+   ],
+   "best_index": 0,
+   "group": "phrase",
+   "scores": {
+    "A_full": 0.9999992847442627,
+    "B_drop_terse": 0.5822238922119141,
+    "C_one_sentence": 0.5247269868850708,
+    "D_terse_only": 0.9999992847442627
+   }
+  },
+  {
+   "set": "terse",
+   "case_id": "case131",
+   "candidate": "Yes",
+   "vector": [
+    0.9999992847442627,
+    0.2502925992012024,
+    0.24582086503505707,
+    0.2054784595966339,
+    0.3288877308368683
+   ],
+   "best_index": 0,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.9999992847442627,
+    "B_drop_terse": 0.3288877308368683,
+    "C_one_sentence": 0.2502925992012024,
+    "D_terse_only": 0.9999992847442627
+   }
+  },
+  {
+   "set": "terse",
+   "case_id": "case132",
+   "candidate": "Yes",
+   "vector": [
+    0.7014527916908264,
+    0.14294937252998352,
+    0.04583371430635452,
+    0.0029266532510519028,
+    -0.05380634590983391
+   ],
+   "best_index": 0,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.7014527916908264,
+    "B_drop_terse": 0.14294937252998352,
+    "C_one_sentence": 0.14294937252998352,
+    "D_terse_only": 0.7014527916908264
+   }
+  },
+  {
+   "set": "fb_generic",
+   "case_id": "case122",
+   "candidate": "The procedure involves surgical instruments.",
+   "vector": [
+    0.03362631797790527,
+    0.30024948716163635,
+    0.38189274072647095,
+    0.3010769188404083,
+    0.30670031905174255
+   ],
+   "best_index": 2,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.38189274072647095,
+    "B_drop_terse": 0.38189274072647095,
+    "C_one_sentence": 0.30024948716163635,
+    "D_terse_only": 0.03362631797790527
+   }
+  },
+  {
+   "set": "fb_generic",
+   "case_id": "case123",
+   "candidate": "The procedure involves surgical instruments.",
+   "vector": [
+    0.03362631797790527,
+    0.2762630581855774,
+    0.26928776502609253,
+    0.3028392195701599,
+    0.2519369125366211
+   ],
+   "best_index": 3,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.3028392195701599,
+    "B_drop_terse": 0.3028392195701599,
+    "C_one_sentence": 0.2762630581855774,
+    "D_terse_only": 0.03362631797790527
+   }
+  },
+  {
+   "set": "fb_generic",
+   "case_id": "case124",
+   "candidate": "The procedure involves surgical instruments.",
+   "vector": [
+    -0.12795622646808624,
+    0.24136501550674438,
+    0.1398574411869049,
+    0.25621864199638367,
+    0.14692279696464539
+   ],
+   "best_index": 3,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.25621864199638367,
+    "B_drop_terse": 0.25621864199638367,
+    "C_one_sentence": 0.24136501550674438,
+    "D_terse_only": -0.12795622646808624
+   }
+  },
+  {
+   "set": "fb_generic",
+   "case_id": "case125",
+   "candidate": "The procedure involves surgical instruments.",
+   "vector": [
+    0.04584360122680664,
+    0.43036600947380066,
+    0.4472849369049072,
+    0.6444244980812073,
+    0.4981091618537903
+   ],
+   "best_index": 3,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.6444244980812073,
+    "B_drop_terse": 0.6444244980812073,
+    "C_one_sentence": 0.43036600947380066,
+    "D_terse_only": 0.04584360122680664
+   }
+  },
+  {
+   "set": "fb_generic",
+   "case_id": "case126",
+   "candidate": "The procedure involves surgical instruments.",
+   "vector": [
+    0.04584360122680664,
+    0.40305739641189575,
+    0.35338833928108215,
+    0.4871646761894226,
+    0.5891935229301453
+   ],
+   "best_index": 4,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.5891935229301453,
+    "B_drop_terse": 0.5891935229301453,
+    "C_one_sentence": 0.40305739641189575,
+    "D_terse_only": 0.04584360122680664
+   }
+  },
+  {
+   "set": "fb_generic",
+   "case_id": "case127",
+   "candidate": "The procedure involves surgical instruments.",
+   "vector": [
+    0.17331352829933167,
+    0.3275693655014038,
+    0.28884270787239075,
+    0.4659753143787384,
+    0.3170105516910553
+   ],
+   "best_index": 3,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.4659753143787384,
+    "B_drop_terse": 0.4659753143787384,
+    "C_one_sentence": 0.3275693655014038,
+    "D_terse_only": 0.17331352829933167
+   }
+  },
+  {
+   "set": "fb_generic",
+   "case_id": "case128",
+   "candidate": "The procedure involves surgical instruments.",
+   "vector": [
+    0.04584360122680664,
+    0.35476213693618774,
+    0.6020877957344055,
+    0.41028133034706116,
+    0.3992958664894104
+   ],
+   "best_index": 2,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.6020877957344055,
+    "B_drop_terse": 0.6020877957344055,
+    "C_one_sentence": 0.35476213693618774,
+    "D_terse_only": 0.04584360122680664
+   }
+  },
+  {
+   "set": "fb_generic",
+   "case_id": "case129",
+   "candidate": "The procedure involves surgical instruments.",
+   "vector": [
+    0.3451017439365387,
+    0.31008926033973694,
+    0.41992369294166565,
+    0.4790264070034027,
+    0.36063382029533386
+   ],
+   "best_index": 3,
+   "group": "phrase",
+   "scores": {
+    "A_full": 0.4790264070034027,
+    "B_drop_terse": 0.4790264070034027,
+    "C_one_sentence": 0.31008926033973694,
+    "D_terse_only": 0.3451017439365387
+   }
+  },
+  {
+   "set": "fb_generic",
+   "case_id": "case130",
+   "candidate": "The procedure involves surgical instruments.",
+   "vector": [
+    0.3497256934642792,
+    0.24818739295005798,
+    0.251383513212204,
+    0.2638487219810486,
+    0.2442086786031723
+   ],
+   "best_index": 0,
+   "group": "phrase",
+   "scores": {
+    "A_full": 0.3497256934642792,
+    "B_drop_terse": 0.2638487219810486,
+    "C_one_sentence": 0.24818739295005798,
+    "D_terse_only": 0.3497256934642792
+   }
+  },
+  {
+   "set": "fb_generic",
+   "case_id": "case131",
+   "candidate": "The procedure involves surgical instruments.",
+   "vector": [
+    0.04584360122680664,
+    0.39771369099617004,
+    0.43015551567077637,
+    0.3661706745624542,
+    0.4412073493003845
+   ],
+   "best_index": 4,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.4412073493003845,
+    "B_drop_terse": 0.4412073493003845,
+    "C_one_sentence": 0.39771369099617004,
+    "D_terse_only": 0.04584360122680664
+   }
+  },
+  {
+   "set": "fb_generic",
+   "case_id": "case132",
+   "candidate": "The procedure involves surgical instruments.",
+   "vector": [
+    0.03362631797790527,
+    0.3668346405029297,
+    0.35606566071510315,
+    0.3238357603549957,
+    0.29283130168914795
+   ],
+   "best_index": 1,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.3668346405029297,
+    "B_drop_terse": 0.3668346405029297,
+    "C_one_sentence": 0.3668346405029297,
+    "D_terse_only": 0.03362631797790527
+   }
+  },
+  {
+   "set": "fb_perception",
+   "case_id": "case122",
+   "candidate": "Needle driver is in use during suturing.",
+   "vector": [
+    -0.11519825458526611,
+    0.23348137736320496,
+    0.3295068144798279,
+    0.21417154371738434,
+    0.26694947481155396
+   ],
+   "best_index": 2,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.3295068144798279,
+    "B_drop_terse": 0.3295068144798279,
+    "C_one_sentence": 0.23348137736320496,
+    "D_terse_only": -0.11519825458526611
+   }
+  },
+  {
+   "set": "fb_perception",
+   "case_id": "case123",
+   "candidate": "Monopolar curved scissors, bipolar forceps and grasping retractor are in use during suspensory ligament dissection.",
+   "vector": [
+    -0.25050342082977295,
+    0.0676622986793518,
+    0.07426466047763824,
+    0.06204914301633835,
+    0.07090997695922852
+   ],
+   "best_index": 2,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.07426466047763824,
+    "B_drop_terse": 0.07426466047763824,
+    "C_one_sentence": 0.0676622986793518,
+    "D_terse_only": -0.25050342082977295
+   }
+  },
+  {
+   "set": "fb_perception",
+   "case_id": "case124",
+   "candidate": "Monopolar curved scissors, bipolar forceps and grasping retractor are in use during rectal artery and vein dissection.",
+   "vector": [
+    -0.2628273665904999,
+    0.12027672678232193,
+    -0.0080012371763587,
+    0.13591261208057404,
+    -0.020159898325800896
+   ],
+   "best_index": 3,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.13591261208057404,
+    "B_drop_terse": 0.13591261208057404,
+    "C_one_sentence": 0.12027672678232193,
+    "D_terse_only": -0.2628273665904999
+   }
+  },
+  {
+   "set": "fb_perception",
+   "case_id": "case125",
+   "candidate": "Cadiere forceps and needle driver are in use during suturing.",
+   "vector": [
+    -0.21791894733905792,
+    0.35999953746795654,
+    0.3172743618488312,
+    0.31964829564094543,
+    0.36284178495407104
+   ],
+   "best_index": 4,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.36284178495407104,
+    "B_drop_terse": 0.36284178495407104,
+    "C_one_sentence": 0.35999953746795654,
+    "D_terse_only": -0.21791894733905792
+   }
+  },
+  {
+   "set": "fb_perception",
+   "case_id": "case126",
+   "candidate": "Monopolar curved scissors and bipolar forceps are in use during uterine horn mobilization.",
+   "vector": [
+    -0.19318170845508575,
+    0.23681558668613434,
+    0.192641019821167,
+    0.20876815915107727,
+    0.17516691982746124
+   ],
+   "best_index": 1,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.23681558668613434,
+    "B_drop_terse": 0.23681558668613434,
+    "C_one_sentence": 0.23681558668613434,
+    "D_terse_only": -0.19318170845508575
+   }
+  },
+  {
+   "set": "fb_perception",
+   "case_id": "case127",
+   "candidate": "Cadiere forceps and bipolar forceps are in use during uterine horn mobilization.",
+   "vector": [
+    0.19690898060798645,
+    0.2827414572238922,
+    0.2899932861328125,
+    0.3504648804664612,
+    0.2825055718421936
+   ],
+   "best_index": 3,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.3504648804664612,
+    "B_drop_terse": 0.3504648804664612,
+    "C_one_sentence": 0.2827414572238922,
+    "D_terse_only": 0.19690898060798645
+   }
+  },
+  {
+   "set": "fb_perception",
+   "case_id": "case128",
+   "candidate": "Needle driver is in use during suturing.",
+   "vector": [
+    -0.1280868947505951,
+    0.36081746220588684,
+    0.4743371307849884,
+    0.5116158723831177,
+    0.3672153353691101
+   ],
+   "best_index": 3,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.5116158723831177,
+    "B_drop_terse": 0.5116158723831177,
+    "C_one_sentence": 0.36081746220588684,
+    "D_terse_only": -0.1280868947505951
+   }
+  },
+  {
+   "set": "fb_perception",
+   "case_id": "case129",
+   "candidate": "Bipolar forceps is in use during rectal artery and vein dissection.",
+   "vector": [
+    0.1389664113521576,
+    0.0847058966755867,
+    0.16070424020290375,
+    0.11185875535011292,
+    0.10067269951105118
+   ],
+   "best_index": 2,
+   "group": "phrase",
+   "scores": {
+    "A_full": 0.16070424020290375,
+    "B_drop_terse": 0.16070424020290375,
+    "C_one_sentence": 0.0847058966755867,
+    "D_terse_only": 0.1389664113521576
+   }
+  },
+  {
+   "set": "fb_perception",
+   "case_id": "case130",
+   "candidate": "Needle driver and prograsp forceps are in use during retraction.",
+   "vector": [
+    0.15908852219581604,
+    0.23218032717704773,
+    0.238017737865448,
+    0.1994400918483734,
+    0.20624975860118866
+   ],
+   "best_index": 2,
+   "group": "phrase",
+   "scores": {
+    "A_full": 0.238017737865448,
+    "B_drop_terse": 0.238017737865448,
+    "C_one_sentence": 0.23218032717704773,
+    "D_terse_only": 0.15908852219581604
+   }
+  },
+  {
+   "set": "fb_perception",
+   "case_id": "case131",
+   "candidate": "Monopolar curved scissors and bipolar forceps are in use during rectal artery and vein dissection.",
+   "vector": [
+    -0.2116132378578186,
+    0.1809156984090805,
+    0.15702074766159058,
+    0.14774072170257568,
+    0.2664497494697571
+   ],
+   "best_index": 4,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.2664497494697571,
+    "B_drop_terse": 0.2664497494697571,
+    "C_one_sentence": 0.1809156984090805,
+    "D_terse_only": -0.2116132378578186
+   }
+  },
+  {
+   "set": "fb_perception",
+   "case_id": "case132",
+   "candidate": "Cadiere forceps, bipolar forceps and needle driver are in use during suturing.",
+   "vector": [
+    -0.19878250360488892,
+    0.31193843483924866,
+    0.3534628450870514,
+    0.3182116448879242,
+    0.24914129078388214
+   ],
+   "best_index": 2,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.3534628450870514,
+    "B_drop_terse": 0.3534628450870514,
+    "C_one_sentence": 0.31193843483924866,
+    "D_terse_only": -0.19878250360488892
+   }
+  },
+  {
+   "set": "fb_task_only",
+   "case_id": "case122",
+   "candidate": "The procedure involves suturing.",
+   "vector": [
+    -0.007582740392535925,
+    0.3072632849216461,
+    0.36753425002098083,
+    0.2704373002052307,
+    0.2986316382884979
+   ],
+   "best_index": 2,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.36753425002098083,
+    "B_drop_terse": 0.36753425002098083,
+    "C_one_sentence": 0.3072632849216461,
+    "D_terse_only": -0.007582740392535925
+   }
+  },
+  {
+   "set": "fb_task_only",
+   "case_id": "case123",
+   "candidate": "The procedure involves suspensory ligament dissection.",
+   "vector": [
+    -0.10357852280139923,
+    0.11849749088287354,
+    0.08100476115942001,
+    0.13188904523849487,
+    0.11290976405143738
+   ],
+   "best_index": 3,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.13188904523849487,
+    "B_drop_terse": 0.13188904523849487,
+    "C_one_sentence": 0.11849749088287354,
+    "D_terse_only": -0.10357852280139923
+   }
+  },
+  {
+   "set": "fb_task_only",
+   "case_id": "case124",
+   "candidate": "The procedure involves rectal artery and vein dissection.",
+   "vector": [
+    -0.24335967004299164,
+    0.08715260028839111,
+    0.0030107058119028807,
+    0.10776101797819138,
+    0.007885047234594822
+   ],
+   "best_index": 3,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.10776101797819138,
+    "B_drop_terse": 0.10776101797819138,
+    "C_one_sentence": 0.08715260028839111,
+    "D_terse_only": -0.24335967004299164
+   }
+  },
+  {
+   "set": "fb_task_only",
+   "case_id": "case125",
+   "candidate": "The procedure involves suturing.",
+   "vector": [
+    0.008550051599740982,
+    0.626973032951355,
+    0.5662549734115601,
+    0.8215698599815369,
+    0.6668503284454346
+   ],
+   "best_index": 3,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.8215698599815369,
+    "B_drop_terse": 0.8215698599815369,
+    "C_one_sentence": 0.626973032951355,
+    "D_terse_only": 0.008550051599740982
+   }
+  },
+  {
+   "set": "fb_task_only",
+   "case_id": "case126",
+   "candidate": "The procedure involves uterine horn mobilization.",
+   "vector": [
+    0.00025604243273846805,
+    0.29724475741386414,
+    0.22753483057022095,
+    0.311283677816391,
+    0.3883934020996094
+   ],
+   "best_index": 4,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.3883934020996094,
+    "B_drop_terse": 0.3883934020996094,
+    "C_one_sentence": 0.29724475741386414,
+    "D_terse_only": 0.00025604243273846805
+   }
+  },
+  {
+   "set": "fb_task_only",
+   "case_id": "case127",
+   "candidate": "The procedure involves uterine horn mobilization.",
+   "vector": [
+    0.344232976436615,
+    0.5502009391784668,
+    0.4383291006088257,
+    0.7321478128433228,
+    0.5354680418968201
+   ],
+   "best_index": 3,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.7321478128433228,
+    "B_drop_terse": 0.7321478128433228,
+    "C_one_sentence": 0.5502009391784668,
+    "D_terse_only": 0.344232976436615
+   }
+  },
+  {
+   "set": "fb_task_only",
+   "case_id": "case128",
+   "candidate": "The procedure involves suturing.",
+   "vector": [
+    0.008550051599740982,
+    0.29949936270713806,
+    0.5340321063995361,
+    0.3693459630012512,
+    0.34248870611190796
+   ],
+   "best_index": 2,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.5340321063995361,
+    "B_drop_terse": 0.5340321063995361,
+    "C_one_sentence": 0.29949936270713806,
+    "D_terse_only": 0.008550051599740982
+   }
+  },
+  {
+   "set": "fb_task_only",
+   "case_id": "case129",
+   "candidate": "The procedure involves rectal artery and vein dissection.",
+   "vector": [
+    0.20082908868789673,
+    0.14738896489143372,
+    0.24152040481567383,
+    0.2521527111530304,
+    0.17997628450393677
+   ],
+   "best_index": 3,
+   "group": "phrase",
+   "scores": {
+    "A_full": 0.2521527111530304,
+    "B_drop_terse": 0.2521527111530304,
+    "C_one_sentence": 0.14738896489143372,
+    "D_terse_only": 0.20082908868789673
+   }
+  },
+  {
+   "set": "fb_task_only",
+   "case_id": "case130",
+   "candidate": "The procedure involves retraction.",
+   "vector": [
+    0.2782047390937805,
+    0.2502533793449402,
+    0.2513248920440674,
+    0.2709560990333557,
+    0.22797910869121552
+   ],
+   "best_index": 0,
+   "group": "phrase",
+   "scores": {
+    "A_full": 0.2782047390937805,
+    "B_drop_terse": 0.2709560990333557,
+    "C_one_sentence": 0.2502533793449402,
+    "D_terse_only": 0.2782047390937805
+   }
+  },
+  {
+   "set": "fb_task_only",
+   "case_id": "case131",
+   "candidate": "The procedure involves rectal artery and vein dissection.",
+   "vector": [
+    -0.06351158767938614,
+    0.27521806955337524,
+    0.3004140555858612,
+    0.23438017070293427,
+    0.338987797498703
+   ],
+   "best_index": 4,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.338987797498703,
+    "B_drop_terse": 0.338987797498703,
+    "C_one_sentence": 0.27521806955337524,
+    "D_terse_only": -0.06351158767938614
+   }
+  },
+  {
+   "set": "fb_task_only",
+   "case_id": "case132",
+   "candidate": "The procedure involves suturing.",
+   "vector": [
+    -0.007582740392535925,
+    0.31625476479530334,
+    0.3041483759880066,
+    0.2738276720046997,
+    0.2489403337240219
+   ],
+   "best_index": 1,
+   "group": "bare",
+   "scores": {
+    "A_full": 0.31625476479530334,
+    "B_drop_terse": 0.31625476479530334,
+    "C_one_sentence": 0.31625476479530334,
+    "D_terse_only": -0.007582740392535925
+   }
+  }
+ ],
+ "aggregate_all": {
+  "hedged": {
+   "A_full": 0.7237927371805365,
+   "B_drop_terse": 0.7183922149918296,
+   "C_one_sentence": 0.6914193359288302,
+   "D_terse_only": 0.26621493392369966
+  },
+  "sentence": {
+   "A_full": 0.7310956716537476,
+   "B_drop_terse": 0.7310956716537476,
+   "C_one_sentence": 0.6813406402414496,
+   "D_terse_only": 0.118901865048842
+  },
+  "terse": {
+   "A_full": 0.8766446682539853,
+   "B_drop_terse": 0.3354617790742354,
+   "C_one_sentence": 0.27231115238233045,
+   "D_terse_only": 0.8753576170314442
+  },
+  "fb_generic": {
+   "A_full": 0.44358416578986426,
+   "B_drop_terse": 0.43577716838229785,
+   "C_one_sentence": 0.332405223087831,
+   "D_terse_only": 0.09313073618845506
+  },
+  "fb_perception": {
+   "A_full": 0.2745506167411804,
+   "B_drop_terse": 0.2745506167411804,
+   "C_one_sentence": 0.22468498213724655,
+   "D_terse_only": -0.09846803816882047
+  },
+  "fb_task_only": {
+   "A_full": 0.38808431882749905,
+   "B_drop_terse": 0.3874253515492786,
+   "C_one_sentence": 0.29781333153898065,
+   "D_terse_only": 0.0377279716856058
+  }
+ },
+ "aggregate_bare": {
+  "hedged": {
+   "A_full": 0.7304299804899428,
+   "B_drop_terse": 0.7304299804899428,
+   "C_one_sentence": 0.7071113189061483,
+   "D_terse_only": 0.18599679031305844
+  },
+  "sentence": {
+   "A_full": 0.7020645207828946,
+   "B_drop_terse": 0.7020645207828946,
+   "C_one_sentence": 0.6581664482752482,
+   "D_terse_only": 0.016330639521280926
+  },
+  "terse": {
+   "A_full": 0.8492324517832862,
+   "B_drop_terse": 0.2758308384153578,
+   "C_one_sentence": 0.21140102710988787,
+   "D_terse_only": 0.8476593891779581
+  },
+  "fb_generic": {
+   "A_full": 0.45007485813564724,
+   "B_drop_terse": 0.45007485813564724,
+   "C_one_sentence": 0.34424231118626064,
+   "D_terse_only": 0.0366234067413542
+  },
+  "fb_perception": {
+   "A_full": 0.29125942289829254,
+   "B_drop_terse": 0.29125942289829254,
+   "C_one_sentence": 0.2394053977396753,
+   "D_terse_only": -0.15346703926722208
+  },
+  "fb_task_only": {
+   "A_full": 0.41539667298396427,
+   "B_drop_terse": 0.41539667298396427,
+   "C_one_sentence": 0.3198115891880459,
+   "D_terse_only": -0.007114015471112604
+  }
+ },
+ "aggregate_phrase": {
+  "hedged": {
+   "A_full": 0.693925142288208,
+   "B_drop_terse": 0.6642222702503204,
+   "C_one_sentence": 0.620805412530899,
+   "D_terse_only": 0.6271965801715851
+  },
+  "sentence": {
+   "A_full": 0.8617358505725861,
+   "B_drop_terse": 0.8617358505725861,
+   "C_one_sentence": 0.7856245040893555,
+   "D_terse_only": 0.5804723799228668
+  },
+  "terse": {
+   "A_full": 0.9999996423721313,
+   "B_drop_terse": 0.6038010120391846,
+   "C_one_sentence": 0.5464067161083221,
+   "D_terse_only": 0.9999996423721313
+  },
+  "fb_generic": {
+   "A_full": 0.41437605023384094,
+   "B_drop_terse": 0.37143756449222565,
+   "C_one_sentence": 0.27913832664489746,
+   "D_terse_only": 0.34741371870040894
+  },
+  "fb_perception": {
+   "A_full": 0.19936098903417587,
+   "B_drop_terse": 0.19936098903417587,
+   "C_one_sentence": 0.15844311192631721,
+   "D_terse_only": 0.14902746677398682
+  },
+  "fb_task_only": {
+   "A_full": 0.26517872512340546,
+   "B_drop_terse": 0.26155440509319305,
+   "C_one_sentence": 0.19882117211818695,
+   "D_terse_only": 0.23951691389083862
+  }
+ }
+}

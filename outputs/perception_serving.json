@@ -1,0 +1,104 @@
+{
+ "_note": [
+  "tools_present and task_top for the 11 public sample cases, as the SHIPPED",
+  "serving path produced them: scripts/inference.py's own `infer`, the frozen",
+  "config/perception.json, and its `serving_thresholds` block (the clip-mean",
+  "cuts, NOT the checkpoint's per-frame ones).",
+  "",
+  "PROVENANCE. Transcribed from the stdout of Condor job 9629615 (host gpu2009,",
+  "2026-08-11 08:49 CDT), which logged `config/perception.json sha256",
+  "f38285b1e14e74dcfad75ceda4ed0c53be62e203f4c78ab2e0aa7625f6442e47` -- the",
+  "sha256 the committed config still has. No perception was re-run for the",
+  "answer-form experiment; re-running it would produce these same records.",
+  "",
+  "Only the two keys the router's accessors prefer are kept. `tools_present`",
+  "and `task_top` are authoritative in surgvu.router when present, so the full",
+  "probability maps would change nothing here. `credible_tools` == ",
+  "`tools_present` for all 11: none of these lists is empty, so the soft",
+  "presence path never fires."
+ ],
+ "provenance": {
+  "condor_cluster": 9629615,
+  "log": "logs/vlmeval_9629615.out",
+  "perception_config_sha256": "f38285b1e14e74dcfad75ceda4ed0c53be62e203f4c78ab2e0aa7625f6442e47"
+ },
+ "records": {
+  "case122": {
+   "tools_present": [
+    "needle driver"
+   ],
+   "task_top": "suturing"
+  },
+  "case123": {
+   "tools_present": [
+    "bipolar forceps",
+    "grasping retractor",
+    "monopolar curved scissors"
+   ],
+   "task_top": "suspensory ligaments"
+  },
+  "case124": {
+   "tools_present": [
+    "bipolar forceps",
+    "grasping retractor",
+    "monopolar curved scissors"
+   ],
+   "task_top": "rectal artery/vein"
+  },
+  "case125": {
+   "tools_present": [
+    "cadiere forceps",
+    "needle driver"
+   ],
+   "task_top": "suturing"
+  },
+  "case126": {
+   "tools_present": [
+    "bipolar forceps",
+    "monopolar curved scissors"
+   ],
+   "task_top": "uterine horn"
+  },
+  "case127": {
+   "tools_present": [
+    "bipolar forceps",
+    "cadiere forceps"
+   ],
+   "task_top": "uterine horn"
+  },
+  "case128": {
+   "tools_present": [
+    "needle driver"
+   ],
+   "task_top": "suturing"
+  },
+  "case129": {
+   "tools_present": [
+    "bipolar forceps"
+   ],
+   "task_top": "rectal artery/vein"
+  },
+  "case130": {
+   "tools_present": [
+    "needle driver",
+    "prograsp forceps"
+   ],
+   "task_top": "retraction and collision avoidance"
+  },
+  "case131": {
+   "tools_present": [
+    "bipolar forceps",
+    "monopolar curved scissors"
+   ],
+   "task_top": "rectal artery/vein"
+  },
+  "case132": {
+   "tools_present": [
+    "bipolar forceps",
+    "cadiere forceps",
+    "needle driver"
+   ],
+   "task_top": "suturing"
+  }
+ }
+}

@@ -1,0 +1,79 @@
+Bootstrap: docker
+From: pytorch/pytorch:2.6.0-cuda12.4-cudnn9-runtime
+
+# Training container for SurgVU26 Cat 2 -- torch 2.6 variant.
+#
+# WHY THIS EXISTS: surgvu26-train.def pins torch 2.5.1, and transformers >=4.56
+# refuses to torch.load a checkpoint unless torch >= 2.6 (CVE-2025-32434).
+# That makes --resume-from-checkpoint impossible: every retry of v6 stage 1
+# died in ~4 minutes and burned all 5 max_retries without training a step.
+# A 23-hour run with no working resume loses everything to a single eviction.
+#
+# Training runs on A100/H200, so sm_75 does NOT constrain this image the way it
+# constrains the SUBMISSION image. sm_75 is kept anyway because the RTX 2080 Ti
+# validation path uses this container to stand in for the T4; cu124 still ships
+# it. %test checks the compiled-in arch flags, which need no GPU; the build
+# node has none, so a device-dependent check there is meaningless.
+#
+# Independent by construction: a public PyTorch base image plus two pip
+# packages. Nothing from /staging/groups/bhaskar_opscribe.
+#
+# Deliberately NOT torch 2.7/2.8: 2.6.0 is the smallest bump that clears the
+# transformers threshold. Every extra minor version is behaviour change we
+# would be taking on for no gain.
+
+%post
+    pip install --no-cache-dir \
+        "opencv-python-headless==4.11.0.86" \
+        "PyYAML==6.0.2"
+    python -c "import torch, torchvision, cv2, yaml; print(torch.__version__, torchvision.__version__, cv2.__version__)"
+
+%test
+    # These run at build time and FAIL THE BUILD, so a broken image never
+    # reaches /staging where a 23-hour job would pick it up.
+    python - <<'EOF'
+import sys
+import torch, torchvision, cv2, yaml
+
+# 1. The whole point of this image: clear the transformers CVE gate.
+major, minor = torch.__version__.split('.')[:2]
+assert (int(major), int(minor)) >= (2, 6), f"torch {torch.__version__} < 2.6"
+
+# 2. sm_75 for the 2080 Ti / T4 stand-in path.
+#    torch.cuda.get_arch_list() returns [] when is_available() is False, and
+#    apptainer builds run on CPU-only nodes -- asserting on it here failed
+#    build 9713055 against a perfectly good image. Read the compiled-in arch
+#    flags directly, which need no device, and only fall back to the
+#    device-dependent call if that private API is unavailable.
+try:
+    arches = torch._C._cuda_getArchFlags()
+except Exception:
+    arches = None
+if arches:
+    assert '75' in arches, f"sm_75 missing from compiled arch flags: {arches}"
+    print("arch flags:", arches)
+elif torch.cuda.is_available():
+    lst = torch.cuda.get_arch_list()
+    assert any('75' in a for a in lst), f"sm_75 missing from {lst}"
+    print("arch list:", lst)
+else:
+    # Not fatal, but NOT a pass either: say so loudly. condor/gpu_check_any.sub
+    # confirms sm_75 on a real GPU node.
+    print("WARNING: no CUDA here; sm_75 UNVERIFIED at build time")
+
+# 3. torchvision's C++ ops must actually load. A torch/torchvision mismatch
+#    imports cleanly and only explodes on first use.
+from torchvision.ops import nms
+b = torch.tensor([[0., 0., 1., 1.], [0., 0., 1., 1.]])
+s = torch.tensor([0.9, 0.8])
+assert nms(b, s, 0.5).numel() == 1
+
+print("OK torch", torch.__version__, "| torchvision", torchvision.__version__,
+      "| cv2", cv2.__version__)
+EOF
+
+%environment
+    export PYTHONUNBUFFERED=1
+
+%labels
+    Purpose SurgVU26 Cat2 perception training (torch 2.6, resume-capable)

@@ -1,0 +1,43 @@
+# The VLM's end-to-end measurement on the 11 public sample cases, at both
+# arbiter modes. See condor/flag_matrix_vlm.sh for what it measures and why it
+# drives the SUBMISSION image rather than surgvu26-train.sif.
+#
+#   condor_submit condor/flag_matrix_vlm.sub
+#
+# VANILLA, not container universe: this script calls `apptainer exec` itself,
+# and nesting apptainer inside a container image is what broke condor/metric.sh.
+universe                = vanilla
+executable              = condor/flag_matrix_vlm.sh
+
++WantStagingMount       = true
+should_transfer_files   = YES
+when_to_transfer_output = ON_EXIT
+transfer_input_files    = src, scripts, config
+
+request_cpus            = 8
+request_memory          = 32GB
+# The submission .sif alone is 8.8 GB and apptainer needs room beside it.
+request_disk            = 30GB
+
+request_gpus            = 1
+# MANDATORY and >= 7.5. NF4 is bitsandbytes/CUDA-only, and on a card below
+# sm_75 4-bit does not run at all -- this pool has 11 P100 (6.0) and 5 GTX
+# 1080 Ti (6.1) that would produce a green run in which every --vlm
+# combination silently fell back to the router. Set gpucapmax=7.5 to pin the
+# grader's own architecture:
+#
+#   condor_submit condor/flag_matrix_vlm.sub gpucapmax=7.5 gpumem=10000
+#
+require_gpus            = (GlobalMemoryMb >= $(gpumem:15000)) && \
+                          (Capability >= $(gpucapmin:7.5)) && \
+                          (Capability <= $(gpucapmax:99))
+
+transfer_output_files   = baselines
+log                     = logs/flagmatrixvlm_$(Cluster).log
+error                   = logs/flagmatrixvlm_$(Cluster).err
+output                  = logs/flagmatrixvlm_$(Cluster).out
+stream_output           = True
+stream_error            = True
+
+max_retries             = 2
+queue 1

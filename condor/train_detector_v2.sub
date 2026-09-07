@@ -1,0 +1,149 @@
+# Detector v2 (v5 plan4, Task 2): builds the combined hand-labeled +
+# logbook-constrained-pseudo-labeled corpus and trains YOLOv5m on it, per
+# the MONAI/SurgToolLoc reference recipe the groupmate staged
+# (surgvu_yolo_detector/yolov5/detection_files/run_5fold.sh), adapted to a
+# single GPU -- see condor/train_detector_v2.sh's own comments for why batch/
+# LR are not re-derived from scratch, and scripts/build_detector_v2_dataset.py
+# for the oversample/cap/protect design.
+#
+# Modelled directly on condor/train_vlm.sub (works: same universe, same
+# +WantStagingMount handling, same machine blacklist/max_retries reasoning,
+# same stream_output/stream_error for a long, otherwise-invisible run) and
+# on condor/pseudo_label.sub for the yolov5-deps pip-install pattern and the
+# GPU-memory-floor reasoning (both already run this identical detector
+# family).
+#
+# THIS DOES NOT SHIP ANYTHING -- see condor/train_detector_v2.sh's own
+# header. It only trains and reports metrics against the untouched 240-
+# image hand-labeled val split; re-measuring through scripts/flag_matrix.py
+# against v1 is a separate, later, explicit step (see this repo's
+# docs/design/2026-08-24-v5-evidence-pipeline/detector-v2-report.md for
+# the exact command).
+#
+# Run from the repo root, after: mkdir -p logs
+#
+#   condor_submit condor/train_detector_v2.sub
+#
+# A SMOKE TEST FIRST is strongly recommended, same reasoning as every other
+# long GPU job in this project: a handful of epochs on a small corpus slice
+# is cheap to verify end to end (the tar extraction, the dataset build, a
+# real yolov5 train.py invocation with real GPU memory) before committing to
+# 300 epochs over tens of thousands of images. `args` forwards straight to
+# scripts/build_detector_v2_dataset.py's own argparse (see that script's
+# --help), so a cheap dry run of JUST the dataset build, capping the pseudo
+# pool hard, looks like:
+#
+#   condor_submit condor/train_detector_v2.sub \
+#       epochs=3 args="--pseudo-common-cap 200"
+#
+# Then the real run (300 epochs, the full oversample/cap defaults):
+#
+#   condor_submit condor/train_detector_v2.sub
+#
+# OVERRIDING MODEL/IMG/BATCH/EPOCHS/RUN NAME: these are NOT `args` (that
+# macro is reserved for scripts/build_detector_v2_dataset.py's own flags,
+# forwarded verbatim) -- they are separate submit-time macros mapped to
+# environment variables condor/train_detector_v2.sh reads directly, e.g. to
+# target full (non-MIG) cards with a larger batch:
+#
+#   condor_submit condor/train_detector_v2.sub gpumem=80000 batch=64
+
+universe        = container
+container_image = file:///staging/n/nkalthoff/surgvu26/surgvu26-train.sif
+
+executable   = condor/train_detector_v2.sh
+arguments    = "$(args)"
+environment  = "DETECTOR_V2_MODEL=$(model:v5m) DETECTOR_V2_IMG=$(imgsize:640) DETECTOR_V2_BATCH=$(batch:32) DETECTOR_V2_EPOCHS=$(epochs:300) DETECTOR_V2_NAME=$(name:)"
+
++WantStagingMount = true
+
+should_transfer_files   = YES
+when_to_transfer_output = ON_EXIT
+# config/ is needed for config/splits_v2.json's R30 heldout list (both R30
+# layers in scripts/build_detector_v2_dataset.py read it); scripts/ and src/
+# for the dataset builder itself and the surgvu package it imports.
+transfer_input_files    = src, scripts, config
+# Empty, not unset -- everything this job produces (the extracted hand-
+# labeled set, the combined dataset manifest + report, every yolov5 training
+# artifact: weights, results.csv, plots) is written straight through the
+# staging mount under /staging/n/nkalthoff/surgvu26/detector_v2/, never to job
+# scratch, mirroring condor/train_vlm.sub's identical reasoning. An unset
+# transfer_output_files with ON_EXIT would instead ship back the
+# __pycache__ trees and the .train_detector_v2_deps/ pip install this job
+# creates inside the transferred src/scripts/ directories.
+transfer_output_files   =
+
+request_cpus    = $(cpus:10)
+# 32GB: yolov5's dataloader with --workers 8 holds that many images'
+# decode/augmentation buffers concurrently, on top of a v5m's (larger than
+# her v5s) activations/gradients/optimizer state, on top of
+# scripts/build_detector_v2_dataset.py's own in-memory bookkeeping over a
+# pseudo-label pool that can run to hundreds of thousands of filenames
+# (strings only -- the images themselves are read lazily by the dataloader,
+# never bulk-loaded by the builder). This is 2x condor/train_vlm.sub's 64GB
+# is NOT needed here (no LLM activations), but well above condor/
+# pseudo_label.sub's 16GB (that job holds one shard's ~30 decoded frames at
+# a time, not a multi-worker training dataloader).
+request_memory  = $(memory:32GB)
+# DISK SIZING, deliberate, not the bare minimum (a 2GB request held a job on
+# this same project once already -- condor/build_qa_frames.sub's own
+# history):
+#   - surgvu26-train.sif itself: ~2.97GB (same figure condor/train_vlm.sub
+#     cites).
+#   - yolov5m.pt, if it must be downloaded fresh (not pre-staged anywhere in
+#     this project -- see condor/train_detector_v2.sh's own note): tens of MB.
+#   - the yolov5-deps pip install (pandas/requests/tqdm/matplotlib/seaborn/
+#     Pillow): tens to a couple hundred MB.
+#   - yolov5's own per-dataset label .cache file, written next to
+#     train.txt/val.txt UNDER /staging (not scratch) -- does not count here,
+#     but is mentioned for completeness.
+# The hand-labeled tarball (~100MB, extracted under /staging), the 601,261
+# pseudo-labeled images (~45GB) and every yolov5 training artifact (weights,
+# results.csv, plots) all live on /staging via +WantStagingMount and are
+# NEVER transferred through HTCondor's own file-transfer mechanism -- that
+# is the whole reason this job reads/writes by absolute /staging path
+# rather than via transfer_input_files/transfer_output_files, mirroring
+# condor/pseudo_label.sub's identical reasoning for the 38GB shard corpus.
+# 20GB is comfortably above the container+deps+download floor with margin.
+request_disk    = $(disk:20GB)
+request_gpus    = 1
+# 24GB floor, matching condor/pseudo_label.sub/condor/train_vlm.sub's
+# identical reasoning: `(GlobalMemoryMb >= $(gpumem:24000))` ALSO admits
+# 40GB MIG slices at roughly a third of a full card's throughput. For a
+# 300-epoch run over a corpus far larger than her original 886 images, that
+# throughput difference is worth avoiding -- pass gpumem=80000 to target
+# only full (non-MIG) cards:
+#   condor_submit condor/train_detector_v2.sub gpumem=80000
+require_gpus    = (GlobalMemoryMb >= $(gpumem:24000))
+
+# Same blacklist as condor/pseudo_label.sub/condor/train_vlm.sub:
+# dbrundage-chtcgpu5000 advertises the staging mount and does not deliver
+# it, which condor/train_detector_v2.sh's guard turns into a fast, clean
+# exit (75) instead of a confusing one.
+# BOTH chtcgpu5000 boxes advertise staging but do not mount it: a job
+# landing there dies at "FATAL: /staging is not mounted". dbrundage was
+# found first; zliu-chtcgpu5000 hit the v6 smoke train (job 9710296,
+# 2026-08-27) the same way. The guard in the .sh exits in seconds, but
+# nothing requeues the job, so it must not be scheduled there at all.
+requirements = (Machine != "dbrundage-chtcgpu5000.chtc.wisc.edu") && \
+               (Machine != "zliu-chtcgpu5000.chtc.wisc.edu")
+
+output = logs/train_detector_v2_$(Cluster).out
+error  = logs/train_detector_v2_$(Cluster).err
+# Stream stdout/stderr live -- without this a 300-epoch run is INVISIBLE
+# until it finishes, matching every other long job in this project (condor/
+# train_vlm.sub's own note: cluster 9697941 ran 45+ minutes with no readable
+# .out before this convention was adopted).
+stream_output   = True
+stream_error    = True
+log    = logs/train_detector_v2_$(Cluster).log
+
+# 5, matching condor/train_vlm.sub/condor/pseudo_label.sub: condor/
+# train_detector_v2.sh exits 75 immediately on a node where
+# +WantStagingMount did not take effect (a node-specific fault a retry
+# genuinely fixes), and a retry after a real mid-run failure resumes from
+# the latest yolov5 checkpoint (see the .sh file's own RESUME note) rather
+# than restarting at epoch 0.
+max_retries = 5
+
+queue 1

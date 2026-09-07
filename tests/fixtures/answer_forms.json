@@ -1,0 +1,71 @@
+{
+  "_note": [
+    "Three ANSWER FORMS for the 11 public sample cases, hand-written for the",
+    "answer-form experiment in scripts/answer_form_eval.py. Nothing here is",
+    "shipped; this file exists only to be scored.",
+    "",
+    "THE RULE THAT MAKES THE MEASUREMENT ABOUT FORM. Where the shipped answer",
+    "is WRONG -- case124 (Bipolar Forceps, gold Cadiere Forceps), case126 (No,",
+    "gold Yes), case132 (Yes, gold No) -- every form repeats the same wrong",
+    "content. A form that quietly corrected them would be measuring",
+    "correctness, not shape.",
+    "",
+    "HOW THE SENTENCES WERE WRITTEN, stated because it biases the result. Each",
+    "is a STEM INVERSION of the organizers' question: 'What organ is being",
+    "manipulated?' -> 'The organ being manipulated is the uterine horn.' That",
+    "is the natural declarative answer, and it is also the construction the",
+    "organizers' own sentence references use, so these are the most FAVOURABLE",
+    "sentence forms available rather than strawmen. Read the sentence-form",
+    "numbers as an upper bound.",
+    "",
+    "No string here is byte-identical to any gold reference; a test pins that,",
+    "so no form can win by copying the answer key. It caught one on the first",
+    "run: case127's stem inversion, 'The organ being manipulated is the uterine",
+    "horn.', IS gold reference[1] verbatim, and would have scored a free 1.0000",
+    "under every condition. It was replaced with 'The surgeon is manipulating",
+    "the uterine horn.' -- which is itself the finding worth keeping: the",
+    "organizers' sentence references ARE stem inversions of their questions, so",
+    "a sentence-form answer built the natural way lands very close to them."
+  ],
+  "forms": {
+    "terse": {
+      "case122": "No",
+      "case123": "No",
+      "case124": "Bipolar Forceps",
+      "case125": "Yes",
+      "case126": "No",
+      "case127": "Uterine horn",
+      "case128": "Yes",
+      "case129": "Endoscopic surgery or a laparoscopic surgery",
+      "case130": "To grasp and hold tissues or objects during the surgery.",
+      "case131": "Yes",
+      "case132": "Yes"
+    },
+    "hedged": {
+      "case122": "No, there are no forceps being used here.",
+      "case123": "No, a large needle driver is not among the listed tools.",
+      "case124": "Bipolar Forceps, which is the type of forceps mentioned.",
+      "case125": "Yes, a suture is required in this surgical step.",
+      "case126": "No, a large needle driver was not used in this clip.",
+      "case127": "Uterine horn, which is the organ being manipulated.",
+      "case128": "Yes, a needle driver is involved in the procedure.",
+      "case129": "Endoscopic surgery or a laparoscopic surgery, which is what this summary describes.",
+      "case130": "To grasp and hold tissues or objects, which is the purpose of the forceps in this procedure.",
+      "case131": "Yes, tissue is being cut during this clip.",
+      "case132": "Yes, a large needle driver was used during the surgery."
+    },
+    "sentence": {
+      "case122": "Forceps are not being used here.",
+      "case123": "A large needle driver is not among the listed tools.",
+      "case124": "The type of forceps mentioned is Bipolar Forceps.",
+      "case125": "A suture is required in this surgical step.",
+      "case126": "A large needle driver was not used in this clip.",
+      "case127": "The surgeon is manipulating the uterine horn.",
+      "case128": "A needle driver is involved in the procedure.",
+      "case129": "This summary is describing endoscopic surgery or laparoscopic surgery.",
+      "case130": "The purpose of using forceps in this procedure is to grasp and hold tissues or objects.",
+      "case131": "Tissue is being cut during this clip.",
+      "case132": "A large needle driver was used during the surgery."
+    }
+  }
+}

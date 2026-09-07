@@ -1,0 +1,91 @@
+{
+  "split": "train",
+  "windows": 1131,
+  "shards": 40,
+  "micro": {
+    "mean": 4.688546273248002,
+    "std": 2.0606896727016895,
+    "min": 0.08998749405145645,
+    "max": 15.10031509399414,
+    "p10": 2.5121259689331055,
+    "p50": 4.326058387756348,
+    "p90": 7.445192337036133,
+    "coefficient_of_variation": 0.4395156947601461
+  },
+  "macro": {
+    "mean": 19.269606932826427,
+    "std": 6.818349403555618,
+    "min": 1.2748024463653564,
+    "max": 45.567203521728516,
+    "p10": 11.597861289978027,
+    "p50": 18.29570960998535,
+    "p90": 28.16592788696289,
+    "coefficient_of_variation": 0.35383956856641063
+  },
+  "per_task_micro": {
+    "other": {
+      "n": 1,
+      "mean": 1.5403001308441162,
+      "median": 1.5403001308441162
+    },
+    "range of motion": {
+      "n": 12,
+      "mean": 5.474549760421117,
+      "median": 5.412498712539673
+    },
+    "rectal artery/vein": {
+      "n": 244,
+      "mean": 5.136226071197479,
+      "median": 4.831664562225342
+    },
+    "retraction and collision avoidance": {
+      "n": 40,
+      "mean": 3.2916714370250704,
+      "median": 3.013470768928528
+    },
+    "skills application": {
+      "n": 204,
+      "mean": 6.240082133634417,
+      "median": 5.6878228187561035
+    },
+    "suspensory ligaments": {
+      "n": 91,
+      "mean": 4.731117754192143,
+      "median": 4.52005672454834
+    },
+    "suturing": {
+      "n": 360,
+      "mean": 4.111839369870722,
+      "median": 3.9688639640808105
+    },
+    "uterine horn": {
+      "n": 179,
+      "mean": 3.725331144625914,
+      "median": 3.5473132133483887
+    }
+  },
+  "separability_auc": {
+    "suturing_vs_range of motion": {
+      "micro_auc": 0.3162037037037037,
+      "n_left": 360,
+      "n_right": 12
+    },
+    "suturing_vs_other": {
+      "micro_auc": 0.9583333333333334,
+      "n_left": 360,
+      "n_right": 1
+    },
+    "range of motion_vs_other": {
+      "micro_auc": 1.0,
+      "n_left": 12,
+      "n_right": 1
+    }
+  },
+  "rule_impact": {
+    "cutting_tool_credible": 471,
+    "of_those_in_bottom_decile_of_activity": 46,
+    "bottom_decile_threshold": 2.5121259689331055,
+    "fraction_of_cutting_windows_that_would_flip": 0.09766454352441614,
+    "NOTE": "No cutting label exists in this corpus, so this counts how many answers the rule would CHANGE, not how many it would get right. A count near zero means the rule is inert; a count near all of them means it is reckless."
+  }
+}

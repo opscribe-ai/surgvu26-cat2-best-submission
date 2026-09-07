@@ -1,0 +1,14 @@
+universe        = container
+container_image = file:///staging/n/nkalthoff/surgvu26/surgvu26-train.sif
+executable      = containers/gpu_check_any.sh
+output = logs/gpu_check_any_$(Cluster).out
+error  = logs/gpu_check_any_$(Cluster).err
+log    = logs/gpu_check_any_$(Cluster).log
++WantStagingMount = true
+request_gpus   = 1
+request_cpus   = 1
+request_memory = 4GB
+request_disk   = 4GB
+should_transfer_files   = YES
+when_to_transfer_output = ON_EXIT
+queue 1

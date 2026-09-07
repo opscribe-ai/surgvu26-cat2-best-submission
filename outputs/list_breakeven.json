@@ -1,0 +1,18 @@
+{
+  "results": "list_policy_results.json",
+  "cap": 3,
+  "hit_one": 0.4298156889188582,
+  "hit_many": 0.8952573612047651,
+  "plural_one": 0.3391105527094668,
+  "plural_many": 0.8355343468691572,
+  "singular_one": 0.46719904442477506,
+  "singular_many": 0.48079962132485643,
+  "gain": 0.4964237941596904,
+  "loss": -0.013600576900081374,
+  "breakeven_q": -0.02816885438375364,
+  "salience_top1_installed": 0.9244774106540796,
+  "salience_any_installed": 0.9714542593841312,
+  "salience_one": 0.9294289460635555,
+  "salience_many": 0.5106653807641657,
+  "salience_breakeven_q": 0.4575714043372488
+}

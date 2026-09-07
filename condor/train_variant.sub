@@ -1,0 +1,79 @@
+# Trains the Large/Mega needle-driver head (Task 10) inside
+# surgvu26-train.sif on a GPU execute node, then fits and writes its
+# abstention cutoff.
+#
+# Modelled on condor/train.sub (GPU request, staging-mount guard, TORCH_HOME
+# convention -- every existing training job in this repo shares that shape)
+# merged with condor/detect_smoke.sub (+WantStagingMount to reach the yolov5
+# checkout and best.pt by absolute path, and the scratch pip-install of
+# yolov5's missing import-time dependencies). This job needs both: it runs
+# surgvu.detect.Detector to crop needle-driver boxes for its training
+# examples (the detect_smoke half) and then trains a ResNet-18 on a GPU (the
+# train half). See condor/train_variant.sh for the dependency list and why
+# each package is there.
+#
+# Run from the repo root, after: mkdir -p logs
+#   condor_submit condor/train_variant.sub \
+#       args="--out-weights /staging/n/nkalthoff/surgvu26/models/variant_head.pt \
+#             --out-config /staging/n/nkalthoff/surgvu26/models/variant_head.json"
+#
+# `args` is a submit-time macro with no default -- at minimum --out-weights
+# must be supplied, since scripts/train_variant.py requires it.
+#
+# variant_head.json (and the .pt weights it points at) land on /staging, not
+# in the repo -- transfer_output_files is empty below, matching every other
+# training job here (see condor/train.sub's comment on why: outputs written
+# straight to /staging need nothing brought home, and an unset
+# transfer_output_files with ON_EXIT would otherwise ship back the
+# __pycache__ trees this job creates inside the transferred src/ and
+# scripts/ directories). Copy config/variant_head.json from staging into the
+# repo and commit it as a separate step once the run has a result to report.
+
+universe        = container
+container_image = file:///staging/n/nkalthoff/surgvu26/surgvu26-train.sif
+
+executable   = condor/train_variant.sh
+arguments    = "scripts/train_variant.py $(args)"
+
++WantStagingMount = true
+
+should_transfer_files   = YES
+when_to_transfer_output = ON_EXIT
+transfer_input_files    = src, scripts, config
+transfer_output_files   =
+
+# Same defaults as condor/train.sub, for the same reason: a bare value here
+# would silently override a `cpus=`/`memory=` macro passed on the command
+# line instead of composing with it.
+request_cpus    = $(cpus:8)
+request_memory  = $(memory:64GB)
+request_disk    = $(disk:20GB)
+request_gpus    = 1
+# Any modern card trains fine; deployment is a T4, so final timing and
+# numeric validation should still be spot-checked under require_gpus on an
+# RTX 2080 Ti (compute capability 7.5, identical to T4) before this head
+# ships, exactly as condor/train.sub notes for the other experts.
+require_gpus    = (GlobalMemoryMb >= $(gpumem:16000))
+
+# Same blacklist as condor/train.sub: dbrundage-chtcgpu5000 advertises the
+# staging mount and does not deliver it, which the guard in
+# condor/train_variant.sh turns into a fast, clean exit (75) instead of a
+# confusing one -- this line is what stops that from being a retry loop.
+# BOTH chtcgpu5000 boxes advertise staging but do not mount it: a job
+# landing there dies at "FATAL: /staging is not mounted". dbrundage was
+# found first; zliu-chtcgpu5000 hit the v6 smoke train (job 9710296,
+# 2026-08-27) the same way. The guard in the .sh exits in seconds, but
+# nothing requeues the job, so it must not be scheduled there at all.
+requirements = (Machine != "dbrundage-chtcgpu5000.chtc.wisc.edu") && \
+               (Machine != "zliu-chtcgpu5000.chtc.wisc.edu")
+
+output = logs/train_variant_$(Cluster).out
+error  = logs/train_variant_$(Cluster).err
+log    = logs/train_variant_$(Cluster).log
+
+# 5, not 1: condor/train_variant.sh exits 75 immediately on a node where
+# +WantStagingMount did not take effect, which is a node-specific fault a
+# retry genuinely fixes (see condor/train.sub's identical reasoning).
+max_retries = 5
+
+queue 1

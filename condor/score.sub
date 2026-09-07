@@ -1,0 +1,36 @@
+# Scores candidate answers with the official metric on a compute node.
+#
+#   condor_submit condor/score.sub candidates="a_candidates.json b_candidates.json"
+#
+# universe=vanilla, not container: condor/score.sh runs `apptainer exec` on
+# the extract .sif, which cannot be nested inside a container-universe job.
+#
+# The metric is BERTScore-F1 with roberta-large, loaded from the /staging HF
+# cache on CPU. It is slow to START -- several minutes before the first table
+# prints -- so a job that looks stuck for four minutes is not stuck.
+
+universe   = vanilla
+executable = condor/score.sh
+arguments  = "$(candidates)"
+
++WantStagingMount = true
+
+transfer_input_files = src, scripts, $(transfer)
+
+request_cpus   = 4
+request_memory = 16GB
+request_disk   = 8GB
+
+output = logs/score_$(Cluster).out
+error  = logs/score_$(Cluster).err
+log    = logs/score_$(Cluster).log
+
+should_transfer_files   = YES
+when_to_transfer_output = ON_EXIT
+# The result is the table in the log; nothing is written to disk worth
+# bringing home, and leaving this unset would drag back __pycache__ trees.
+transfer_output_files   =
+
+max_retries = 2
+
+queue 1

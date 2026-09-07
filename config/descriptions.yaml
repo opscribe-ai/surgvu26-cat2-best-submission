@@ -1,0 +1,115 @@
+other:
+- Separating the rectum and mesorectum from the lateral pelvic wall. Left side can be more difficult because
+  of sub-optimal view (based on port placement)
+- To be used as a catch-all for surgical activity not already captured in any other defined task or tag.
+  This is how you can add any additional clinical context. Comment in free text to briefly describe.
+- 'anastomosis tasks or for complete VUA; If suture breaks: stop to Segment out section of video where
+  model is pulled out for proctor to address and restart (after model is placed back in the dome) new
+  pickup of needle or suture  Note: This task may be utilized for several different dry lab studies. Therefore,
+  start and stop times as well as task description may be subject to additional details for annotator
+  alignment that are not fully captured in the card description'
+range of motion:
+- The trainer will apply pressure to porcine body wall creating a target. The surgeon will then move all
+  tools to this target while maintaining endoscopic view of all tools. This will be repeatd for the opposite
+  side. Then finishing up the surgeon will move all intruments cephalad unitl the endoscope horizon disappears,
+  and then wll return to the starting position
+rectal artery/vein:
+- After completing the tool exchange and moving the endoscope to the port, the surgeon will begin with
+  by retracting the sigmoid colon and locking it in place. This is done to reveal the superior rectal
+  vein and artery. The surgeon then begins mobilizing a length of 3cm down the rectal vein and artery
+  creating a window for the clip applier. The surgeon will then apply two clips to the proximal side of
+  the artery and one to the distal leaving enough room for the vessel sealer between them. On the rectal
+  vein one clip will be placed proximal and one placed distal leaving enough room for transection. Once
+  the clips are placed the surgeon will transect both the rectal vein and artery with either the monopolar
+  curved scissors or the vessel sealer.
+- Surgeon begins by tracing the right ovary and retracting the window of tissue as shown by the trainer.
+  From here the surgeon will cauterize and transect the fallopian tube separating it from the uterine
+  horn. Then the surgeon will practice using different energy to mobilize the uterine horn from the broad
+  ligament. The surgeon will medially back and continue the mobilization as far down as easily assessable.
+  These steps will then be repeated for the left side. Finally, the surgeon will use both Bipolar and
+  Monopolar energy to cauterize and amputate the uterine body, freeing it.
+retraction and collision avoidance:
+- Separating the rectum and mesorectum from the lateral pelvic wall. Left side can be more difficult because
+  of sub-optimal view (based on port placement)
+- Dissection of the urethra  connected to the apex of the prostate.
+- First exercise on the surgeon console. Trainers will review the functions of the surgeon console along
+  with specific preferences (such as brightness and contrast). Then will move on to third arm retraction
+  exercises. The goal of the exercise being how to position the third arm correctly and the interferences
+  that can occur with incorrect positioning. The CSR will draw targets within on a gride (one at a time)
+  and surgeon will demonstrate retraction with third arm along with repositioning of primary tools to
+  the target. The endoscope will not be repositioned during and there are 6 targets. This will then be
+  repeated but this time the bladder fundus will be retracted by the third arm to the target area.
+skills application:
+- The surgeon will remove the gallbladder. If ICG was administered during opional fluorescence imaging
+  demo, then firefly can be used to visualize the extraphepatic ducts.
+- The surgeon will begin by removing the right pelvic lymph nodes. The will continue  with the skeletonization
+  of the right iliac vein and artery removing lymph nodes along the way. The surgeon will continue this
+  back to the aorta where the para-arotic lymphadenectomy will be completed. If time allows may complete
+  left side as well.
+- Separating the rectum and mesorectum from the lateral pelvic wall. Left side can be more difficult because
+  of sub-optimal view (based on port placement)
+suspensory ligaments:
+- Surgeon begins by retracting the bladder anteriorly, so the suspensory ligaments are under tension and
+  dome of the bladder is tucked behind the small grasping retractor. Then the surgeon will cauterize the
+  left suspensory ligament with bipolar energy. Then using the monopolar curved scissors will cut the
+  suspensory ligament where it was cauterized to expose the window between the medial and lateral leaf
+  of the ligament. The surgeon then bluntly dissects revealing the ureter and will continue the dissection
+  up to where the ureter inserts into the bladder. When finished on the left sided the surgeon will then
+  complete the right side following the same steps.
+suturing:
+- Separating the rectum and mesorectum from the lateral pelvic wall. Left side can be more difficult because
+  of sub-optimal view (based on port placement)
+- The surgeon will switch the endoscope to 30degrees down before grasping the inferior portion of the
+  sigmoid colon with the third arm. The surgeon will then retract the arm and lock it into place. The
+  surgeon then marks 6 rows of 2 targets each with the monopolar scissors. Then the surgeon will exchange
+  tools with mega needle driver being placed in the dominant hand and a large needle driver in the non-dominant.
+  then the surgeon will complete the running suture using both hand-over-hand method and pulley method.
+  This will be completed with special attention to tissue blanching and lack of movement in the knot.
+- Excess bleeding occurs which requires surgeon to pause current task (energy, pressure, suctioning, suturing
+  may be required)
+- The surgeon will grasp and retract the superior portion of the sigmoid colon caudally and lock into
+  place. Then will mark 4 rows of 2 targets about one needle driver length apart along the sigmoid colon.
+  After exchanging tools, the surgeon will grasp the suture and complete 4 interrupted sutures with a
+  surgeon’s knot and 2 half-hitches all using two-handed robotic suturing technique. (knots are tied from
+  left to right, or right to left with a main line swap between hands during the half-hitches)
+- Surgeon will grasp the sigmoid colon directly inferior to the prior 2-handed stitching area and retract
+  cephalad and lock the third arm in place. From there the surgeon mark 2 rows of 4 targets with monopolar
+  scissors along the sigmoid colon all one needle driver's length apart. After exchanging tools, the surgeon
+  will now use one handed Robotic suturing techniques to complete 4 interrupted sutures each with a surgeon's
+  knot and 2 half-hitches. (knots are tied vertically or from 12 to 6 o'clock positions or 6 to 12; for
+  the half- hitches one hand will maintain grip on main line through the entire knot tying process)
+- Surgeon will retract the bladder anteriorly so that the ureters entering the bladder can be easily seen.
+  The surgeon will then amputate the bladder 3cm above the ureters on an even plain.  The surgeon will
+  then pexy the bladder with a suture on both sides to simulate the orientation of vaginal cuff. Once
+  complete the surgeon will preform the vaginal cuff closure with the tools of their choice.
+- Using the transected sigmoid  from previous exercise, the surgeon will position two sections of colon
+  side by side using retraction arm as needed (further mobilization of colon may be preformed to allow
+  for positioning). The surgein will then place proximal and distal stay stitches to hold the positioning.
+  The sugeon will then create a small enterotomy, just large enough for the stapler to enter, on both
+  sections. The stapler will then be inserted, and the jaws will be feed through the enterotomies. The
+  stapler then will clamp dow on the colon and the surgeon will preform the stapler firing sequence. the
+  surgeon will then complete the exerise with a single-layer closure of the now common enterotomy.
+- Surgeon begins by tracing the right ovary and retracting the window of tissue as shown by the trainer.
+  From here the surgeon will cauterize and transect the fallopian tube separating it from the uterine
+  horn. Then the surgeon will practice using different energy to mobilize the uterine horn from the broad
+  ligament. The surgeon will medially back and continue the mobilization as far down as easily assessable.
+  These steps will then be repeated for the left side. Finally, the surgeon will use both Bipolar and
+  Monopolar energy to cauterize and amputate the uterine body, freeing it.
+- Suregon wil begin by creating a 4cm long by 3cm wide horizontal incision beginning at the location of
+  palpation and extending medially. The surgeon will then place the  6cm mesh preperitoneal on the adominal
+  wall and anchor with 3-4 interrupted sutures where desired. The surgeon will finish by closing the peritoneum
+  with their preferred technique.
+- Surgeon creates a 2cm long by 1.5 cm wide incision 15cm inferior to umbilicus at location of assistant
+  palpation. The surgeon wil then suture the mesh to the wall using their prefered technique. The surgeon
+  will then close the incision with their choice of suture technique.
+- 'suturing task Note: This task may be utilized for several different dry lab studies. Therefore, start
+  and stop times as well as task description may be subject to additional details for annotator alignment
+  that are not fully captured in the card description'
+- With larger hernia defect, extra closure might be required.
+uterine horn:
+- Surgeon begins by tracing the right ovary and retracting the window of tissue as shown by the trainer.
+  From here the surgeon will cauterize and transect the fallopian tube separating it from the uterine
+  horn. Then the surgeon will practice using different energy to mobilize the uterine horn from the broad
+  ligament. The surgeon will medially back and continue the mobilization as far down as easily assessable.
+  These steps will then be repeated for the left side. Finally, the surgeon will use both Bipolar and
+  Monopolar energy to cauterize and amputate the uterine body, freeing it.

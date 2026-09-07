@@ -1,0 +1,167 @@
+# Runs scripts/cache_evidence.py inside surgvu26-train.sif (v5 plan3's Task
+# 4 evidence-parity follow-up): for every one of the 15,087 distinct windows
+# in /staging/n/nkalthoff/surgvu26/qa_frames_manifest.jsonl, runs the SAME
+# perception stack scripts/inference.py runs at serving time -- the CNN
+# tool/task heads (surgvu.perceive), surgvu.detect.Detector, surgvu.variant.
+# VariantHead, surgvu.motion.motion_record_v2, surgvu.agreement.
+# agreement_record -- and caches the result to /staging/n/nkalthoff/surgvu26/
+# evidence_cache.jsonl, one JSONL record per window: {case, part, t_start,
+# t_stop, evidence}. `evidence` carries exactly the shape
+# surgvu.perceive.clip_record returns at serving time, so a follow-up
+# scripts/train_vlm.py retrain against this cache is what finally lets
+# config/arbiter.json's vlm_evidence_context flip to true with training and
+# serving still matching. See scripts/cache_evidence.py's own module
+# docstring for the full design -- in particular why this NEVER reads
+# tools.csv/tasks.csv (the ground truth) to build the cache.
+#
+# Modelled on condor/build_qa_frames.sub, which already works and already
+# handles the staging mount and the 2.97GB .sif image; condor/
+# cache_evidence.sh additionally installs yolov5's missing dependencies into
+# scratch, mirroring condor/detect_sample.sh/condor/variant_sample.sh (both
+# already run this exact detector/variant head against real clips).
+#
+# A SMOKE TEST FIRST is strongly recommended -- --limit caps how many NEW
+# windows are processed (already-cached windows from a prior run never count
+# against it), so this pays for a handful of real decode+model passes and
+# reports real per-window wall-clock without committing to the full run:
+#
+#   mkdir -p logs
+#   condor_submit condor/cache_evidence.sub args="--limit 20"
+#
+# Then the real run (same defaults, no --limit):
+#
+#   mkdir -p logs
+#   condor_submit condor/cache_evidence.sub
+#
+# RESUME AFTER EVICTION: re-submit with the SAME (default) --out. scripts/
+# cache_evidence.py's own load_cached_keys skips every window already
+# written to that file, mirroring condor/train_vlm.sub's identical
+# resume-from-checkpoint convention -- this job runs for hours over 15,087
+# windows and HTCondor eviction is a real, observed risk on this cluster
+# (see condor/train_vlm.sub's own cluster-9629572 note).
+
+universe                = container
+container_image         = file:///staging/n/nkalthoff/surgvu26/surgvu26-train.sif
+
+executable              = condor/cache_evidence.sh
+# `$(args)`, unset by default -- an unset HTCondor macro expands to empty,
+# matching condor/train_vlm.sub's identical `$(args)` (no colon-default)
+# convention, rather than the per-flag positional macros condor/
+# build_qa_frames.sub uses. cache_evidence.sh forwards this whole string as
+# "$@" to scripts/cache_evidence.py's own argparse, so any of that script's
+# flags (--limit, --no-yolo, --no-variant-head, --out, ...) can be set this
+# way without a new macro per flag.
+arguments               = "$(args)"
+
+# Required for the same two reasons condor/build_qa_frames.sub/condor/
+# detect_sample.sub already need it: reaching the .sif under
+# /staging/n/nkalthoff, and reaching everything this job reads/writes by
+# absolute path rather than via transfer_input_files (HTCondor refuses to
+# transfer files directly from/to /staging at all -- see condor/extract.sub):
+#   /staging/n/nkalthoff/surgvu26/qa_frames_manifest.jsonl        (input)
+#   /staging/groups/bhaskar_opscribe/surgvu/videos/surgvu24     (input, video)
+#   /staging/groups/bhaskar_opscribe/surgvu_yolo_detector/*     (input, yolo)
+#   /staging/n/nkalthoff/surgvu26/models/{tools,task}_*.pt        (input, CNNs)
+#   /staging/n/nkalthoff/surgvu26/models/variant_head.{pt,json}   (input, variant)
+#   /staging/n/nkalthoff/surgvu26/evidence_cache.jsonl            (output)
+#   /staging/n/nkalthoff/surgvu26/evidence_cache_report.json      (output)
++WantStagingMount       = true
+
+should_transfer_files   = YES
+when_to_transfer_output = ON_EXIT
+# src/scripts/config are the only local inputs this job needs: config/ is
+# new relative to condor/build_qa_frames.sub because this job (unlike that
+# one) reads config/perception.json, config/variant_head.json and
+# config/splits_v2.json directly, mirroring condor/train_vlm.sub's identical
+# transfer_input_files list for the identical reason.
+transfer_input_files    = src, scripts, config
+# Empty, not unset -- an unset transfer_output_files with ON_EXIT would ship
+# back the __pycache__ trees this job creates inside the transferred src/
+# scripts/ directories (and the scratch .cache_evidence_deps/ pip install)
+# instead of nothing, exactly like condor/train_vlm.sub's identical setting
+# for the identical reason. Everything this job actually produces (the
+# evidence cache, the drop-count report) is written straight through the
+# staging mount, never to job scratch.
+transfer_output_files   =
+
+# CPU count matches condor/build_qa_frames.sub/condor/dump_motion_v2.sub,
+# both already doing the identical seek-decode-through-decode_clip_multiscale
+# work this job's decode step does (index_range seeking, no temporary clip
+# cut, no re-encode) -- the added GPU forward passes below do not need more
+# host CPU to feed them.
+request_cpus            = 4
+# 16GB, a deliberate step up from build_qa_frames.sub's 8GB (which loads no
+# models at all): this job holds the tools + task CNN checkpoints, the
+# YOLOv5 detector, and the variant ResNet18 in host memory at once (state
+# dicts land in RAM before `.to(device)` moves them to the GPU), plus the
+# pandas/matplotlib/seaborn import chain condor/cache_evidence.sh installs
+# for the detector. None of that approaches the 64GB condor/train_vlm.sub
+# requests for a 7B-parameter VLM -- these are all small CNN/ResNet-class
+# models -- but 8GB would leave too little headroom to trust across a
+# multi-hour, 15,087-window run.
+request_memory           = 16GB
+
+# SIZED DELIBERATELY -- read this before changing it, per condor/
+# build_qa_frames.sub's own history: a 2GB request HELD that job outright
+# (surgvu26-train.sif ALONE is 2.97GB and has to land on local disk before
+# the container can even start) and a 4GB request left only ~1GB of
+# headroom once it landed. This job adds ONE thing that job never paid for:
+# condor/cache_evidence.sh's scratch pip --target install of yolov5's
+# missing dependencies (pandas/matplotlib/seaborn pull in a handful of
+# transitive wheels -- condor/detect_sample.sub sizes an entire job's disk
+# at 4GB for exactly that install, on top of a SMALLER image assumption).
+# 12GB is build_qa_frames.sub's proven 8GB floor plus that same margin,
+# rather than guessing low a second time on this project.
+request_disk             = 12GB
+
+request_gpus             = 1
+# 24GB floor, matching condor/train_vlm.sub's default -- NOT because this
+# job needs anywhere near that much (it never loads a 7B-parameter model;
+# every checkpoint here is a ResNet/EfficientNet/YOLOv5-class CNN, comfortably
+# under a few GB total on any real GPU), but because `require_gpus` filters
+# on the CARD's advertised memory, not this job's actual footprint, and
+# `(GlobalMemoryMb >= $(gpumem:24000))` ALSO ADMITS 40GB MIG slices --
+# roughly a THIRD of a full card's throughput -- at the same floor a full
+# 24GB+ card clears. For a single multi-hour, 15,087-window run that
+# throughput difference is worth avoiding: pass gpumem=80000 on the
+# condor_submit command line to target only full (non-MIG) cards instead,
+# e.g.:
+#   condor_submit condor/cache_evidence.sub gpumem=80000
+require_gpus              = (GlobalMemoryMb >= $(gpumem:24000))
+
+# Same blacklist as condor/train.sub/condor/train_variant.sub/condor/
+# train_vlm.sub: dbrundage-chtcgpu5000 advertises the staging mount and does
+# not deliver it, which condor/cache_evidence.sh's guard turns into a fast,
+# clean exit (75) instead of a confusing one -- this line is what stops
+# that from becoming a retry loop against the same broken node.
+requirements = (Machine != "dbrundage-chtcgpu5000.chtc.wisc.edu")
+
+output = logs/cache_evidence_$(Cluster).out
+error  = logs/cache_evidence_$(Cluster).err
+# Stream stdout/stderr live rather than transferring them at exit. Without
+# this a multi-hour job with no live output is INVISIBLE until it finishes --
+# condor/train_vlm.sub's own comment records losing real time to exactly
+# this (cluster 9697941 ran 45+ minutes with no readable .out). This job's
+# per-100-windows progress line (scripts/cache_evidence.py's
+# process_manifest) is the only signal of whether it is making progress at
+# all across a run this long.
+stream_output   = True
+stream_error    = True
+log    = logs/cache_evidence_$(Cluster).log
+
+# 5, matching condor/train_vlm.sub/condor/train_variant.sub: condor/
+# cache_evidence.sh exits 75 immediately on a node where +WantStagingMount
+# did not take effect, which is a node-specific fault a retry genuinely
+# fixes -- and this job's own resume-by-window (load_cached_keys) means a
+# retry after a real mid-run failure does not restart from window 0 either.
+# Exclude the node whose +WantStagingMount does not take effect. Cluster 9698176
+# retried the full max_retries=5 and EVERY ONE of the 6 executions was matched to
+# zliu-chtcgpu5000, so the retries bought nothing -- condor rematched the identical
+# faulty machine each time. Retrying a node-specific fault only helps if the retry
+# can land somewhere else. cache_evidence.sh's exit-75 guard did its job (3s, no
+# garbage written); this is what makes the guard actionable.
+Requirements = (Machine != "zliu-chtcgpu5000.chtc.wisc.edu")
+
+max_retries = 5
+
+queue 1

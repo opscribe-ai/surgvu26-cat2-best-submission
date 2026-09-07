@@ -1,0 +1,282 @@
+{
+  "dump": "/staging/n/nkalthoff/surgvu26/v2/frame_probs_resnetlong_val.npz",
+  "size_distribution": {
+    "0": 0.039482200647249194,
+    "1": 0.13937432578209277,
+    "2": 0.37842502696871627,
+    "3": 0.42179072276159657,
+    "4": 0.020280474649406688,
+    "over": 0.0006472491909385113
+  },
+  "rows": [
+    {
+      "size": 1,
+      "classes": [
+        "vessel sealer"
+      ],
+      "names": [
+        "Vessel Sealer"
+      ],
+      "windows": 137,
+      "prefix": {
+        "1": 1.0
+      },
+      "single_mean": 1.0,
+      "over_listed": 0.5981444120407104
+    },
+    {
+      "size": 1,
+      "classes": [
+        "permanent cautery hook/spatula"
+      ],
+      "names": [
+        "Permanent Cautery Hook"
+      ],
+      "windows": 135,
+      "prefix": {
+        "1": 1.0
+      },
+      "single_mean": 1.0,
+      "over_listed": 0.621764600276947
+    },
+    {
+      "size": 1,
+      "classes": [
+        "needle driver"
+      ],
+      "names": [
+        "Needle Driver"
+      ],
+      "windows": 124,
+      "prefix": {
+        "1": 1.0000007152557373
+      },
+      "single_mean": 1.0000007152557373,
+      "over_listed": 0.521653413772583
+    },
+    {
+      "size": 2,
+      "classes": [
+        "cadiere forceps",
+        "needle driver"
+      ],
+      "names": [
+        "Cadiere Forceps",
+        "Needle Driver"
+      ],
+      "windows": 1150,
+      "prefix": {
+        "1": 0.4339481294155121,
+        "2": 1.0000007152557373
+      },
+      "single_mean": 0.4139416813850403,
+      "over_listed": 0.6463760733604431
+    },
+    {
+      "size": 2,
+      "classes": [
+        "needle driver",
+        "prograsp forceps"
+      ],
+      "names": [
+        "Needle Driver",
+        "ProGrasp Forceps"
+      ],
+      "windows": 394,
+      "prefix": {
+        "1": 0.447330117225647,
+        "2": 0.9999996423721313
+      },
+      "single_mean": 0.5381782054901123,
+      "over_listed": 0.7509883046150208
+    },
+    {
+      "size": 2,
+      "classes": [
+        "grasping retractor",
+        "needle driver"
+      ],
+      "names": [
+        "Grasping Retractor",
+        "Needle Driver"
+      ],
+      "windows": 45,
+      "prefix": {
+        "1": 0.668452262878418,
+        "2": 1.0
+      },
+      "single_mean": 0.5425076335668564,
+      "over_listed": 0.7134850025177002
+    },
+    {
+      "size": 3,
+      "classes": [
+        "bipolar forceps",
+        "grasping retractor",
+        "monopolar curved scissors"
+      ],
+      "names": [
+        "Bipolar Forceps",
+        "Grasping Retractor",
+        "Monopolar Curved Scissors"
+      ],
+      "windows": 654,
+      "prefix": {
+        "1": 0.17820587754249573,
+        "2": 0.5704819560050964,
+        "3": 1.0000007152557373
+      },
+      "single_mean": 0.3495361606280009,
+      "over_listed": 0.8353103399276733
+    },
+    {
+      "size": 3,
+      "classes": [
+        "bipolar forceps",
+        "cadiere forceps",
+        "monopolar curved scissors"
+      ],
+      "names": [
+        "Bipolar Forceps",
+        "Cadiere Forceps",
+        "Monopolar Curved Scissors"
+      ],
+      "windows": 550,
+      "prefix": {
+        "1": 0.1619318276643753,
+        "2": 0.5437111854553223,
+        "3": 1.0
+      },
+      "single_mean": 0.24291126660925025,
+      "over_listed": 0.8096301555633545
+    },
+    {
+      "size": 3,
+      "classes": [
+        "cadiere forceps",
+        "force bipolar",
+        "monopolar curved scissors"
+      ],
+      "names": [
+        "Cadiere Forceps",
+        "Force Bipolar",
+        "Monopolar Curved Scissors"
+      ],
+      "windows": 298,
+      "prefix": {
+        "1": 0.21673832833766937,
+        "2": 0.5233256220817566,
+        "3": 0.9999996423721313
+      },
+      "single_mean": 0.30033764739831287,
+      "over_listed": 0.795842707157135
+    },
+    {
+      "size": 4,
+      "classes": [
+        "bipolar forceps",
+        "cadiere forceps",
+        "monopolar curved scissors",
+        "needle driver"
+      ],
+      "names": [
+        "Bipolar Forceps",
+        "Cadiere Forceps",
+        "Monopolar Curved Scissors",
+        "Needle Driver"
+      ],
+      "windows": 63,
+      "prefix": {
+        "1": 0.09558646380901337,
+        "2": 0.4445864260196686,
+        "3": 0.872733473777771,
+        "4": 1.0
+      },
+      "single_mean": 0.19165473151952028,
+      "over_listed": 0.858929455280304
+    },
+    {
+      "size": 4,
+      "classes": [
+        "bipolar forceps",
+        "grasping retractor",
+        "monopolar curved scissors",
+        "needle driver"
+      ],
+      "names": [
+        "Bipolar Forceps",
+        "Grasping Retractor",
+        "Monopolar Curved Scissors",
+        "Needle Driver"
+      ],
+      "windows": 28,
+      "prefix": {
+        "1": 0.0985742136836052,
+        "2": 0.4486848711967468,
+        "3": 0.8528515100479126,
+        "4": 1.0
+      },
+      "single_mean": 0.2571993861347437,
+      "over_listed": 0.8497320413589478
+    },
+    {
+      "size": 4,
+      "classes": [
+        "bipolar forceps",
+        "clip applier",
+        "grasping retractor",
+        "needle driver"
+      ],
+      "names": [
+        "Bipolar Forceps",
+        "Clip Applier",
+        "Grasping Retractor",
+        "Needle Driver"
+      ],
+      "windows": 2,
+      "prefix": {
+        "1": 0.07159334421157837,
+        "2": 0.55068439245224,
+        "3": 0.8445868492126465,
+        "4": 1.0
+      },
+      "single_mean": 0.21706420183181763,
+      "over_listed": 0.8423604965209961
+    }
+  ],
+  "payoff": {
+    "1": {
+      "cells": {
+        "1": 1.000000238418579
+      },
+      "over_listed": 0.5805208086967468
+    },
+    "2": {
+      "cells": {
+        "1": 0.4982091734806697,
+        "2": 1.0000001192092896
+      },
+      "over_listed": 0.7036164601643881
+    },
+    "3": {
+      "cells": {
+        "1": 0.29759502487852135,
+        "2": 0.5458395878473917,
+        "3": 1.0000001192092896
+      },
+      "over_listed": 0.813594400882721
+    },
+    "4": {
+      "cells": {
+        "1": 0.2219727731620272,
+        "2": 0.48131856322288513,
+        "3": 0.85672394434611,
+        "4": 1.0
+      },
+      "over_listed": 0.8503406643867493
+    }
+  },
+  "expected_one": 0.47707861510861693,
+  "expected_all": 1.000000133999923,
+  "delta": 0.522921518891306
+}

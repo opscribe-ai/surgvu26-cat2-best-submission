@@ -1,0 +1,61 @@
+# scripts/per_intent_table.py -- measures the router against the Evidence VLM
+# per intent and prints the `vlm_intents` list config/arbiter.json's
+# `per_intent` mode consumes.
+#
+#   condor_submit condor/per_intent.sub args="\
+#     --eval-report /staging/n/nkalthoff/surgvu26/models/v6_stage2/eval_report.json \
+#     --evidence-cache /staging/n/nkalthoff/surgvu26/evidence_cache.jsonl \
+#     --manifest /staging/n/nkalthoff/surgvu26/qa_frames_manifest_v2.jsonl \
+#     --splits config/splits_v2.json \
+#     --max-eval-examples 300 --seed 0 \
+#     --label v6_stage2 --output /staging/n/nkalthoff/surgvu26/models/v6_stage2/per_intent_v6.json"
+#
+# --manifest AND --splits ARE NOT OPTIONAL HERE. The script's own --manifest
+# default is the V1 manifest and --splits defaults to None, but v6 stage 2
+# trained on qa_frames_manifest_v2.jsonl against config/splits_v2.json. Feed it
+# the defaults and it rebuilds a DIFFERENT eval sample, which its case_id guard
+# then rejects. --max-eval-examples and --seed must likewise match what wrote
+# the report: train_vlm.py's DEFAULT_MAX_EVAL_EXAMPLES = 300 and
+# DEFAULT_SEED = 0, and job 9713019 passed neither, so both took the default.
+
+universe        = container
+container_image = file:///staging/n/nkalthoff/surgvu26/surgvu26-train.sif
+
+executable   = condor/per_intent.sh
+arguments    = "scripts/per_intent_table.py $(args)"
+
++WantStagingMount = true
+
+should_transfer_files   = YES
+when_to_transfer_output = ON_EXIT
+# config/ as well as src/scripts: --splits points at config/splits_v2.json,
+# which is a repo path, not a /staging one.
+transfer_input_files    = src, scripts, config
+# The table is written to /staging via --output. Leaving this empty stops the
+# __pycache__ trees created inside the transferred src/ and scripts/ from being
+# shipped back, exactly as condor/merge_quantise.sub documents.
+transfer_output_files   =
+
+# CPU-ONLY AND DELIBERATELY SO: this job never loads the VLM. It loads the
+# regex router plus a BERTScorer over roberta-large and scores ~300 router
+# answers. request_gpus would only make it queue behind real GPU work.
+request_cpus    = $(cpus:8)
+request_memory  = $(memory:32GB)
+request_disk    = $(disk:20GB)
+
+# Same blacklist as condor/merge_quantise.sub: both chtcgpu5000 boxes advertise
+# the staging mount and do not deliver it.
+requirements = (Machine != "dbrundage-chtcgpu5000.chtc.wisc.edu") && \
+               (Machine != "zliu-chtcgpu5000.chtc.wisc.edu")
+
+output = logs/per_intent_$(Cluster).out
+error  = logs/per_intent_$(Cluster).err
+log    = logs/per_intent_$(Cluster).log
+stream_output   = True
+stream_error    = True
+
+# The staging-mount guard in condor/per_intent.sh exits 75 immediately on a bad
+# node, which is a node-specific fault a retry genuinely fixes.
+max_retries = 5
+
+queue 1

@@ -1,0 +1,30 @@
+# Scores the two DENSE-POOL conversion arms once they finish.
+#
+#   condor_submit_dag condor/dense_dumps.dag
+#
+# Those two arms (TSM @384 cluster 9655165, I3D @224 cluster 9655166) were
+# launched before the main DAG existed, so nothing was scheduled to evaluate
+# them. They finish around 01:30 and 00:30 unattended, and an arm that
+# finishes and sits unscored has not finished.
+#
+# The gate waits on QUEUE MEMBERSHIP rather than on the checkpoint file --
+# see condor/gate_cluster.sh for why the file is the wrong signal.
+
+JOB gate           condor/gate_cluster.sub
+JOB dump_tsm_dense condor/train_temporal.sub
+JOB dump_i3d_dense condor/train_temporal.sub
+
+VARS gate clusters="9655165 9655166"
+
+VARS dump_tsm_dense node="dumptsmdense" memory="32GB" gpumem="16000" \
+  script="scripts/dump_temporal_probs.py" \
+  args="--checkpoint /staging/n/nkalthoff/surgvu26/models/tools_tsm_dense.pt --shards /staging/n/nkalthoff/surgvu26/shards_dense --out /staging/n/nkalthoff/surgvu26/dumps/temporal_tsm_dense.npz"
+
+VARS dump_i3d_dense node="dumpi3ddense" memory="32GB" gpumem="16000" \
+  script="scripts/dump_temporal_probs.py" \
+  args="--checkpoint /staging/n/nkalthoff/surgvu26/models/tools_i3d_dense.pt --shards /staging/n/nkalthoff/surgvu26/shards_dense --out /staging/n/nkalthoff/surgvu26/dumps/temporal_i3d_dense.npz"
+
+PARENT gate CHILD dump_tsm_dense dump_i3d_dense
+
+RETRY dump_tsm_dense 1
+RETRY dump_i3d_dense 1

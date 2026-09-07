@@ -1,0 +1,59 @@
+# The submission image ships src/, scripts/, config/ and models/ and nothing
+# else. Everything below either bloats the image, leaks machine-specific
+# paths, or -- in the case of the sample videos and the splits -- would ship
+# challenge data inside a container we hand to the organizers.
+#
+# This file belongs at the ROOT of the build context, beside the Dockerfile.
+# containers/build_submission.sh places it there.
+
+.git
+.git/
+.gitignore
+.github/
+
+# Tests, notebooks and tooling: not needed to answer a question, and pytest is
+# not installed in the image.
+tests/
+tools/
+conftest.py
+pyproject.toml
+*.egg-info/
+src/surgvu.egg-info/
+
+# Byte-compiled everything. PYTHONDONTWRITEBYTECODE keeps new ones from
+# appearing; this keeps stale host-built ones from being copied in.
+__pycache__/
+**/__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Job logs and outputs from CHTC runs. logs/ alone is tens of thousands of
+# files.
+logs/
+outputs/
+condor/
+validate_work/
+*_results.json
+*_candidates.json
+
+# Data. NONE of this may enter the image: the sample videos are challenge
+# material, and the extracted shards are hundreds of GB.
+data/
+shards/
+model_cache/
+*.mp4
+*.zip
+*.sif
+
+# Container build scaffolding -- the image does not need the recipe that built
+# it. The Dockerfile itself is exempted below so a `docker build -f Dockerfile`
+# from a context assembled by build_submission.sh still finds it.
+containers/
+!Dockerfile
+
+# Documentation and the perception configs that are not the frozen binding.
+docs/
+*.md
+.venv_scoring/
+.apptainer_cache/
+.apptainer_tmp/

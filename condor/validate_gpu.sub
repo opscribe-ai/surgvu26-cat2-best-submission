@@ -1,0 +1,52 @@
+# Validates the submission entrypoint on a GPU execute node.
+#
+#   condor_submit condor/validate_gpu.sub
+#
+# Deployment is either No GPU or a single T4 (sm_75). This is the T4 arm; the
+# CPU arm is condor/validate_cpu.sub. Capability >= 7.5 keeps us off cards
+# OLDER than the deployment target -- a Pascal timing would be pessimistic in
+# a way we could not interpret. The card we actually land on is printed by
+# condor/validate.sh, so the number is always readable against a named GPU.
+
+universe                = container
+container_image         = file:///staging/n/nkalthoff/surgvu26/surgvu26-train.sif
+
+executable              = condor/validate.sh
+arguments               = "auto"
+
++WantStagingMount       = true
+
+should_transfer_files   = YES
+when_to_transfer_output = ON_EXIT
+transfer_input_files    = src, scripts, config
+
+request_cpus            = 8
+# The deployment cap is 32GB; asking for exactly that is the point -- a run
+# that needs more here would need more there.
+request_memory          = 32GB
+# 11 sample videos are copied into a per-case /input (188GB total is 188MB),
+# plus two 82MB checkpoints. 16GB is ample.
+request_disk            = 16GB
+request_gpus            = 1
+# Overridable so the same file serves both arms:
+#   condor_submit condor/validate_gpu.sub                              -> any card >= sm_75
+#   condor_submit condor/validate_gpu.sub capability="Capability == 7.5" -> an RTX 2080 Ti,
+#     which is compute capability 7.5, IDENTICAL to the deployment T4.
+# The unpinned form is what lands first and proves correctness; the pinned
+# form is what makes the TIMING quotable against the real target. The first
+# run of this file landed on an L40 (sm_89) -- valid, but optimistic.
+capability              = Capability >= 7.5
+require_gpus            = $(capability)
+
+# Only the two small JSON reports come home. Left unset, ON_EXIT would drag
+# back validate_work/ -- eleven copies of the sample videos -- and the
+# __pycache__ trees Python writes into the transferred src/ and scripts/.
+transfer_output_files   = gpu_f16_candidates.json, gpu_f16_results.json
+
+log                     = logs/validate_gpu_$(Cluster).log
+error                   = logs/validate_gpu_$(Cluster).err
+output                  = logs/validate_gpu_$(Cluster).out
+
+max_retries             = 2
+
+queue 1

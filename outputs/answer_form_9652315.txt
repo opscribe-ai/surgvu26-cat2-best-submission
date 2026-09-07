@@ -1,0 +1,192 @@
+host: e4017  start: Thu Aug 13 12:15:03 CDT 2026
+== inputs ==
+f41e52970d76454a4dd15ac2ce3439d401d88133ada21b30951a79980244341f  answer_forms.json
+14bccc343820baca169f1080b3ff71c1442c5bee4fd5ef2d407a1ad07db0904d  perception_serving.json
+== the reference structure we actually have ==
+case122   refs=5  bare_first=True   reference[0]='No'
+case123   refs=5  bare_first=True   reference[0]='No'
+case124   refs=5  bare_first=True   reference[0]='Cadiere Forceps'
+case125   refs=5  bare_first=True   reference[0]='Yes'
+case126   refs=5  bare_first=True   reference[0]='Yes'
+case127   refs=5  bare_first=True   reference[0]='Uterine horn'
+case128   refs=5  bare_first=True   reference[0]='Yes'
+case129   refs=5  bare_first=False  reference[0]='Endoscopic surgery or a laparoscopic surgery'
+case130   refs=5  bare_first=False  reference[0]='To grasp and hold tissues or objects during the surgery.'
+case131   refs=5  bare_first=True   reference[0]='Yes'
+case132   refs=5  bare_first=True   reference[0]='No'
+
+== candidate sets ==
+-- hedged
+   case122   'No, there are no forceps being used here.'
+   case123   'No, a large needle driver is not among the listed tools.'
+   case124   'Bipolar Forceps, which is the type of forceps mentioned.'
+   case125   'Yes, a suture is required in this surgical step.'
+   case126   'No, a large needle driver was not used in this clip.'
+   case127   'Uterine horn, which is the organ being manipulated.'
+   case128   'Yes, a needle driver is involved in the procedure.'
+   case129   'Endoscopic surgery or a laparoscopic surgery, which is what this summary describes.'
+   case130   'To grasp and hold tissues or objects, which is the purpose of the forceps in this procedure.'
+   case131   'Yes, tissue is being cut during this clip.'
+   case132   'Yes, a large needle driver was used during the surgery.'
+-- sentence
+   case122   'Forceps are not being used here.'
+   case123   'A large needle driver is not among the listed tools.'
+   case124   'The type of forceps mentioned is Bipolar Forceps.'
+   case125   'A suture is required in this surgical step.'
+   case126   'A large needle driver was not used in this clip.'
+   case127   'The surgeon is manipulating the uterine horn.'
+   case128   'A needle driver is involved in the procedure.'
+   case129   'This summary is describing endoscopic surgery or laparoscopic surgery.'
+   case130   'The purpose of using forceps in this procedure is to grasp and hold tissues or objects.'
+   case131   'Tissue is being cut during this clip.'
+   case132   'A large needle driver was used during the surgery.'
+-- terse
+   case122   'No'
+   case123   'No'
+   case124   'Bipolar Forceps'
+   case125   'Yes'
+   case126   'No'
+   case127   'Uterine horn'
+   case128   'Yes'
+   case129   'Endoscopic surgery or a laparoscopic surgery'
+   case130   'To grasp and hold tissues or objects during the surgery.'
+   case131   'Yes'
+   case132   'Yes'
+-- fb_generic
+   case122   'The procedure involves surgical instruments.'
+   case123   'The procedure involves surgical instruments.'
+   case124   'The procedure involves surgical instruments.'
+   case125   'The procedure involves surgical instruments.'
+   case126   'The procedure involves surgical instruments.'
+   case127   'The procedure involves surgical instruments.'
+   case128   'The procedure involves surgical instruments.'
+   case129   'The procedure involves surgical instruments.'
+   case130   'The procedure involves surgical instruments.'
+   case131   'The procedure involves surgical instruments.'
+   case132   'The procedure involves surgical instruments.'
+-- fb_perception
+   case122   'Needle driver is in use during suturing.'
+   case123   'Monopolar curved scissors, bipolar forceps and grasping retractor are in use during suspensory ligament dissection.'
+   case124   'Monopolar curved scissors, bipolar forceps and grasping retractor are in use during rectal artery and vein dissection.'
+   case125   'Cadiere forceps and needle driver are in use during suturing.'
+   case126   'Monopolar curved scissors and bipolar forceps are in use during uterine horn mobilization.'
+   case127   'Cadiere forceps and bipolar forceps are in use during uterine horn mobilization.'
+   case128   'Needle driver is in use during suturing.'
+   case129   'Bipolar forceps is in use during rectal artery and vein dissection.'
+   case130   'Needle driver and prograsp forceps are in use during retraction.'
+   case131   'Monopolar curved scissors and bipolar forceps are in use during rectal artery and vein dissection.'
+   case132   'Cadiere forceps, bipolar forceps and needle driver are in use during suturing.'
+-- fb_task_only
+   case122   'The procedure involves suturing.'
+   case123   'The procedure involves suspensory ligament dissection.'
+   case124   'The procedure involves rectal artery and vein dissection.'
+   case125   'The procedure involves suturing.'
+   case126   'The procedure involves uterine horn mobilization.'
+   case127   'The procedure involves uterine horn mobilization.'
+   case128   'The procedure involves suturing.'
+   case129   'The procedure involves rectal artery and vein dissection.'
+   case130   'The procedure involves retraction.'
+   case131   'The procedure involves rectal artery and vein dissection.'
+   case132   'The procedure involves suturing.'
+
+set              case      group  candidate                                              A_full   B_drop_terse C_one_sentence   D_terse_only
+------------------------------------------------------------------------------------------------------------------------------------------------------
+hedged           case122   bare   No, there are no forceps being used here.              0.6890         0.6890         0.6689         0.1165
+hedged           case123   bare   No, a large needle driver is not among the l           0.7782         0.7782         0.7782         0.0722
+hedged           case124   bare   Bipolar Forceps, which is the type of forcep           0.6034         0.6034         0.6034         0.0497
+hedged           case125   bare   Yes, a suture is required in this surgical s           0.7719         0.7719         0.6709         0.2203
+hedged           case126   bare   No, a large needle driver was not used in th           0.6774         0.6774         0.6774         0.0643
+hedged           case127   bare   Uterine horn, which is the organ being manip           0.6763         0.6763         0.6763         0.5672
+hedged           case128   bare   Yes, a needle driver is involved in the proc           0.8010         0.8010         0.7698         0.2545
+hedged           case129   phrase Endoscopic surgery or a laparoscopic surgery           0.6762         0.6168         0.6168         0.6762
+hedged           case130   phrase To grasp and hold tissues or objects, which            0.7116         0.7116         0.6248         0.5782
+hedged           case131   bare   Yes, tissue is being cut during this clip.             0.8165         0.8165         0.7589         0.2086
+hedged           case132   bare   Yes, a large needle driver was used during t           0.7602         0.7602         0.7602         0.1207
+sentence         case122   bare   Forceps are not being used here.                       0.7054         0.7054         0.6172        -0.0412
+sentence         case123   bare   A large needle driver is not among the liste           0.6798         0.6798         0.6798        -0.0415
+sentence         case124   bare   The type of forceps mentioned is Bipolar For           0.7724         0.7724         0.7724         0.0158
+sentence         case125   bare   A suture is required in this surgical step.            0.6486         0.6486         0.5417        -0.0351
+sentence         case126   bare   A large needle driver was not used in this c           0.6719         0.6719         0.6719        -0.0160
+sentence         case127   bare   The surgeon is manipulating the uterine horn           0.7169         0.7169         0.6547         0.3605
+sentence         case128   bare   A needle driver is involved in the procedure           0.6908         0.6908         0.6685        -0.0344
+sentence         case129   phrase This summary is describing endoscopic surger           0.8993         0.8993         0.8993         0.5965
+sentence         case130   phrase The purpose of using forceps in this procedu           0.8242         0.8242         0.6720         0.5645
+sentence         case131   bare   Tissue is being cut during this clip.                  0.6867         0.6867         0.5904        -0.0908
+sentence         case132   bare   A large needle driver was used during the su           0.7460         0.7460         0.7269         0.0297
+terse            case122   bare   No                                                     1.0000         0.1894         0.1365         1.0000
+terse            case123   bare   No                                                     1.0000         0.1656         0.1306         1.0000
+terse            case124   bare   Bipolar Forceps                                        0.2402         0.2402         0.1793         0.2260
+terse            case125   bare   Yes                                                    1.0000         0.2815         0.2631         1.0000
+terse            case126   bare   No                                                     0.7015         0.1856         0.1856         0.7015
+terse            case127   bare   Uterine horn                                           1.0000         0.6661         0.3865         1.0000
+terse            case128   bare   Yes                                                    1.0000         0.2823         0.2278         1.0000
+terse            case129   phrase Endoscopic surgery or a laparoscopic surgery           1.0000         0.6254         0.5681         1.0000
+terse            case130   phrase To grasp and hold tissues or objects during            1.0000         0.5822         0.5247         1.0000
+terse            case131   bare   Yes                                                    1.0000         0.3289         0.2503         1.0000
+terse            case132   bare   Yes                                                    0.7015         0.1429         0.1429         0.7015
+fb_generic       case122   bare   The procedure involves surgical instruments.           0.3819         0.3819         0.3002         0.0336
+fb_generic       case123   bare   The procedure involves surgical instruments.           0.3028         0.3028         0.2763         0.0336
+fb_generic       case124   bare   The procedure involves surgical instruments.           0.2562         0.2562         0.2414        -0.1280
+fb_generic       case125   bare   The procedure involves surgical instruments.           0.6444         0.6444         0.4304         0.0458
+fb_generic       case126   bare   The procedure involves surgical instruments.           0.5892         0.5892         0.4031         0.0458
+fb_generic       case127   bare   The procedure involves surgical instruments.           0.4660         0.4660         0.3276         0.1733
+fb_generic       case128   bare   The procedure involves surgical instruments.           0.6021         0.6021         0.3548         0.0458
+fb_generic       case129   phrase The procedure involves surgical instruments.           0.4790         0.4790         0.3101         0.3451
+fb_generic       case130   phrase The procedure involves surgical instruments.           0.3497         0.2638         0.2482         0.3497
+fb_generic       case131   bare   The procedure involves surgical instruments.           0.4412         0.4412         0.3977         0.0458
+fb_generic       case132   bare   The procedure involves surgical instruments.           0.3668         0.3668         0.3668         0.0336
+fb_perception    case122   bare   Needle driver is in use during suturing.               0.3295         0.3295         0.2335        -0.1152
+fb_perception    case123   bare   Monopolar curved scissors, bipolar forceps a           0.0743         0.0743         0.0677        -0.2505
+fb_perception    case124   bare   Monopolar curved scissors, bipolar forceps a           0.1359         0.1359         0.1203        -0.2628
+fb_perception    case125   bare   Cadiere forceps and needle driver are in use           0.3628         0.3628         0.3600        -0.2179
+fb_perception    case126   bare   Monopolar curved scissors and bipolar forcep           0.2368         0.2368         0.2368        -0.1932
+fb_perception    case127   bare   Cadiere forceps and bipolar forceps are in u           0.3505         0.3505         0.2827         0.1969
+fb_perception    case128   bare   Needle driver is in use during suturing.               0.5116         0.5116         0.3608        -0.1281
+fb_perception    case129   phrase Bipolar forceps is in use during rectal arte           0.1607         0.1607         0.0847         0.1390
+fb_perception    case130   phrase Needle driver and prograsp forceps are in us           0.2380         0.2380         0.2322         0.1591
+fb_perception    case131   bare   Monopolar curved scissors and bipolar forcep           0.2664         0.2664         0.1809        -0.2116
+fb_perception    case132   bare   Cadiere forceps, bipolar forceps and needle            0.3535         0.3535         0.3119        -0.1988
+fb_task_only     case122   bare   The procedure involves suturing.                       0.3675         0.3675         0.3073        -0.0076
+fb_task_only     case123   bare   The procedure involves suspensory ligament d           0.1319         0.1319         0.1185        -0.1036
+fb_task_only     case124   bare   The procedure involves rectal artery and vei           0.1078         0.1078         0.0872        -0.2434
+fb_task_only     case125   bare   The procedure involves suturing.                       0.8216         0.8216         0.6270         0.0086
+fb_task_only     case126   bare   The procedure involves uterine horn mobiliza           0.3884         0.3884         0.2972         0.0003
+fb_task_only     case127   bare   The procedure involves uterine horn mobiliza           0.7321         0.7321         0.5502         0.3442
+fb_task_only     case128   bare   The procedure involves suturing.                       0.5340         0.5340         0.2995         0.0086
+fb_task_only     case129   phrase The procedure involves rectal artery and vei           0.2522         0.2522         0.1474         0.2008
+fb_task_only     case130   phrase The procedure involves retraction.                     0.2782         0.2710         0.2503         0.2782
+fb_task_only     case131   bare   The procedure involves rectal artery and vei           0.3390         0.3390         0.2752        -0.0635
+fb_task_only     case132   bare   The procedure involves suturing.                       0.3163         0.3163         0.3163        -0.0076
+
+== ALL CASES (n=11) ==
+candidate set            A_full   B_drop_terse C_one_sentence   D_terse_only
+----------------------------------------------------------------------------
+hedged                   0.7238         0.7184         0.6914         0.2662
+sentence                 0.7311         0.7311         0.6813         0.1189
+terse                    0.8766         0.3355         0.2723         0.8754
+fb_generic               0.4436         0.4358         0.3324         0.0931
+fb_perception            0.2746         0.2746         0.2247        -0.0985
+fb_task_only             0.3881         0.3874         0.2978         0.0377
+
+== BARE reference[0] only (n=9) ==
+candidate set            A_full   B_drop_terse C_one_sentence   D_terse_only
+----------------------------------------------------------------------------
+hedged                   0.7304         0.7304         0.7071         0.1860
+sentence                 0.7021         0.7021         0.6582         0.0163
+terse                    0.8492         0.2758         0.2114         0.8477
+fb_generic               0.4501         0.4501         0.3442         0.0366
+fb_perception            0.2913         0.2913         0.2394        -0.1535
+fb_task_only             0.4154         0.4154         0.3198        -0.0071
+
+== PHRASE/SENTENCE reference[0] only (n=2) ==
+candidate set            A_full   B_drop_terse C_one_sentence   D_terse_only
+----------------------------------------------------------------------------
+hedged                   0.6939         0.6642         0.6208         0.6272
+sentence                 0.8617         0.8617         0.7856         0.5805
+terse                    1.0000         0.6038         0.5464         1.0000
+fb_generic               0.4144         0.3714         0.2791         0.3474
+fb_perception            0.1994         0.1994         0.1584         0.1490
+fb_task_only             0.2652         0.2616         0.1988         0.2395
+
+wrote answer_form_results.json
+exit: 0  end: Thu Aug 13 12:22:46 CDT 2026

@@ -1,0 +1,353 @@
+{
+  "case122": {
+    "tools": {
+      "bipolar forceps": 0.044927291572093964,
+      "cadiere forceps": 0.9768917560577393,
+      "clip applier": 0.016410503536462784,
+      "force bipolar": 0.0030006803572177887,
+      "grasping retractor": 0.020232390612363815,
+      "monopolar curved scissors": 0.05134312063455582,
+      "needle driver": 0.9811233282089233,
+      "permanent cautery hook/spatula": 0.005315644666552544,
+      "prograsp forceps": 0.05066407844424248,
+      "stapler": 0.0008691400289535522,
+      "tip-up fenestrated grasper": 0.001250165980309248,
+      "vessel sealer": 0.017294971272349358
+    },
+    "tools_present": [
+      "cadiere forceps",
+      "needle driver"
+    ],
+    "task": {
+      "other": 0.013849498704075813,
+      "range of motion": 0.002084928099066019,
+      "rectal artery/vein": 0.06256618350744247,
+      "retraction and collision avoidance": 0.0008634396945126355,
+      "skills application": 0.05062919110059738,
+      "suspensory ligaments": 0.24580985307693481,
+      "suturing": 0.6236909627914429,
+      "uterine horn": 0.0005058847600594163
+    },
+    "task_top": "suturing",
+    "n_frames": 16
+  },
+  "case123": {
+    "tools": {
+      "bipolar forceps": 0.9729459881782532,
+      "cadiere forceps": 0.02208118513226509,
+      "clip applier": 0.017714973539114,
+      "force bipolar": 0.001225447515025735,
+      "grasping retractor": 0.9806294441223145,
+      "monopolar curved scissors": 0.9905676245689392,
+      "needle driver": 0.016539013013243675,
+      "permanent cautery hook/spatula": 0.00339782377704978,
+      "prograsp forceps": 0.017384720966219902,
+      "stapler": 0.011673511005938053,
+      "tip-up fenestrated grasper": 0.001258393400348723,
+      "vessel sealer": 0.031005294993519783
+    },
+    "tools_present": [
+      "bipolar forceps",
+      "grasping retractor",
+      "monopolar curved scissors"
+    ],
+    "task": {
+      "other": 0.00032343625207431614,
+      "range of motion": 0.0001338247675448656,
+      "rectal artery/vein": 0.0021287649869918823,
+      "retraction and collision avoidance": 1.881445678009186e-05,
+      "skills application": 0.007945097982883453,
+      "suspensory ligaments": 0.98887038230896,
+      "suturing": 0.00038832775317132473,
+      "uterine horn": 0.00019144277030136436
+    },
+    "task_top": "suspensory ligaments",
+    "n_frames": 16
+  },
+  "case124": {
+    "tools": {
+      "bipolar forceps": 0.9915030598640442,
+      "cadiere forceps": 0.05890294909477234,
+      "clip applier": 0.0015453805681318045,
+      "force bipolar": 0.0028487644158303738,
+      "grasping retractor": 0.975649893283844,
+      "monopolar curved scissors": 0.9998764991760254,
+      "needle driver": 0.0063023921102285385,
+      "permanent cautery hook/spatula": 0.00047014225856401026,
+      "prograsp forceps": 0.013660538010299206,
+      "stapler": 0.0005256973090581596,
+      "tip-up fenestrated grasper": 0.0013388809747993946,
+      "vessel sealer": 0.003994124475866556
+    },
+    "tools_present": [
+      "bipolar forceps",
+      "grasping retractor",
+      "monopolar curved scissors"
+    ],
+    "task": {
+      "other": 0.0018427486065775156,
+      "range of motion": 0.00031948048854246736,
+      "rectal artery/vein": 0.02088462933897972,
+      "retraction and collision avoidance": 4.510885992203839e-05,
+      "skills application": 0.02902177907526493,
+      "suspensory ligaments": 0.8902671337127686,
+      "suturing": 0.040432147681713104,
+      "uterine horn": 0.017186952754855156
+    },
+    "task_top": "suspensory ligaments",
+    "n_frames": 16
+  },
+  "case125": {
+    "tools": {
+      "bipolar forceps": 0.009811081923544407,
+      "cadiere forceps": 0.9773786067962646,
+      "clip applier": 0.0010354588739573956,
+      "force bipolar": 0.002167243044823408,
+      "grasping retractor": 0.00899035856127739,
+      "monopolar curved scissors": 0.0021395112853497267,
+      "needle driver": 0.9990207552909851,
+      "permanent cautery hook/spatula": 0.00288962060585618,
+      "prograsp forceps": 0.014122065156698227,
+      "stapler": 0.0055643608793616295,
+      "tip-up fenestrated grasper": 0.004659716039896011,
+      "vessel sealer": 0.021351557224988937
+    },
+    "tools_present": [
+      "cadiere forceps",
+      "needle driver"
+    ],
+    "task": {
+      "other": 0.0006041492451913655,
+      "range of motion": 0.00036116561386734247,
+      "rectal artery/vein": 0.0006656533805653453,
+      "retraction and collision avoidance": 4.425764927873388e-05,
+      "skills application": 0.013186220079660416,
+      "suspensory ligaments": 7.607970474055037e-05,
+      "suturing": 0.9842936992645264,
+      "uterine horn": 0.0007686816388741136
+    },
+    "task_top": "suturing",
+    "n_frames": 16
+  },
+  "case126": {
+    "tools": {
+      "bipolar forceps": 0.8633871674537659,
+      "cadiere forceps": 0.13540321588516235,
+      "clip applier": 0.003071330487728119,
+      "force bipolar": 0.001967956777662039,
+      "grasping retractor": 0.8264752626419067,
+      "monopolar curved scissors": 0.9811405539512634,
+      "needle driver": 0.19873030483722687,
+      "permanent cautery hook/spatula": 0.0013315732358023524,
+      "prograsp forceps": 0.12761473655700684,
+      "stapler": 0.00614384887740016,
+      "tip-up fenestrated grasper": 0.0027836193330585957,
+      "vessel sealer": 0.007095894776284695
+    },
+    "tools_present": [
+      "bipolar forceps",
+      "monopolar curved scissors"
+    ],
+    "task": {
+      "other": 0.031677912920713425,
+      "range of motion": 0.005953540094196796,
+      "rectal artery/vein": 0.11133886873722076,
+      "retraction and collision avoidance": 0.0021909093484282494,
+      "skills application": 0.10758274793624878,
+      "suspensory ligaments": 0.3244670033454895,
+      "suturing": 0.37666869163513184,
+      "uterine horn": 0.040120381861925125
+    },
+    "task_top": "suturing",
+    "n_frames": 16
+  },
+  "case127": {
+    "tools": {
+      "bipolar forceps": 0.9042910933494568,
+      "cadiere forceps": 0.9629963040351868,
+      "clip applier": 0.030584925785660744,
+      "force bipolar": 0.041119374334812164,
+      "grasping retractor": 0.006293701007962227,
+      "monopolar curved scissors": 0.8609374165534973,
+      "needle driver": 0.21966083347797394,
+      "permanent cautery hook/spatula": 0.0019495943561196327,
+      "prograsp forceps": 0.07315433770418167,
+      "stapler": 0.024651551619172096,
+      "tip-up fenestrated grasper": 0.010361572727560997,
+      "vessel sealer": 0.06189506873488426
+    },
+    "tools_present": [
+      "bipolar forceps",
+      "cadiere forceps"
+    ],
+    "task": {
+      "other": 0.0021336183417588472,
+      "range of motion": 0.00015343549603130668,
+      "rectal artery/vein": 0.07916398346424103,
+      "retraction and collision avoidance": 0.005890863481909037,
+      "skills application": 0.02778373472392559,
+      "suspensory ligaments": 0.041275814175605774,
+      "suturing": 0.05417163297533989,
+      "uterine horn": 0.7894269227981567
+    },
+    "task_top": "uterine horn",
+    "n_frames": 16
+  },
+  "case128": {
+    "tools": {
+      "bipolar forceps": 0.02063765935599804,
+      "cadiere forceps": 0.958699643611908,
+      "clip applier": 0.0032341578043997288,
+      "force bipolar": 0.0012767373118549585,
+      "grasping retractor": 0.09564551711082458,
+      "monopolar curved scissors": 0.008576424792408943,
+      "needle driver": 0.9981939792633057,
+      "permanent cautery hook/spatula": 0.0009517178405076265,
+      "prograsp forceps": 0.0008888270822353661,
+      "stapler": 0.0002981964498758316,
+      "tip-up fenestrated grasper": 0.00384044018574059,
+      "vessel sealer": 0.010748692788183689
+    },
+    "tools_present": [
+      "cadiere forceps",
+      "needle driver"
+    ],
+    "task": {
+      "other": 0.0005596750415861607,
+      "range of motion": 1.7704603578749811e-06,
+      "rectal artery/vein": 0.00011028244625777006,
+      "retraction and collision avoidance": 3.895273493981222e-06,
+      "skills application": 0.014363838359713554,
+      "suspensory ligaments": 0.0005621716263704002,
+      "suturing": 0.9838089942932129,
+      "uterine horn": 0.000589342147577554
+    },
+    "task_top": "suturing",
+    "n_frames": 16
+  },
+  "case129": {
+    "tools": {
+      "bipolar forceps": 0.5188968181610107,
+      "cadiere forceps": 0.601137101650238,
+      "clip applier": 0.05528256669640541,
+      "force bipolar": 0.005556101445108652,
+      "grasping retractor": 0.23180682957172394,
+      "monopolar curved scissors": 0.7455984354019165,
+      "needle driver": 0.46982526779174805,
+      "permanent cautery hook/spatula": 0.007736595347523689,
+      "prograsp forceps": 0.29240548610687256,
+      "stapler": 0.012885348871350288,
+      "tip-up fenestrated grasper": 0.000919742276892066,
+      "vessel sealer": 0.026270009577274323
+    },
+    "tools_present": [],
+    "task": {
+      "other": 0.06056073680520058,
+      "range of motion": 0.006098420359194279,
+      "rectal artery/vein": 0.14678266644477844,
+      "retraction and collision avoidance": 0.0013812417164444923,
+      "skills application": 0.03661975637078285,
+      "suspensory ligaments": 0.3101954162120819,
+      "suturing": 0.4372314214706421,
+      "uterine horn": 0.0011303744977340102
+    },
+    "task_top": "suturing",
+    "n_frames": 16
+  },
+  "case130": {
+    "tools": {
+      "bipolar forceps": 0.000702981255017221,
+      "cadiere forceps": 0.0015126970829442143,
+      "clip applier": 0.0008079235558398068,
+      "force bipolar": 0.0001685906172497198,
+      "grasping retractor": 0.0005418509826995432,
+      "monopolar curved scissors": 0.0008118521072901785,
+      "needle driver": 0.9998312592506409,
+      "permanent cautery hook/spatula": 0.002157957758754492,
+      "prograsp forceps": 0.9999755620956421,
+      "stapler": 0.002442603698000312,
+      "tip-up fenestrated grasper": 0.0016322012525051832,
+      "vessel sealer": 0.0002937149256467819
+    },
+    "tools_present": [
+      "needle driver",
+      "prograsp forceps"
+    ],
+    "task": {
+      "other": 0.006478077732026577,
+      "range of motion": 0.0003870130458381027,
+      "rectal artery/vein": 0.10496756434440613,
+      "retraction and collision avoidance": 0.8096417784690857,
+      "skills application": 0.01048845611512661,
+      "suspensory ligaments": 0.018952613696455956,
+      "suturing": 0.048490360379219055,
+      "uterine horn": 0.0005941004492342472
+    },
+    "task_top": "retraction and collision avoidance",
+    "n_frames": 16
+  },
+  "case131": {
+    "tools": {
+      "bipolar forceps": 0.9863539338111877,
+      "cadiere forceps": 0.11617867648601532,
+      "clip applier": 0.004506843164563179,
+      "force bipolar": 0.0016865880461409688,
+      "grasping retractor": 0.8755024075508118,
+      "monopolar curved scissors": 0.9989139437675476,
+      "needle driver": 0.00977562926709652,
+      "permanent cautery hook/spatula": 0.0015620921039953828,
+      "prograsp forceps": 0.1109946072101593,
+      "stapler": 0.0016871797852218151,
+      "tip-up fenestrated grasper": 0.0015418604016304016,
+      "vessel sealer": 0.004504362586885691
+    },
+    "tools_present": [
+      "bipolar forceps",
+      "monopolar curved scissors"
+    ],
+    "task": {
+      "other": 0.0007738636340945959,
+      "range of motion": 7.765868940623477e-05,
+      "rectal artery/vein": 0.09957361966371536,
+      "retraction and collision avoidance": 2.989308450196404e-05,
+      "skills application": 0.015028928406536579,
+      "suspensory ligaments": 0.8784795999526978,
+      "suturing": 0.0058609722182154655,
+      "uterine horn": 0.00017554523947183043
+    },
+    "task_top": "suspensory ligaments",
+    "n_frames": 16
+  },
+  "case132": {
+    "tools": {
+      "bipolar forceps": 0.041851162910461426,
+      "cadiere forceps": 0.9863828420639038,
+      "clip applier": 0.003128189593553543,
+      "force bipolar": 0.0021762140095233917,
+      "grasping retractor": 0.010503444820642471,
+      "monopolar curved scissors": 0.008184286765754223,
+      "needle driver": 0.9965206384658813,
+      "permanent cautery hook/spatula": 0.00034438451984897256,
+      "prograsp forceps": 0.002066537272185087,
+      "stapler": 0.013462512753903866,
+      "tip-up fenestrated grasper": 0.0021850161720067263,
+      "vessel sealer": 0.018978798761963844
+    },
+    "tools_present": [
+      "cadiere forceps",
+      "needle driver"
+    ],
+    "task": {
+      "other": 0.010500692762434483,
+      "range of motion": 0.0033180469181388617,
+      "rectal artery/vein": 0.035265859216451645,
+      "retraction and collision avoidance": 0.0006197654874995351,
+      "skills application": 0.019433652982115746,
+      "suspensory ligaments": 0.017024734988808632,
+      "suturing": 0.910049557685852,
+      "uterine horn": 0.0037875997368246317
+    },
+    "task_top": "suturing",
+    "n_frames": 16
+  }
+}

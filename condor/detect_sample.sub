@@ -1,0 +1,74 @@
+# Runs scripts/detect_sample_report.py -- the first time detect.py's
+# Detector.detect is pointed at the actual 11 graded public-sample clips
+# rather than the groupmate's own held-out validation split -- inside
+# surgvu26-train.sif.
+#
+# THE QUESTION THIS ANSWERS. case124 is 62% of everything recoverable on the
+# 11-case sample: gold is "Cadiere Forceps", the shipped pipeline answers
+# "Bipolar Forceps". The detector confuses those two classes only ~1% of the
+# time in each direction on its OWN validation set. This job is the empirical
+# check of whether that holds on the one clip that is actually graded, and
+# what it says about the other ten.
+#
+# Modelled closely on condor/detect_smoke.sub, which already handles the
+# container, the staging mount, and the scratch pip-install of yolov5's
+# missing dependencies. THIS IS A MEASUREMENT TOOL, NOT A PIPELINE CHANGE: it
+# reads baselines/shipped_candidates.json for comparison and writes its own
+# JSON; it does not touch src/, does not change any answer, and decides
+# nothing.
+#
+# Run from the repo root, after:
+#   mkdir -p logs
+#   condor_submit condor/detect_sample.sub
+
+universe                = container
+container_image         = file:///staging/n/nkalthoff/surgvu26/surgvu26-train.sif
+
+executable              = condor/detect_sample.sh
+
+# Required for two independent reasons, same as condor/detect_smoke.sub:
+# reaching the .sif under /staging/n/nkalthoff, and reaching best.pt / the
+# yolov5 checkout / the 11 sample clips under /staging/groups/bhaskar_opscribe,
+# which the script reads by absolute --sample-root/--weights/--yolov5-dir
+# rather than via transfer_input_files (HTCondor refuses to transfer files
+# directly out of /staging -- see condor/extract.sub).
++WantStagingMount       = true
+
+should_transfer_files   = YES
+when_to_transfer_output = ON_EXIT
+# pyproject.toml is intentionally not transferred, same reasoning as
+# condor/detect_smoke.sub: the script puts `src` on sys.path itself.
+#
+#   src        surgvu.detect, surgvu.perceive and everything they import
+#              (models, motion, predict, preprocess, train, frames, flow,
+#              taxonomy) -- none of that chain reads config/ at import time
+#   scripts    detect_sample_report.py itself, plus score_sample.py for the
+#              load_sample_cases / load_candidates / build_pairs helpers it
+#              reuses rather than re-parsing the sample layout by hand
+#   baselines  shipped_candidates.json, the CURRENT pipeline's 11 answers
+#              this report prints next to the detector's for comparison
+transfer_input_files    = src, scripts, baselines
+
+# CPU-only: DetectMultiBackend loads fine on cpu (Detector defaults to
+# device="cpu") and this is 11 clips of diagnostic evidence-gathering, not a
+# throughput benchmark.
+request_cpus            = 2
+request_memory          = 8GB
+# Same headroom as condor/detect_smoke.sub: best.pt (14 MB), the yolov5
+# checkout (read in place from staging, not transferred), and the pip
+# --target install (pandas/matplotlib/seaborn pull in a handful of
+# transitive wheels). 11 clips decoded sequentially adds negligible disk --
+# decode_clip never writes frames to disk, only to memory.
+request_disk            = 4GB
+
+# The per-case JSON report -- the whole point of this job, kept for diffing
+# later. Lands in the submit directory (the repo root), which is `/*_results
+# .json`-gitignored; a copy worth keeping gets curated into outputs/ by hand,
+# same convention as every other validate_*.sub / score.sub run in this repo.
+transfer_output_files   = detect_sample_results.json
+
+log                     = logs/detect_sample_$(Cluster).log
+error                   = logs/detect_sample_$(Cluster).err
+output                  = logs/detect_sample_$(Cluster).out
+
+queue 1

@@ -1,0 +1,8 @@
+install_case_part,install_case_time,uninstall_case_part,uninstall_case_time,arm,commercial_toolname,groundtruth_toolname,case
+1.0,00:00:10.000000,1.0,00:10:00.000000,USM1,Large Needle Driver,needle driver,case_test
+1.0,00:00:10.000000,1.0,00:10:00.000000,USM3,Monopolar Curved Scissors,monopolar curved scissors,case_test
+1.0,00:00:10.000000,1.0,00:10:00.000000,USM4,Cadiere Forceps,cadiere forceps,case_test
+1.0,00:00:00.000000,1.0,00:20:00.000000,USM2,30 Endoscope,nan(camera in),case_test
+1.0,00:05:00.000000,1.0,00:06:00.000000,USM1,EndoWrist Suction Irrigator,suction irrigator,case_test
+2.0,00:00:05.000000,2.0,00:09:00.000000,USM1,Large Clip Applier,clip applier,case_test
+1.0,00:15:00.000000,2.0,00:20:00.000000,USM5,Force Bipolar,force bipolar,case_test

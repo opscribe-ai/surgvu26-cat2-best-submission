@@ -1,0 +1,101 @@
+# Trains a TEMPORAL model -- TSM or I3D over our own 2D weights, or a video
+# backbone -- inside surgvu26-train.sif on a GPU execute node.
+#
+# Identical to condor/train.sub except for the log names, so that a DAG can
+# hold several training nodes at once without their logs colliding. Kept as a
+# separate file rather than a macro on train.sub because DAGMan resolves a
+# node's submit file once and $(Cluster) is not distinct per node.
+#
+# `script` and `args` are submit-time macros, not baked in here, so this one
+# file drives the Task 6 smoke test, the Task 6 real run, and later tasks'
+# training jobs without editing the submit file. Set them on the
+# condor_submit command line, e.g.:
+#
+#   condor_submit condor/train.sub \
+#       script=scripts/train_tools.py \
+#       args="--out /staging/n/nkalthoff/surgvu26/models/tools_efficientnet_v2_s.pt --epochs 8"
+#
+# Run from the repo root, after: mkdir -p logs
+
+universe        = container
+container_image = file:///staging/n/nkalthoff/surgvu26/surgvu26-train.sif
+
+executable   = condor/train.sh
+arguments    = "$(script) $(args)"
+
++WantStagingMount = true
+transfer_input_files = src, scripts, config
+
+# A MACRO WITH A DEFAULT, like memory and gpumem beside it -- NOT a bare 8.
+# A bare value here silently overrides `cpus=2` passed on the command line
+# (the same trap `label` set last session), and the cost is not cosmetic:
+# counted live, 8cpu+32GB+GPU matched 42 slots of 382 and ZERO that were free,
+# while the evaluator and smoke jobs it also drives need a fraction of that.
+# The default stays 8 for real training runs.
+request_cpus   = $(cpus:8)
+# 64GB, not 32. The task-classifier run 9618015 was HELD at exactly 32768 MB
+# ("Job has gone over cgroup memory limit"), and the tool run reached 21.9 GB
+# against the same ceiling. The cause is read_shard decoding a whole shard
+# eagerly (~1.3 GB resident) across 4 loader workers; until that is made lazy,
+# the fix is headroom. Overridable per-job: condor_submit ... memory=96GB
+request_memory = $(memory:64GB)
+request_disk   = 20GB
+request_gpus   = 1
+# Any modern card trains fine; deployment is a T4, so the FINAL timing and
+# numeric validation must be re-run under require_gpus on an RTX 2080 Ti
+# (compute capability 7.5, identical to T4).
+# Overridable: training an EfficientNet at 384 wants the headroom, but the v2
+# inference passes (dump_frame_probs, endovit_features) run one window at a
+# time and fit comfortably on an 11 GB card. Lowering the bar for those opens
+# the ahlquist nodes (11004 MB), which the 16000 default excludes outright:
+#   condor_submit condor/train.sub gpumem=10000 ...
+require_gpus   = (GlobalMemoryMb >= $(gpumem:16000))
+
+# MACHINE BLACKLIST. dbrundage-chtcgpu5000 advertises itself as able to run
+# these jobs but does not deliver the staging mount, and the negotiator kept
+# rematching cluster 9638188 to it -- three attempts, three fast exits from
+# the guard in condor/train.sh, retries exhausted without the job ever
+# reaching a working node. The guard turns a confusing failure into a clean
+# one; this is what stops it from being a loop.
+#
+# Written as a plain expression rather than a $(macro:default): HTCondor's
+# default-value syntax could not carry a quoted comparison and submit failed
+# with "Could not get attribute references from Requirements". Delete this
+# line when the node is fixed -- a blacklist that outlives the fault is its
+# own bug.
+# BOTH chtcgpu5000 boxes advertise staging but do not mount it: a job
+# landing there dies at "FATAL: /staging is not mounted". dbrundage was
+# found first; zliu-chtcgpu5000 hit the v6 smoke train (job 9710296,
+# 2026-08-27) the same way. The guard in the .sh exits in seconds, but
+# nothing requeues the job, so it must not be scheduled there at all.
+requirements = (Machine != "dbrundage-chtcgpu5000.chtc.wisc.edu") && \
+               (Machine != "zliu-chtcgpu5000.chtc.wisc.edu")
+
+output = logs/temporal_$(node)_$(Cluster).out
+error  = logs/temporal_$(node)_$(Cluster).err
+log    = logs/temporal_$(node)_$(Cluster).log
+
+# STREAM the logs instead of shipping them at exit. A ten-epoch arm runs for
+# hours, and without this its .out file is empty until the job ENDS -- so a
+# run that is diverging, or one whose first epoch OOMs, looks exactly like a
+# run that is going fine. An overnight programme cannot be supervised that
+# way, and the cost is a trickle of network traffic.
+stream_output           = True
+stream_error            = True
+
+should_transfer_files   = YES
+when_to_transfer_output = ON_EXIT
+# Empty on purpose. Checkpoints are written straight to /staging, so there is
+# nothing to bring home -- and with this unset, ON_EXIT sends back everything
+# the job touched in scratch, which means the __pycache__ trees Python creates
+# inside the transferred src/ and scripts/ directories land in the repo. This
+# is the same mechanism that once copied a 3.2 GB .sif into the repo root.
+transfer_output_files   =
+# 5, not 1. condor/train.sh exits 75 immediately when the staging mount did
+# not take effect (cluster 9638187 hit this), and that is a node-specific
+# fault a retry genuinely fixes. One retry is not enough headroom to walk past
+# two bad nodes in a row; five costs nothing because the guard exits in
+# seconds rather than consuming a slot.
+max_retries = 5
+
+queue 1

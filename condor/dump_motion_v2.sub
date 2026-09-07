@@ -1,0 +1,62 @@
+# Runs scripts/dump_motion_v2.py inside surgvu26-train.sif, producing the
+# --dump JSON that scripts/calibrate_motion_v2.py consumes. See
+# condor/dump_motion_v2.sh for what each argument means.
+#
+# DEFAULT IS A 2-CASE SMOKE RUN, not all 155 cases -- the $(cases:2) macro
+# below. To run the real sweep:
+#
+#   mkdir -p logs
+#   condor_submit condor/dump_motion_v2.sub cases=155 windows_per_case=20
+#
+# (155 is the current case count under SURGVU25_train_labels; pass an
+# explicit comma-separated case list instead of an int to run a named
+# subset.) For the smoke run:
+#
+#   mkdir -p logs
+#   condor_submit condor/dump_motion_v2.sub
+
+universe                = container
+container_image         = file:///staging/n/nkalthoff/surgvu26/surgvu26-train.sif
+
+executable              = condor/dump_motion_v2.sh
+arguments               = "$(cases:2) $(windows_per_case:20) $(seed:0)"
+
+# Required to reach the .sif in /staging/n/nkalthoff (same as every other
+# container_image=file:///staging/... job in this repo) AND to read the
+# shared corpus this job actually decodes:
+#   /staging/groups/bhaskar_opscribe/surgvu/videos/surgvu24
+#   /staging/groups/bhaskar_opscribe/surgvu/labels_cat2/SURGVU25_train_labels
++WantStagingMount       = true
+
+should_transfer_files   = YES
+when_to_transfer_output = ON_EXIT
+# Videos are NOT transferred, same reasoning as condor/extract.sub: HTCondor
+# refuses to transfer files out of /staging at all, and the staging mount
+# already makes them directly readable in place.
+transfer_input_files    = src, scripts
+
+# No GPU: decode_clip_multiscale only crops/blurs/resizes and differences
+# frames -- no model forward pass runs here. surgvu.perceive still imports
+# torch at module scope (deferred inside dump_motion_v2.py's _decode_span,
+# but the container itself needs torch installed to satisfy that import),
+# which is why this still runs inside surgvu26-train.sif rather than the
+# lighter surgvu26-extract.sif extract.sub uses.
+request_cpus            = 4
+# Per ruling R15, each span is decoded by SEEKING directly in the source
+# video (decode_clip_multiscale's index_range) -- no temporary clip is cut
+# and nothing is buffered as a full span of frames; peak memory is just the
+# handful of decoded/preprocessed frames for one --batch-frames request (16
+# by default). 8GB leaves ample headroom for OpenCV's own decode buffers.
+request_memory          = 8GB
+# The output JSON is small; nothing here approaches the 8GB the video/label
+# CORPUS itself occupies, because that corpus is read via the staging
+# mount, not transferred, and no temporary video files are written.
+request_disk            = 8GB
+
+transfer_output_files   = motion_v2_dump.json
+
+log                     = logs/dump_motion_v2_$(Cluster).log
+error                   = logs/dump_motion_v2_$(Cluster).err
+output                  = logs/dump_motion_v2_$(Cluster).out
+
+queue 1

@@ -1,0 +1,98 @@
+# Runs scripts/flag_matrix.py -- every subset of --motion-v2/--yolo/
+# --variant-head (baseline included) through the REAL submission entrypoint
+# on the 11 public sample cases, scored with the OFFICIAL metric.
+#
+# THE QUESTION THIS ANSWERS. A trained Large-vs-Mega needle-driver head, run
+# directly against case126/case132 by a diagnostic, predicted +0.0543 on the
+# 11-case mean when wired behind its answer gate. That has never been
+# measured end to end through the real pipeline -- this job is that
+# measurement, for every flag combination v5 could ship, not just the one
+# about to ship, so the next leaderboard delta is attributable instead of
+# repeating v4's "two changes, one score" mistake. A TRIPWIRE, not a gate:
+# it does not decide what ships.
+#
+# universe=vanilla, not container: condor/flag_matrix.sh needs BOTH
+# surgvu26-train.sif (scripts/inference.py: torch/torchvision/opencv/
+# yolov5) and surgvu26-extract.sif's venv (surgvu.scoring.Scorer:
+# bert_score/transformers) -- two different, non-nestable containers run
+# SEQUENTIALLY by two separate `apptainer exec` calls. See condor/score.sh
+# for why this cannot be universe=container.
+#
+# THIS IS A MEASUREMENT TOOL, NOT A PIPELINE CHANGE: it does not touch src/,
+# does not change any answer, and decides nothing.
+#
+# Run from the repo root, after:
+#   mkdir -p logs
+#   condor_submit condor/flag_matrix.sub
+
+universe                = vanilla
+executable              = condor/flag_matrix.sh
+
+# Reaches surgvu26-train.sif / surgvu26-extract.sif / the extract venv under
+# /staging/n/nkalthoff, the 11 sample clips, the tools/task/variant/yolo
+# checkpoints, and the HF cache under /staging/groups/bhaskar_opscribe and
+# /staging/n/nkalthoff -- all read by absolute path inside condor/
+# flag_matrix.sh rather than via transfer_input_files (HTCondor refuses to
+# transfer files directly out of /staging -- see condor/extract.sub).
++WantStagingMount       = true
+
+should_transfer_files   = YES
+when_to_transfer_output = ON_EXIT
+# pyproject.toml is intentionally not transferred, same reasoning as every
+# other job here: scripts/inference.py and scripts/flag_matrix.py put `src`
+# on sys.path themselves.
+#
+#   src        surgvu.perceive/predict/preprocess/router/motion/detect/
+#              variant/scoring and everything they import -- none of that
+#              chain reads config/ at import time except through the CLI
+#              defaults resolved below
+#   scripts    flag_matrix.py itself, plus inference.py (the entrypoint
+#              under test), validate_cases.py and score_sample.py (its own
+#              driving/scoring machinery)
+#   config     perception.json (tools/task checkpoint identity + decode
+#              settings) and variant_head.json (the fitted cutoff --
+#              inference.py's --variant-config default resolves to this
+#              committed copy; it is NOT overridden, unlike --yolo-weights/
+#              --variant-weights, which point at /staging directly)
+transfer_input_files    = src, scripts, config
+
+# Mirrors condor/validate_gpu.sub: this drives the REAL entrypoint (not a
+# lightweight diagnostic like condor/detect_sample.sub/condor/
+# variant_sample.sub), across 8 combinations x 11 cases, so it needs the
+# same headroom validating it once does. GPU optional in principle
+# (--device auto falls back to CPU) but requested here so 88 subprocess runs
+# do not each pay a CPU-bound checkpoint load; capability >= 7.5 keeps this
+# off cards OLDER than the T4 deployment target, same reasoning as condor/
+# validate_gpu.sub.
+request_cpus            = 8
+request_memory          = 32GB
+# condor/pytest.sub was raised from 4GB to 16GB after the suite hit that cap
+# (cluster 9686435: __pycache__ trees plus scratch writes during a much
+# smaller pip --target install than this job's). This job repeats that
+# install (pandas/requests/tqdm/matplotlib/seaborn/Pillow for yolov5, ~a
+# few hundred MB of wheels) INSIDE the container via apptainer exec, copies
+# the tools/task checkpoints locally (~200MB), and runs 88 subprocess
+# invocations of scripts/inference.py, each writing/overwriting one case's
+# /input under ./flag_matrix_work (bounded to ~11 videos at a time, not
+# accumulating -- see validate_cases.stage_case) plus its own __pycache__.
+# roberta-large itself is read from the /staging HF cache, not downloaded
+# locally. 20GB leaves comfortable headroom above every one of those.
+request_disk            = 20GB
+request_gpus            = 1
+capability              = Capability >= 7.5
+require_gpus            = $(capability)
+
+# The attribution artifact -- baselines/flag_matrix.json -- is the whole
+# point of this job, kept for diffing against later runs. Nothing else here
+# is worth transferring back: ./flag_matrix_runs/ and ./flag_matrix_work/
+# are per-combination scratch, and left unset ON_EXIT would drag back the
+# __pycache__ trees Python writes into the transferred src/ and scripts/.
+transfer_output_files   = baselines/flag_matrix.json
+
+log                     = logs/flag_matrix_$(Cluster).log
+error                   = logs/flag_matrix_$(Cluster).err
+output                  = logs/flag_matrix_$(Cluster).out
+
+max_retries             = 2
+
+queue 1

@@ -1,0 +1,36 @@
+# Scores the VLM-fallback measurement with the official metric.
+#
+#   condor_submit condor/vlm_score.sub \
+#       transfer="outputs/vlm/shipped_candidates.json outputs/vlm/..."
+#
+# The transferred files land in the scratch ROOT regardless of the directory
+# they were submitted from, which is why the script is always given ".".
+#
+# universe=vanilla, not container, for the same reason as condor/score.sub:
+# this runs `apptainer exec` on the extract .sif, which cannot be nested
+# inside a container-universe job.
+
+universe   = vanilla
+executable = condor/vlm_score.sh
+arguments  = "."
+
++WantStagingMount = true
+
+transfer_input_files = src, scripts, $(transfer)
+
+request_cpus   = 4
+request_memory = 16GB
+request_disk   = 8GB
+
+output = logs/vlmscore_$(Cluster).out
+error  = logs/vlmscore_$(Cluster).err
+log    = logs/vlmscore_$(Cluster).log
+
+should_transfer_files   = YES
+when_to_transfer_output = ON_EXIT
+# The result is the table in the log.
+transfer_output_files   =
+
+max_retries = 2
+
+queue 1

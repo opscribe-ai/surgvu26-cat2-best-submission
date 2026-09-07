@@ -1,0 +1,122 @@
+# Runs tests/test_detect_stub.py -- and ONLY that test -- inside
+# surgvu26-train.sif, WITHOUT pandas/matplotlib/seaborn installed. requests,
+# PIL and tqdm are left REAL (the base image already ships them -- see
+# below), not stubbed.
+#
+# THE DECISION THIS INFORMS (controller ruling R22, blocking --yolo from
+# shipping; scope corrected by rulings R34 then R35, a stub-construction
+# bug fixed by R37): no internet on Grand
+# Challenge means no runtime pip install in the submission image. The staged
+# yolov5's models/common.py and its own import chain (utils/dataloaders.py,
+# utils/general.py, utils/plots.py) hard-import pandas, requests, PIL, tqdm,
+# matplotlib and seaborn at module scope, and DetectMultiBackend (the class
+# Detector._load loads through) lives in models/common.py. None of the six
+# is actually CALLED on the detection path for a .pt checkpoint (see
+# tests/test_detect_stub.py's docstring for the full per-name trace).
+#
+# R22 scoped this experiment to three of those six (pandas, requests, PIL).
+# R34 corrected the SCOPE to all six -- and that six-name version's own
+# up-front guard assertion (built for exactly this purpose) fired on its
+# first outing: requests, PIL and tqdm turned out to be genuinely
+# importable in surgvu26-train.sif, because it shares its base image
+# (pytorch/pytorch:2.5.1-cuda12.1-cudnn9-runtime) with
+# containers/surgvu26-submission.def and containers/Dockerfile, and that
+# base already ships all three. R35 corrected the scope again, in the other
+# direction: the submission image's genuinely MISSING set, as inferred from
+# the shared base plus the submission .def's own additions (only
+# opencv-python-headless and PyYAML -- confirmed by reading all three
+# container files directly), is pandas/matplotlib/seaborn. THIS is the
+# experiment that scope settled on: stub only those three, let
+# requests/PIL/tqdm resolve against the real, installed packages, exactly
+# as the actual submission container would.
+#
+# THIS JOB is the empirical half of the argument, now correctly scoped.
+# condor/detect_smoke.sub (existing, unmodified) proves the detector works
+# when the real packages ARE installed; this job proves -- or disproves --
+# that it still works when pandas/matplotlib/seaborn are genuinely ABSENT
+# and only sys.modules stubs stand in for them, while requests/PIL/tqdm stay
+# real. condor/detect_stub.sh installs nothing but pytest -- it does NOT
+# install pandas/matplotlib/seaborn (they must stay genuinely absent) and
+# relies on the base image for requests/PIL/tqdm. tests/test_detect_stub.py
+# itself asserts, before doing anything else, BOTH directions: that
+# pandas/matplotlib/seaborn are genuinely NOT importable here, AND that
+# requests/PIL/tqdm ARE -- if either assumption is wrong, the experiment
+# proves nothing (or proves something that would not transfer to the real
+# submission image) and the relevant assertion fails loudly, by name,
+# rather than let a false or misleading pass through. This two-sided guard
+# is what caught the R34 -> R35 correction in the first place; it stays.
+#
+# R37: this job ran once at this scope (cluster 9686702) and got past
+# models.common's own import chain, then hit torch itself --
+# torch._dynamo.trace_rules enumerates module specs at import time and
+# ValueErrors when a sys.modules entry's __spec__ is None, which a bare
+# stub module's is by default. tests/test_detect_stub.py's stub class now
+# gives every stub (and every submodule stub) a real ModuleSpec; nothing
+# about what gets stubbed, what stays real, or this job's dependency
+# footprint changed.
+#
+# THIS EXPERIMENT VERIFIES: whether pandas/matplotlib/seaborn can be
+# sys.modules-stubbed without perturbing anything Detector.detect actually
+# needs, in an environment shaped like "pytorch/pytorch base + real
+# requests/PIL/tqdm + no pandas/matplotlib/seaborn". IT DOES NOT VERIFY:
+# that the actual built surgvu26-submission.sif has exactly that package
+# set -- the inference rests on all three container definitions declaring
+# the same base and the submission .def adding nothing beyond
+# opencv-python-headless/PyYAML; if that image was ever built from a
+# different base tag, or had packages added/removed outside what its .def
+# shows, this experiment's environment would no longer match the real one
+# and this job's guard cannot detect that divergence (it can only detect a
+# divergence between ITS OWN environment, surgvu26-train.sif, and the
+# assumption).
+#
+# Run from the repo root, after:
+#   mkdir -p logs
+#   condor_submit condor/detect_stub.sub
+
+universe                = container
+container_image         = file:///staging/n/nkalthoff/surgvu26/surgvu26-train.sif
+
+executable              = condor/detect_stub.sh
+
+# Required for two independent reasons: reaching the .sif under
+# /staging/n/nkalthoff (same as every other container_image=file:///staging/...
+# job in this repo), and reaching best.pt / the yolov5 checkout / the sample
+# clip under /staging/groups/bhaskar_opscribe, which the test reads by
+# absolute path rather than via transfer_input_files (HTCondor refuses to
+# transfer files directly out of /staging -- see condor/extract.sub).
++WantStagingMount       = true
+
+should_transfer_files   = YES
+when_to_transfer_output = ON_EXIT
+# pyproject.toml is intentionally not transferred, same reasoning as
+# condor/detect_smoke.sub: conftest.py puts `src` on sys.path itself.
+#
+# config/ and scripts/ are NOT needed here, same reasoning as
+# condor/detect_smoke.sub: tests/test_detect_stub.py imports only
+# surgvu.detect and surgvu.perceive, and neither reads a config/ file at
+# import time.
+transfer_input_files    = src, tests, conftest.py
+
+# CPU-only: DetectMultiBackend loads fine on cpu (Detector defaults to
+# device="cpu") and this is a smoke test, not a throughput benchmark.
+request_cpus            = 2
+request_memory          = 8GB
+# Smaller than detect_smoke.sub's 4GB: this job's whole point is that it does
+# NOT pip-install pandas/matplotlib/seaborn (only pytest, see
+# condor/detect_stub.sh) -- requests/PIL/tqdm come from the base image, not
+# a pip install here -- so there is no transitive-wheel headroom to reserve
+# for. best.pt (14 MB) and the yolov5 checkout are read in place from
+# staging, not transferred.
+# The surgvu26-train.sif image is 2.97GB and must land on the execute node's
+# disk before anything runs, so 2GB cannot even hold it: cluster 9686697 was
+# HELD with "disk usage exceeded request_disk" at 3,128,612 KB used against
+# 2,097,152 KB requested, having received 3.19GB. Sized with headroom for the
+# image plus the scratch pip install. Second instance of the R33 failure mode.
+request_disk            = 8GB
+transfer_output_files   =
+
+log                     = logs/detect_stub_$(Cluster).log
+error                   = logs/detect_stub_$(Cluster).err
+output                  = logs/detect_stub_$(Cluster).out
+
+queue 1

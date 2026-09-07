@@ -1,0 +1,37 @@
+host: e2597  start: Thu Aug 13 12:54:51 CDT 2026
+references: bare token + 2 sentence forms
+
+count  word           w|w        n|n        w|n        n|w
+1      One         1.0000     1.0000     0.7163     0.7163
+2      Two         1.0000     1.0000     0.8229     0.8229
+3      Three       1.0000     1.0000     0.7929     0.7929
+4      Four        1.0000     1.0000     0.8234     0.8234
+
+means  match(word) 1.0000  match(numeral) 1.0000  word|numeral 0.7889  numeral|word 0.7889
+
+p(num)  emit word emit numeral  better
+0.0        1.0000     0.7889  word
+0.1        0.9789     0.8100  word
+0.2        0.9578     0.8311  word
+0.3        0.9367     0.8522  word
+0.4        0.9156     0.8733  word
+0.5        0.8944     0.8944  numeral
+0.6        0.8733     0.9156  numeral
+0.7        0.8522     0.9367  numeral
+0.8        0.8311     0.9578  numeral
+0.9        0.8100     0.9789  numeral
+1.0        0.7889     1.0000  numeral
+
+guaranteed floor: word 0.7889, numeral 0.7889
+
+VERDICT: EXACT TIE. The two forms score identically against each other's references (0.7889 both ways), so they cross at p=0.5 and neither has a better floor. There is no evidence here for changing _answer_count, and no evidence for keeping it either -- the choice is simply free. Leave it alone.
+
+WRONG VALUE, same form as the gold:
+  exact          1.0000
+  off by one     0.8567
+  off by two     0.8436
+  wrong FORM     0.7889   (right number, other notation)
+Getting the NUMBER wrong by one costs LESS than getting the notation wrong. Counting accuracy is worth less than it looks, and the modal-count fallback is close to free.
+
+wrote count_form_results.json
+exit: 0  end: Thu Aug 13 13:01:09 CDT 2026

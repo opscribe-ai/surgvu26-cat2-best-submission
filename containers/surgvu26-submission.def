@@ -1,0 +1,174 @@
+Bootstrap: docker
+From: pytorch/pytorch:2.5.1-cuda12.1-cudnn9-runtime
+
+# The submission image, as an Apptainer SIF.
+#
+# READ THIS FIRST -- THIS FILE IS NOT THE SHIPPING ARTIFACT.
+# Grand Challenge accepts only a `docker save` tarball (.tar/.tar.gz/.tar.xz
+# containing a manifest.json); a .sif cannot be uploaded. `containers/Dockerfile`
+# is the artifact that ships. See docs/container_build.md.
+#
+# What this file IS for: CHTC has Apptainer and no Docker, so this is the only
+# way to prove the *contents* of the submission image -- the same base, the
+# same five pip pins, the same five copied trees, the same offline CNN path,
+# the same --models-dir re-rooting -- actually work on a machine with a T4-
+# class GPU. It is deliberately kept step-for-step parallel to the Dockerfile
+# so that a divergence between them is visible in a diff.
+#
+# What it CANNOT prove: the Dockerfile's non-root USER (Grand Challenge
+# rejects images running as root; Apptainer runs as the invoking user anyway)
+# and the ENTRYPOINT form. Those two are Docker-side only.
+#
+# Build context: run containers/build_submission.sh, which stages ./context
+# holding src/, scripts/, config/, a stripped yolov5/ checkout and
+# models/{tools_v2.pt,task_v2.pt,yolo_best.pt,variant_head.pt}, plus the
+# --vlm weights IF VLM_MODEL_SRC resolves to a real directory (absent by
+# default today -- see build_submission.sh's own comment and this task's
+# report at docs/design/2026-08-24-v5-evidence-pipeline/
+# vlm-weight-staging-report.md for why).
+
+%arguments
+    # The Dockerfile's `ARG SERVING_THRESHOLDS=required`, expressed for
+    # Apptainer, so the two recipes take the same knob with the same default.
+    # Building without the re-tuned serving thresholds must be typed:
+    #   apptainer build --build-arg SERVING_THRESHOLDS=optional ...
+    SERVING_THRESHOLDS=required
+
+%setup
+    # /opt/algorithm does not exist in the base image, and %files copies into
+    # it. /input and /output must exist as mount points too: the validation run
+    # uses --containall, which has no overlay to conjure a missing bind target.
+    mkdir -p "${APPTAINER_ROOTFS}/opt/algorithm/scripts" \
+             "${APPTAINER_ROOTFS}/input" "${APPTAINER_ROOTFS}/output"
+
+%files
+    # scripts/ is narrowed to the two the image executes, matching the
+    # Dockerfile's COPY exactly -- see the long note there. inference.py is the
+    # runscript and gate 2; verify_checkpoints.py is gate 1. %setup creates
+    # /opt/algorithm/scripts above because these two land as file destinations
+    # rather than as a directory copy.
+    context/src /opt/algorithm/src
+    context/scripts/inference.py /opt/algorithm/scripts/inference.py
+    context/scripts/verify_checkpoints.py /opt/algorithm/scripts/verify_checkpoints.py
+    context/config /opt/algorithm/config
+    context/models /opt/algorithm/models
+    context/yolov5 /opt/algorithm/yolov5
+
+%post
+    # opencv-python-headless, not opencv-python: the GUI build needs libGL and
+    # an X stack a headless grader does not have.
+    #
+    # pandas/matplotlib/seaborn ADDED for --yolo, matching the Dockerfile's
+    # pip install exactly -- see the long note there for why these three (and
+    # not requests/PIL/tqdm, which the base already ships) and why the
+    # versions are pinned the way they are.
+    pip install --no-cache-dir \
+        "opencv-python-headless==4.11.0.86" \
+        "PyYAML==6.0.2" \
+        "pandas==2.2.3" \
+        "matplotlib==3.9.2" \
+        "seaborn==0.13.2"
+    python -c "import torch, torchvision, cv2, yaml, pandas, matplotlib, seaborn; print('torch', torch.__version__, '| torchvision', torchvision.__version__, '| cv2', cv2.__version__, '| pandas', pandas.__version__, '| matplotlib', matplotlib.__version__, '| seaborn', seaborn.__version__)"
+
+    # The Evidence VLM's serving dependencies, mirroring the Dockerfile's
+    # second pip layer exactly -- see the long note there for why `--vlm` is
+    # inert without them (transformers is imported INSIDE
+    # evidence_vlm._load_model and every failure is swallowed by
+    # try_vlm_result, so a missing library makes the flag decorative rather
+    # than loud), why these exact versions (read off job 9697941's own log,
+    # the run that produced the checkpoint), why peft is absent (the adapter
+    # is merged before packaging) and why accelerate is required (device_map).
+    pip install --no-cache-dir \
+        "transformers==4.57.6" \
+        "accelerate==1.14.0" \
+        "bitsandbytes==0.50.1"
+    # bitsandbytes is checked by metadata, not imported: it probes for a CUDA
+    # driver at import time and the build node routinely has no GPU. See the
+    # Dockerfile's note on this layer.
+    python -c "import torch, transformers, accelerate; from importlib.metadata import version; assert torch.__version__ == '2.5.1+cu121', 'the VLM deps moved torch to %s -- see the note on this layer' % torch.__version__; print('torch', torch.__version__, '| transformers', transformers.__version__, '| accelerate', accelerate.__version__, '| bitsandbytes', version('bitsandbytes'))"
+
+    # GATE 1 -- the weights AND the serving thresholds are the ones
+    # config/perception.json binds. Same script, same arguments, same default
+    # as the Dockerfile, so the two images cannot drift on the checks that
+    # decide whether the weights are real and whether the +0.0195 clip-mean
+    # cuts are in the image at all.
+    python /opt/algorithm/scripts/verify_checkpoints.py \
+        /opt/algorithm/config/perception.json /opt/algorithm/models \
+        --serving-thresholds "{{ SERVING_THRESHOLDS }}"
+
+    # GATE 2 -- the entrypoint runs end to end, on CPU, with no network.
+    # A synthetic clip rather than a shipped fixture: nothing test-only needs
+    # to survive into the image.
+    #
+    # --yolo --variant-head ADDED here, matching the Dockerfile's GATE 2
+    # exactly -- see the long note there. This is what actually proves
+    # pandas/matplotlib/seaborn are enough for the real models.common ->
+    # DetectMultiBackend -> attempt_load chain, not just that they import.
+    #
+    # --vlm ADDED 2026-08-25 (Plan 2, Task 4), matching the Dockerfile's GATE 2
+    # and the %runscript below. Unlike the Dockerfile build (never has a GPU),
+    # this .def may be built on a CHTC node WITH a T4 -- either way is a valid
+    # proof: with CUDA, EvidenceVlmHandle.available() is True and the seam
+    # tries the (still-not-staged, revisited 2026-08-25 -- see
+    # build_submission.sh's VLM_MODEL_SRC and this task's report) weights,
+    # fails fast and offline, and R18 falls back to the router's answer;
+    # with no CUDA it skips before that. `--device cpu` above only steers
+    # the CNN path -- the VLM's own gate reads torch.cuda.is_available()
+    # directly, so this smoke test still proves the same thing either way.
+    set -e
+    mkdir -p /tmp/smoke/input /tmp/smoke/output
+    python -c "
+import cv2, numpy as np
+w = cv2.VideoWriter('/tmp/smoke/input/endoscopic-robotic-surgery-video.mp4',
+                    cv2.VideoWriter_fourcc(*'mp4v'), 30.0, (640, 512))
+[w.write(np.random.randint(0, 255, (512, 640, 3), dtype=np.uint8)) for _ in range(40)]
+w.release()"
+    printf '%s' '"Are there forceps being used here?"' > /tmp/smoke/input/visual-context-question.json
+    python /opt/algorithm/scripts/inference.py \
+        --input-dir /tmp/smoke/input --output-dir /tmp/smoke/output \
+        --models-dir /opt/algorithm/models --device cpu \
+        --yolo --variant-head --vlm --judge
+    python -c "
+import json
+v = json.load(open('/tmp/smoke/output/visual-context-response.json'))
+assert isinstance(v, str) and v.strip(), 'entrypoint wrote %r' % (v,)
+print('smoke answer:', json.dumps(v))"
+    rm -rf /tmp/smoke
+
+%environment
+    export PYTHONUNBUFFERED=1
+    export PYTHONDONTWRITEBYTECODE=1
+    export HF_HUB_OFFLINE=1
+    export TRANSFORMERS_OFFLINE=1
+    export TORCH_HOME=/opt/algorithm/.torch
+    export CUDA_MODULE_LOADING=LAZY
+    # XDG_CACHE_HOME/MPLCONFIGDIR were already in the Dockerfile's ENV but
+    # inert here until now: matplotlib is new (see %post). Without
+    # MPLCONFIGDIR, matplotlib falls back to a HOME-relative config dir that
+    # may not be writable for whichever user `apptainer run` ends up as, and
+    # prints a "created a temporary cache directory" warning every case.
+    export XDG_CACHE_HOME=/tmp/.cache
+    export MPLCONFIGDIR=/tmp/.mpl
+
+%runscript
+    # The Dockerfile's ENTRYPOINT, expressed for Apptainer. "$@" is appended so
+    # a validation run can override --device or --input-dir without a second
+    # image; the grader never passes arguments.
+    # --motion --yolo --variant-head --vlm --judge must match the Dockerfile
+    # ENTRYPOINT exactly; the .sif is the content proof for the image that
+    # actually ships, and a flag present in one and not the other would
+    # validate a container nobody uploads. --arbiter-mode is deliberately NOT
+    # passed here either, on the Dockerfile side or this one: config/
+    # arbiter.json's shipped mode ("fallback" since 2026-08-26, on leaderboard
+    # evidence: v5 shipped "challenger" and scored 0.7737 against v4/v2's
+    # 0.8015, the direction and very nearly the magnitude the graded sample
+    # predicted) is the one place that
+    # decision is recorded, and the flag exists only to override it for a
+    # test run via "$@".
+    exec python /opt/algorithm/scripts/inference.py \
+        --input-dir /input --output-dir /output \
+        --models-dir /opt/algorithm/models \
+        --motion --yolo --variant-head --vlm "$@"
+
+%labels
+    Purpose SurgVU26 Cat2 submission (content proof; ships as a Docker image)

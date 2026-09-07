@@ -1,0 +1,1343 @@
+<title>SurgVU 2026 · Category 2 — Design</title>
+
+<style>
+  :root {
+    --paper:      #F4F7F8;
+    --surface:    #FFFFFF;
+    --sunk:       #EAF0F1;
+    --ink:        #0F191D;
+    --ink-2:      #465A61;
+    --ink-3:      #6F848B;
+    --rule:       #D2DFE2;
+    --rule-soft:  #E4EDEF;
+    --accent:     #0B6E78;
+    --accent-2:   #0E8A93;
+    --accent-bg:  #E0EFF0;
+    --flag:       #9C4A21;
+    --flag-bg:    #F8ECE4;
+
+    --display: "Palatino Linotype", Palatino, "Iowan Old Style", Charter, Georgia, serif;
+    --body: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, "Cascadia Mono", Consolas, "SF Mono", Menlo, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper:     #0A1013;
+      --surface:   #111B1F;
+      --sunk:      #162327;
+      --ink:       #E1ECEE;
+      --ink-2:     #97AAB1;
+      --ink-3:     #74888F;
+      --rule:      #21333A;
+      --rule-soft: #1A2A30;
+      --accent:    #4CBDC5;
+      --accent-2:  #6FD2D9;
+      --accent-bg: #0F2E34;
+      --flag:      #DC9163;
+      --flag-bg:   #291A12;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --paper:     #0A1013;
+    --surface:   #111B1F;
+    --sunk:      #162327;
+    --ink:       #E1ECEE;
+    --ink-2:     #97AAB1;
+    --ink-3:     #74888F;
+    --rule:      #21333A;
+    --rule-soft: #1A2A30;
+    --accent:    #4CBDC5;
+    --accent-2:  #6FD2D9;
+    --accent-bg: #0F2E34;
+    --flag:      #DC9163;
+    --flag-bg:   #291A12;
+  }
+
+  :root[data-theme="light"] {
+    --paper:     #F4F7F8;
+    --surface:   #FFFFFF;
+    --sunk:      #EAF0F1;
+    --ink:       #0F191D;
+    --ink-2:     #465A61;
+    --ink-3:     #6F848B;
+    --rule:      #D2DFE2;
+    --rule-soft: #E4EDEF;
+    --accent:    #0B6E78;
+    --accent-2:  #0E8A93;
+    --accent-bg: #E0EFF0;
+    --flag:      #9C4A21;
+    --flag-bg:   #F8ECE4;
+  }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 16.5px;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .shell {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 28px 120px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  @media (min-width: 1120px) {
+    .shell { grid-template-columns: 210px minmax(0, 1fr); column-gap: 56px; }
+    .masthead, .band { grid-column: 1 / -1; }
+  }
+
+  /* ---------- masthead ---------- */
+
+  .masthead {
+    padding: 76px 0 40px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+  }
+
+  h1 {
+    font-family: var(--display);
+    font-size: clamp(34px, 5.2vw, 54px);
+    line-height: 1.08;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+    margin-bottom: 18px;
+  }
+
+  .standfirst {
+    font-size: 19px;
+    line-height: 1.55;
+    color: var(--ink-2);
+    max-width: 62ch;
+    text-wrap: pretty;
+  }
+
+  .meta-row {
+    margin-top: 28px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 26px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-3);
+  }
+  .meta-row b { color: var(--ink-2); font-weight: 600; }
+
+  /* ---------- timeline ---------- */
+
+  .band { padding: 40px 0; border-bottom: 1px solid var(--rule); }
+
+  .band-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin-bottom: 26px;
+  }
+
+  .timeline { display: flex; overflow-x: auto; gap: 0; padding-bottom: 6px; }
+
+  .tl-item {
+    flex: 1 0 128px;
+    position: relative;
+    padding-top: 22px;
+    padding-right: 16px;
+  }
+  .tl-item::before {
+    content: "";
+    position: absolute;
+    top: 5px; left: 0; right: 0;
+    height: 1px;
+    background: var(--rule);
+  }
+  .tl-item::after {
+    content: "";
+    position: absolute;
+    top: 1px; left: 0;
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: var(--paper);
+    border: 1.5px solid var(--ink-3);
+  }
+  .tl-item.is-now::after { background: var(--accent); border-color: var(--accent); }
+  .tl-item.is-hard::after { background: var(--flag); border-color: var(--flag); }
+
+  .tl-date {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: 0.02em;
+  }
+  .tl-item.is-now .tl-date { color: var(--accent); }
+  .tl-item.is-hard .tl-date { color: var(--flag); }
+  .tl-what { font-size: 13px; color: var(--ink-2); line-height: 1.4; margin-top: 3px; }
+
+  /* ---------- figures strip ---------- */
+
+  .figures {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+  }
+  .fig { background: var(--surface); padding: 20px 18px; }
+  .fig-n {
+    font-family: var(--display);
+    font-size: 32px;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+  .fig.is-target .fig-n { color: var(--accent); }
+  .fig-t {
+    margin-top: 9px;
+    font-size: 12.5px;
+    color: var(--ink-2);
+    line-height: 1.4;
+  }
+
+  /* ---------- nav ---------- */
+
+  nav.toc { display: none; }
+  @media (min-width: 1120px) {
+    nav.toc {
+      display: block;
+      grid-column: 1;
+      position: sticky;
+      top: 32px;
+      align-self: start;
+      padding-top: 56px;
+    }
+    nav.toc ol { list-style: none; display: flex; flex-direction: column; gap: 11px; }
+    nav.toc a {
+      font-size: 13px;
+      color: var(--ink-3);
+      text-decoration: none;
+      display: block;
+      line-height: 1.35;
+      border-left: 2px solid transparent;
+      padding-left: 12px;
+      transition: color .15s, border-color .15s;
+    }
+    nav.toc a:hover, nav.toc a:focus-visible {
+      color: var(--accent);
+      border-left-color: var(--accent);
+    }
+  }
+
+  /* ---------- body ---------- */
+
+  main { grid-column: -2 / -1; padding-top: 56px; min-width: 0; }
+
+  section { margin-bottom: 68px; scroll-margin-top: 28px; }
+
+  h2 {
+    font-family: var(--display);
+    font-size: 29px;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.012em;
+    text-wrap: balance;
+    margin-bottom: 20px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  h3 {
+    font-family: var(--body);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    margin: 34px 0 12px;
+    color: var(--ink);
+  }
+
+  h3 .marker {
+    font-family: var(--mono);
+    color: var(--accent);
+    font-weight: 600;
+    margin-right: 9px;
+  }
+
+  p { max-width: 68ch; margin-bottom: 16px; text-wrap: pretty; }
+  main ul, main ol { max-width: 68ch; margin: 0 0 18px 0; padding-left: 20px; }
+  main li { margin-bottom: 9px; }
+  main li::marker { color: var(--ink-3); }
+
+  strong { font-weight: 650; }
+  em { font-style: italic; color: var(--ink-2); }
+
+  code {
+    font-family: var(--mono);
+    font-size: 0.875em;
+    background: var(--sunk);
+    padding: 1.5px 5px;
+    border-radius: 2px;
+    color: var(--ink);
+  }
+
+  pre {
+    background: var(--sunk);
+    border: 1px solid var(--rule-soft);
+    border-radius: 3px;
+    padding: 18px 20px;
+    overflow-x: auto;
+    margin-bottom: 20px;
+    font-size: 13px;
+    line-height: 1.65;
+  }
+  pre code { background: none; padding: 0; font-size: inherit; }
+  .cm { color: var(--ink-3); }
+  .hl { color: var(--accent); font-weight: 600; }
+
+  blockquote {
+    border-left: 2px solid var(--accent);
+    padding: 2px 0 2px 20px;
+    margin: 0 0 20px;
+    max-width: 66ch;
+  }
+  blockquote p:last-child { margin-bottom: 0; }
+
+  .scroller { overflow-x: auto; margin-bottom: 22px; }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 460px;
+    font-size: 14.5px;
+  }
+  th, td {
+    text-align: left;
+    padding: 10px 16px 10px 0;
+    border-bottom: 1px solid var(--rule-soft);
+    vertical-align: top;
+  }
+  th {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    font-weight: 600;
+    border-bottom-color: var(--rule);
+    white-space: nowrap;
+  }
+  td.num {
+    font-family: var(--mono);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  tr:last-child td { border-bottom: none; }
+
+  /* ---------- callouts ---------- */
+
+  .note {
+    border-left: 2px solid var(--rule);
+    padding-left: 20px;
+    margin: 0 0 22px;
+    max-width: 66ch;
+  }
+  .note .note-k {
+    display: block;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin-bottom: 7px;
+  }
+  .note.is-risk { border-left-color: var(--flag); }
+  .note.is-risk .note-k { color: var(--flag); }
+  .note.is-key { border-left-color: var(--accent); }
+  .note.is-key .note-k { color: var(--accent); }
+  .note p:last-child { margin-bottom: 0; }
+
+  /* ---------- figure / diagram ---------- */
+
+  figure { margin: 0 0 26px; }
+  figure svg {
+    display: block;
+    width: 100%;
+    min-width: 880px;
+    height: auto;
+    color: var(--ink-2);
+  }
+  .dgm-lane {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    fill: var(--ink-3);
+  }
+  .dgm-div { stroke: var(--rule); stroke-width: 1; stroke-dasharray: 3 5; }
+  .dgm-box { fill: var(--surface); stroke: var(--rule); stroke-width: 1.25; }
+  .dgm-box-key { fill: var(--surface); stroke: var(--accent); stroke-width: 1.75; }
+  .dgm-io { fill: var(--sunk); stroke: var(--rule); stroke-width: 1.25; }
+  .dgm-t {
+    font-family: var(--body);
+    font-size: 12.5px;
+    font-weight: 600;
+    fill: var(--ink);
+  }
+  .dgm-s {
+    font-family: var(--body);
+    font-size: 11px;
+    fill: var(--ink-3);
+  }
+  .dgm-a {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    fill: var(--ink-3);
+    letter-spacing: 0.02em;
+  }
+  .dgm-a-key { fill: var(--accent); }
+  .dgm-line { fill: none; stroke: currentColor; stroke-width: 1.25; }
+  .dgm-line-key { fill: none; stroke: var(--accent); stroke-width: 1.75; }
+
+  figcaption {
+    font-size: 13.5px;
+    color: var(--ink-2);
+    line-height: 1.5;
+    margin-top: 14px;
+    max-width: 68ch;
+  }
+
+  /* ---------- decisions ---------- */
+
+  .decisions { list-style: none; padding: 0; max-width: 68ch; }
+  .decisions li {
+    padding: 14px 0;
+    border-bottom: 1px solid var(--rule-soft);
+    margin: 0;
+    display: grid;
+    grid-template-columns: 20px 1fr;
+    gap: 14px;
+  }
+  .decisions li::before {
+    content: "▸";
+    color: var(--accent);
+    font-size: 13px;
+    line-height: 1.7;
+  }
+  .decisions li:last-child { border-bottom: none; }
+
+  footer {
+    grid-column: -2 / -1;
+    border-top: 1px solid var(--rule);
+    padding-top: 24px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-3);
+    line-height: 1.7;
+  }
+
+  a { color: var(--accent); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+</style>
+
+<div class="shell">
+
+  <header class="masthead">
+    <div class="eyebrow">MICCAI / EndoVis · Intuitive Surgical · Category 2</div>
+    <h1>Evidence-Arbitration Router for Surgical VQA</h1>
+    <p class="standfirst">
+      Category 2 presents itself as open-ended video question answering. It isn't. It is
+      metadata recovery and single-slot filling — and under this year's metric, being right
+      is worth far more than sounding right.
+    </p>
+    <div class="meta-row">
+      <span><b>Status</b> &nbsp;design approved, pending review</span>
+      <span><b>Drafted</b> &nbsp;2026-08-04</span>
+      <span><b>Revised</b> &nbsp;2026-08-05 · metric corrected</span>
+      <span><b>Repo</b> &nbsp;surgvu26-cat2</span>
+    </div>
+  </header>
+
+  <div class="band">
+    <div class="band-label">Timeline</div>
+    <div class="timeline">
+      <div class="tl-item is-now">
+        <div class="tl-date">Aug 5</div>
+        <div class="tl-what">Today. Preliminary phase open — the only real iteration surface.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-date">Aug 21</div>
+        <div class="tl-what">Final test phase opens</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-date">Sep 2</div>
+        <div class="tl-what">Preliminary phase closes</div>
+      </div>
+      <div class="tl-item is-hard">
+        <div class="tl-date">Sep 6</div>
+        <div class="tl-what">Final phase closes — two submissions only</div>
+      </div>
+      <div class="tl-item is-hard">
+        <div class="tl-date">Sep 13</div>
+        <div class="tl-what">Report, public repo, and presentation due</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-date">Sep 27</div>
+        <div class="tl-what">Challenge day, Strasbourg</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="band">
+    <div class="band-label">The numbers that shape the design</div>
+    <div class="figures">
+      <div class="fig is-target">
+        <div class="fig-n">$3,000</div>
+        <div class="fig-t">1st place, but only if we beat 2025's methods re-scored — otherwise $1,000</div>
+      </div>
+      <div class="fig">
+        <div class="fig-n">1.00</div>
+        <div class="fig-t">Ceiling per question — reachable with one word, if it's the right one</div>
+      </div>
+      <div class="fig">
+        <div class="fig-n">21</div>
+        <div class="fig-t">Unique <code>matched_description</code> strings in the entire corpus</div>
+      </div>
+      <div class="fig">
+        <div class="fig-n">3 of 12</div>
+        <div class="fig-t">Instruments installed at any moment — a hard constraint, built into the model</div>
+      </div>
+      <div class="fig">
+        <div class="fig-n">7 / 11</div>
+        <div class="fig-t">Sample questions that are simple yes / no</div>
+      </div>
+      <div class="fig">
+        <div class="fig-n">16 GB</div>
+        <div class="fig-t">T4 VRAM at inference, with no network access</div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="toc" aria-label="Contents">
+    <ol>
+      <li><a href="#winning">What winning requires</a></li>
+      <li><a href="#metric">The metric</a></li>
+      <li><a href="#task">What the task actually is</a></li>
+      <li><a href="#c1">Consequence 1 — a closed corpus</a></li>
+      <li><a href="#c2">Consequence 2 — name granularity</a></li>
+      <li><a href="#c3">Consequence 3 — installed ≠ visible</a></li>
+      <li><a href="#arch">Architecture</a></li>
+      <li><a href="#components">The seven components</a></li>
+      <li><a href="#validation">Validation</a></li>
+      <li><a href="#errors">Error handling</a></li>
+      <li><a href="#testing">Testing</a></li>
+      <li><a href="#decisions">Key decisions</a></li>
+      <li><a href="#risks">Risks</a></li>
+      <li><a href="#scope">Out of scope</a></li>
+    </ol>
+  </nav>
+
+  <main>
+
+    <section id="winning">
+      <h2>What winning requires</h2>
+      <p>
+        Prizes are two-tiered, and the tier is gated on performance. A team cannot win both.
+      </p>
+      <div class="scroller">
+        <table>
+          <thead><tr><th>Placement</th><th>"Overall" tier</th><th>"2026" tier</th></tr></thead>
+          <tbody>
+            <tr><td>1st</td><td class="num">$3,000</td><td class="num">$1,000</td></tr>
+            <tr><td>2nd</td><td class="num">$2,000</td><td class="num">$500</td></tr>
+            <tr><td>3rd</td><td class="num">$1,000</td><td class="num">$250</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <blockquote>
+        <p>
+          "teams performing better than last year's methods will be eligible for 'overall' case
+          prizes, otherwise the '2026' prizes."
+        </p>
+      </blockquote>
+      <p>
+        So the objective is not "place well" — it is <strong>beat the 2025 methods re-scored
+        under the 2026 metric</strong>. That is a 3× difference in prize money at first place.
+        Separately there is <strong>$500 for best methodology report</strong>, and all
+        submissions are eligible for it regardless of how the algorithm performed.
+      </p>
+
+      <h3><span class="marker">→</span>The bar is computable in advance</h3>
+      <p>
+        The metric changed from BLEU to BERTScore this year, so last year's published 0.4215
+        tells us nothing directly. But the organizers require editor access on submitted
+        containers <em>"to enable re-evaluation on future datasets"</em> — they re-run prior
+        winners under the new scoring. And every prior Category 2 winner's container is public:
+      </p>
+      <div class="scroller">
+        <table>
+          <thead><tr><th>Year</th><th>Team</th><th>Repository</th></tr></thead>
+          <tbody>
+            <tr><td class="num">2025</td><td>Capybara (1st)</td><td><code>huuquan1994/surgvu25-cat2-submission</code></td></tr>
+            <tr><td class="num">2025</td><td>UoM-SurgicalAI (2nd)</td><td><code>mobarakol/UoM_SurgicalAI_SurgVU_Challenge2025</code></td></tr>
+            <tr><td class="num">2025</td><td>Medibot (3rd)</td><td><code>bravefox12138/surgvu2025vqa</code></td></tr>
+            <tr><td class="num">2024</td><td>PDMYR (1st)</td><td><code>SalenGit/surgvu2024-category2-rank1</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note is-key">
+        <span class="note-k">The highest-value early task</span>
+        <p>
+          We can run Capybara's container against the official 2026 evaluation container
+          ourselves and obtain the exact number we need to beat. This turns the prize gate from
+          an unknown into a measured target, and doubles as the strongest possible baseline for
+          every ablation.
+        </p>
+      </div>
+
+      <h3><span class="marker">✓</span>Submission checklist</h3>
+      <p>All four are required; incomplete submissions are ineligible for cash prizes.</p>
+      <ol>
+        <li>Successful algorithm-container run on the final testing phase.</li>
+        <li>Editor access on the container granted to <code>aneeqzia_isi</code>.</li>
+        <li>Methodology report using the provided <strong>LaTeX template</strong>, emailed to <code>isi.challenges@intusurg.com</code>, listing official team members, with GitHub links, reproduction instructions, and any external datasets used.</li>
+        <li>Pre-recorded presentation, <strong>maximum three minutes</strong>, using the provided PowerPoint template.</li>
+      </ol>
+
+      <h3><span class="marker">#</span>Submission budget</h3>
+      <p>
+        <strong>Preliminary phase: up to 10 attempts</strong> on a small dataset, for debugging.
+        This is the iteration surface and it is finite. <strong>Final phase: 2 attempts</strong>,
+        best score counts.
+      </p>
+    </section>
+
+    <section id="metric">
+      <h2>The metric</h2>
+      <p>
+        The official evaluation container is
+        <a href="https://github.com/isi-challenges/surgvu26-category-2-eval-public">public on GitHub</a>.
+        We do not have to infer the metric or reimplement it — <strong>we can run the exact
+        scorer locally</strong>, which eliminates an entire class of risk before it exists.
+      </p>
+      <p>
+        <strong>Primary: BERTScore-F1</strong>, <code>roberta-large</code>, rescaled with
+        baseline, taking the <strong>max over the five references</strong>, then meaned across
+        cases.
+      </p>
+<pre><code>bert_scorer = BERTScorer(model_type=<span class="hl">"roberta-large"</span>, lang="en", <span class="hl">rescale_with_baseline=True</span>)
+cands_expanded = [cand] * len(refs)
+_P, _R, F1 = bert_scorer.score(cands_expanded, refs)
+bertscore_f1s.append(F1.<span class="hl">max()</span>.item())</code></pre>
+      <p>
+        Secondary metrics, all written to <code>metrics.json</code> but not ranked: NLI
+        entailment (<code>cross-encoder/nli-deberta-v3-base</code>), NLI × BERT, BLEU-4,
+        ROUGE-1/2/L.
+      </p>
+
+      <h3><span class="marker">i</span>Terse answers are optimal</h3>
+      <p>
+        Reference lists lead with the bare form — <code>"Yes"</code>, <code>"No"</code>,
+        <code>"Cadiere Forceps"</code>, <code>"Uterine horn"</code> — and scoring takes the max
+        across references. An identical string scores F1 = 1.0, and rescaling maps 1.0 to 1.0.
+        So emitting exactly <code>"Yes"</code> hits the ceiling. <strong>No elaborate answer can
+        beat a one-word exact match</strong>, and a longer answer risks scoring lower.
+      </p>
+
+      <h3><span class="marker">ii</span>Correctness now dominates phrasing</h3>
+      <p>
+        Under n-gram overlap, a wrong-polarity answer that echoes the question's noun phrase
+        still collects most of the credit. Under BERTScore against a terse reference,
+        <code>"No"</code> scored against <code>"Yes"</code> has almost no lexical or semantic
+        overlap to fall back on. The exact cost is unmeasured — it is experiment #1 below — but
+        the direction is not in doubt.
+      </p>
+      <div class="note is-key">
+        <span class="note-k">Why this is good news</span>
+        <p>
+          The routing and perception work is worth <em>more</em> under this metric, not less.
+          A system that reasons its way to the right slot value is rewarded; one that merely
+          sounds fluent is not.
+        </p>
+      </div>
+
+      <h3><span class="marker">iii</span>The primary metric sees raw text</h3>
+      <p>
+        In <code>evaluate.py</code>, BLEU and ROUGE are computed on lowercased,
+        punctuation-stripped strings — but the candidate and references reach BERTScore and NLI
+        <strong>un-normalized</strong>. Casing and terminal punctuation therefore affect the
+        score that ranks us. The organizers' own test fixture probes exactly this:
+        <code>answer001c.json</code> is <code>"yes"</code> against a ground truth of
+        <code>"Yes"</code>. We match reference casing exactly.
+      </p>
+      <div class="note">
+        <span class="note-k">On not gaming it</span>
+        <p>
+          NLI entailment genuinely captures contradiction, and it is reported alongside
+          BERTScore in every result row. A hedging strategy that games semantic similarity
+          would show up as a collapsed NLI score in the challenge paper. We optimize for being
+          right.
+        </p>
+      </div>
+    </section>
+
+    <section id="task">
+      <h2>What the task actually is</h2>
+
+      <p>
+        Analysis of the public sample set and the training label tables shows that Category 2
+        is not open-ended reasoning over surgical video. Three pieces of evidence point the
+        same direction.
+      </p>
+
+      <h3><span class="marker">i</span>The container is invoked once per case</h3>
+      <p>
+        One video, one question, one answer. The time budget is therefore <em>per case</em>,
+        not per test set — which is what makes a multi-pass routing system affordable at all.
+      </p>
+<pre><code>/input/endoscopic-robotic-surgery-video.mp4
+/input/visual-context-question.json    <span class="cm">→</span>  "Was a large needle driver used in this clip?"
+/output/visual-context-response.json   <span class="cm">→</span>  "Yes"</code></pre>
+
+      <h3><span class="marker">ii</span>Every question is one slot</h3>
+      <p>
+        Five reference answers ship with each question, and scoring takes the best match. For
+        the question above:
+      </p>
+<pre><code><span class="hl">"Yes"</span>                                            <span class="cm">← the whole game</span>
+"Yes, a large needle driver was utilized."
+"Yes, it appears a large needle driver was used."
+"Yes, the procedure involved a large needle driver."
+"Yes, needle driver is part of the procedure."</code></pre>
+      <p>
+        Perception has to supply exactly one thing: the polarity. Of the 11 sample questions, 7
+        are yes/no and the remaining 4 fill a single slot — tool type, organ, procedure type,
+        and tool purpose.
+      </p>
+
+      <div class="note is-risk">
+        <span class="note-k">Provenance — read before trusting the above</span>
+        <p>
+          <strong>There is no 2026 sample set.</strong> The 2026 page links
+          <code>SURGVU25_cat_2_sample_set_public.zip</code> as <em>"10 video samples… to be used
+          as reference"</em> — last year's set, last uploaded 2025-07-22, and the bucket holds no
+          2026 object at all. (It contains 11 cases, not 10.) Everything about question
+          <em>distribution</em> is extrapolated from prior-year material, in a year where the
+          metric changed and the label scope was restated. <strong>Where the 2026 site's text
+          conflicts with these samples, the site wins.</strong>
+        </p>
+      </div>
+
+      <p>
+        The only 2026-native question evidence that exists publicly is inside the evaluation
+        container. Its ground-truth fixtures are deliberately scrubbed — <code>case002</code>
+        reads <em>"No, the specific tool was not used"</em>, with the tool name redacted — but
+        <code>test_metrics.py</code> names three real questions, and its tool-question ground
+        truth is <code>"Forceps"</code>, class-level with no commercial name:
+      </p>
+<pre><code>Q1 (case001): In this procedure, what is <span class="hl">cauterized</span> by the surgeon?
+Q5 (case005): Which surgical <span class="hl">specialty</span> is this procedure associated with?
+Q6 (case006): Are <span class="hl">forceps</span> involved in the procedure?</code></pre>
+      <p>
+        Two of those are slot types the 11 prior-year samples do not cover at all —
+        <strong>surgical specialty</strong>, and <strong>anatomy-plus-action</strong> (<em>what</em>
+        is cauterized, not merely whether cautery occurs). The taxonomy has been widened
+        accordingly.
+      </p>
+
+      <h3><span class="marker">iii</span>Ground truth was written from tables, not pixels</h3>
+      <p>
+        The tells are in the reference wording: <em>"No, forceps are not <strong>mentioned</strong>"</em>,
+        <em>"Is a large needle driver among the <strong>listed</strong> tools?"</em>,
+        <em>"What procedure is this <strong>summary</strong> describing?"</em> Those phrasings
+        describe reading a spreadsheet, not watching a video. The spreadsheets in question:
+      </p>
+      <div class="scroller">
+        <table>
+          <thead>
+            <tr><th>Table</th><th>Columns that matter</th><th>What it supplies</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>tools.csv</code></td>
+              <td><code>install_case_time</code>, <code>uninstall_case_time</code>, <code>arm</code>, <code>commercial_toolname</code>, <code>groundtruth_toolname</code></td>
+              <td>The "listed tools" — every row whose install interval covers the clip</td>
+            </tr>
+            <tr>
+              <td><code>tasks.csv</code></td>
+              <td><code>start_time</code>, <code>stop_time</code>, <code>groundtruth_taskname</code>, <code>matched_description</code></td>
+              <td>The "summary" — the description of the covering task segment</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note is-key">
+        <span class="note-k">Why this matters</span>
+        <p>
+          If ground truth is generated from tables we already hold, then we can replicate the
+          generator — which turns an 11-example tuning set into thousands. Every decision below
+          follows from this.
+        </p>
+      </div>
+    </section>
+
+    <section id="c1">
+      <h2>Consequence 1 — the descriptions are a closed corpus of 21 strings</h2>
+      <p>
+        Across all 155 cases there are exactly 21 unique <code>matched_description</code> values,
+        and most task classes map to one or two:
+      </p>
+      <div class="scroller">
+        <table>
+          <thead><tr><th>Task class</th><th>Unique descriptions</th></tr></thead>
+          <tbody>
+            <tr><td>Uterine horn</td><td class="num">1</td></tr>
+            <tr><td>Suspensory ligaments</td><td class="num">1</td></tr>
+            <tr><td>Range of motion</td><td class="num">1</td></tr>
+            <tr><td>Rectal artery / vein</td><td class="num">2</td></tr>
+            <tr><td>Retraction and collision avoidance</td><td class="num">2</td></tr>
+            <tr><td>Suturing</td><td class="num">12</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        The defending winner saw this same number and read it as a defect — their report calls
+        21 captions <em>"insufficient for training"</em>, and abandoned fine-tuning on that
+        basis. That conclusion is correct and the inference from it is backwards. It is not a
+        training set. It is a <strong>retrieval corpus</strong>. Classify the task, retrieve the
+        string, and you are holding verbatim the text the ground-truth answers were generated
+        from.
+      </p>
+      <p>
+        Twenty-one strings fit trivially in a YAML file baked into the container — which also
+        happens to satisfy the no-network constraint for free.
+      </p>
+    </section>
+
+    <section id="c2">
+      <h2>Consequence 2 — exactly three instruments, out of twelve</h2>
+      <p>
+        The data description is explicit: for the extent of each clip <em>"there are three
+        robotic surgical tools installed and within the surgical field"</em>, and each clip
+        <em>"can contain up to three of 12 possible tools."</em> That reconciles exactly with the
+        arm structure in <code>tools.csv</code> — four USM arms, one carrying the endoscope
+        (<code>nan(camera in)</code>), leaving three instrument arms.
+      </p>
+      <div class="note is-key">
+        <span class="note-k">Build it in, don't learn it</span>
+        <p>
+          The tool recogniser is a <strong>constrained top-3 selection over 12 classes</strong>,
+          not twelve independent binary decisions. That collapses the hypothesis space from
+          2<sup>12</sup> to C(12,3) = 220, and makes the "predicted the wrong number of tools"
+          failure mode impossible by construction.
+        </p>
+      </div>
+      <p>
+        <strong>Class scope is 12, not 20.</strong> The label tables do contain rarer classes —
+        <code>suction irrigator</code>, <code>synchroseal</code>, <code>curved scissors</code>,
+        <code>potts scissors</code>, <code>tenaculum forceps</code>,
+        <code>bipolar dissector</code>, <code>crocodile grasper</code> — but the data description
+        states that <em>"these tools will not be part of the testing set and the submissions will
+        not need to recognize those."</em> They are auxiliary training signal and nothing more.
+        The 2025 winner's 12-class list was correct.
+      </p>
+      <div class="note is-risk">
+        <span class="note-k">Open question — settle by measurement</span>
+        <p>
+          Three of the eleven sample questions name a <em>"large needle driver"</em>, which is a
+          <code>commercial_toolname</code>. But the data description states that <em>"the test
+          labels will only be based on groundtruth_toolname column"</em>, unscoped to either
+          category. Both cannot be fully true of the 2026 test set. Experiment 2 resolves it: if
+          answering from the class alone matches ground truth as often as consulting
+          <code>P(commercial | class, task)</code> priors, the priors are dead weight and the
+          design drops a whole component.
+        </p>
+      </div>
+    </section>
+
+    <section id="c3">
+      <h2>Consequence 3 — installed is not the same as visible</h2>
+      <p>
+        Ground truth keys off install intervals, and the challenge's own data description warns
+        that tools may be <em>"installed yet obscured from view."</em> A needle driver mounted on
+        USM1 but off-screen is still a <strong>yes</strong>.
+      </p>
+      <p>
+        So the estimation target is <strong>installation state</strong> — which is temporally
+        smooth, strongly predicted by task context, and a materially easier problem than
+        detection. It also means the obvious instinct is a trap: getting better at
+        <em>seeing</em> tools moves you away from the ground truth, not toward it.
+      </p>
+    </section>
+
+    <section id="arch">
+      <h2>Architecture</h2>
+      <p>
+        Two streams converge. The video stream recovers the metadata; the question stream
+        determines which slot needs filling and at what granularity. They meet at the router,
+        which decides whether the first VLM pass can be trusted or whether more evidence is
+        worth buying.
+      </p>
+
+      <figure>
+        <svg viewBox="0 0 1160 830" role="img"
+             aria-label="Data flow diagram. Video feeds a tool install-state recogniser and a task classifier; the task classifier drives retrieval from a closed set of 21 descriptions; both feed VLM pass one, sampled N times for self-consistency. The question feeds a text-only parser. Both streams converge at a router. If they agree the answer is emitted directly. Otherwise the router picks one of four branches, split into two lanes: the upper lane buys new visual evidence via a detector arbiter or dense re-sampling and therefore runs a second VLM pass; the lower lane resolves from a table via class fallback or task-class authority and emits without a second pass.">
+          <defs>
+            <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5"
+                    markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor"/>
+            </marker>
+            <marker id="ahk" viewBox="0 0 10 10" refX="9" refY="5"
+                    markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--accent)"/>
+            </marker>
+          </defs>
+
+          <!-- ============ inputs ============ -->
+          <rect class="dgm-io" x="16" y="20" width="96" height="40" rx="3"/>
+          <text class="dgm-t" x="64" y="45" text-anchor="middle">question</text>
+
+          <rect class="dgm-io" x="16" y="132" width="96" height="44" rx="3"/>
+          <text class="dgm-t" x="64" y="159" text-anchor="middle">video</text>
+
+          <!-- ============ parsing + perception ============ -->
+          <rect class="dgm-box" x="150" y="20" width="180" height="40" rx="3"/>
+          <text class="dgm-t" x="240" y="45" text-anchor="middle">Question parser</text>
+
+          <rect class="dgm-box" x="150" y="80" width="180" height="52" rx="3"/>
+          <text class="dgm-t" x="240" y="102" text-anchor="middle">Install-state recogniser</text>
+          <text class="dgm-s" x="240" y="119" text-anchor="middle">top-3 of 12, always</text>
+
+          <rect class="dgm-box" x="150" y="166" width="180" height="44" rx="3"/>
+          <text class="dgm-t" x="240" y="193" text-anchor="middle">Task classifier</text>
+
+          <rect class="dgm-box" x="380" y="166" width="180" height="52" rx="3"/>
+          <text class="dgm-t" x="470" y="188" text-anchor="middle">Description retrieval</text>
+          <text class="dgm-s" x="470" y="205" text-anchor="middle">closed set · 21 strings</text>
+
+          <rect class="dgm-box" x="620" y="88" width="170" height="60" rx="3"/>
+          <text class="dgm-t" x="705" y="114" text-anchor="middle">VLM pass 1 × N</text>
+          <text class="dgm-s" x="705" y="131" text-anchor="middle">self-consistency</text>
+
+          <!-- ============ router ============ -->
+          <rect class="dgm-box-key" x="620" y="240" width="170" height="60" rx="3"/>
+          <text class="dgm-t" x="705" y="266" text-anchor="middle">Router</text>
+          <text class="dgm-s" x="705" y="283" text-anchor="middle">buy evidence, or don't</text>
+
+          <!-- ============ lane divider + labels ============ -->
+          <line class="dgm-div" x1="598" y1="362" x2="598" y2="700"/>
+          <text class="dgm-lane" x="355" y="380" text-anchor="middle">BUYS NEW VISUAL EVIDENCE</text>
+          <text class="dgm-lane" x="840" y="380" text-anchor="middle">RESOLVES FROM A TABLE</text>
+
+          <!-- ============ branch boxes ============ -->
+          <rect class="dgm-box" x="150" y="396" width="190" height="54" rx="3"/>
+          <text class="dgm-t" x="245" y="418" text-anchor="middle">Detector arbiter</text>
+          <text class="dgm-s" x="245" y="435" text-anchor="middle">hunts the one tool</text>
+
+          <rect class="dgm-box" x="370" y="396" width="190" height="54" rx="3"/>
+          <text class="dgm-t" x="465" y="418" text-anchor="middle">Dense re-sample</text>
+          <text class="dgm-s" x="465" y="435" text-anchor="middle">more frames, re-query</text>
+
+          <rect class="dgm-box" x="635" y="396" width="190" height="54" rx="3"/>
+          <text class="dgm-t" x="730" y="418" text-anchor="middle">Class fallback</text>
+          <text class="dgm-s" x="730" y="435" text-anchor="middle">class + priors, no model</text>
+
+          <rect class="dgm-box" x="855" y="396" width="190" height="54" rx="3"/>
+          <text class="dgm-t" x="950" y="418" text-anchor="middle">Task class wins</text>
+          <text class="dgm-s" x="950" y="435" text-anchor="middle">classifier over VLM</text>
+
+          <!-- ============ second pass + output ============ -->
+          <rect class="dgm-box" x="270" y="530" width="190" height="54" rx="3"/>
+          <text class="dgm-t" x="365" y="552" text-anchor="middle">VLM pass 2</text>
+          <text class="dgm-s" x="365" y="569" text-anchor="middle">with the new evidence</text>
+
+          <rect class="dgm-box-key" x="430" y="660" width="220" height="64" rx="3"/>
+          <text class="dgm-t" x="540" y="686" text-anchor="middle">Answer-form selector</text>
+          <text class="dgm-s" x="540" y="704" text-anchor="middle">terse by default</text>
+
+          <rect class="dgm-io" x="490" y="772" width="100" height="40" rx="3"/>
+          <text class="dgm-t" x="540" y="797" text-anchor="middle">answer</text>
+
+          <!-- ============ edges: inputs ============ -->
+          <path class="dgm-line" d="M112,40 H150" marker-end="url(#ah)"/>
+
+          <path class="dgm-line" d="M112,154 H132"/>
+          <path class="dgm-line" d="M132,106 V188"/>
+          <path class="dgm-line" d="M132,106 H150" marker-end="url(#ah)"/>
+          <path class="dgm-line" d="M132,188 H150" marker-end="url(#ah)"/>
+
+          <!-- tools -> vlm1 -->
+          <path class="dgm-line" d="M330,106 H590 V100 H620" marker-end="url(#ah)"/>
+          <text class="dgm-a" x="455" y="98" text-anchor="middle">installed tools</text>
+
+          <!-- task -> description -->
+          <path class="dgm-line" d="M330,188 H380" marker-end="url(#ah)"/>
+
+          <!-- description -> vlm1 -->
+          <path class="dgm-line" d="M560,192 H590 V136 H620" marker-end="url(#ah)"/>
+          <text class="dgm-a" x="470" y="238" text-anchor="middle">retrieved description</text>
+
+          <!-- vlm1 -> router -->
+          <path class="dgm-line" d="M705,148 V240" marker-end="url(#ah)"/>
+          <text class="dgm-a" x="718" y="186">slot value</text>
+          <text class="dgm-a" x="718" y="201">+ agreement rate</text>
+
+          <!-- parser -> router -->
+          <path class="dgm-line" d="M330,40 H596 V255 H620" marker-end="url(#ah)"/>
+          <text class="dgm-a" x="462" y="32" text-anchor="middle">slot type · entity · granularity</text>
+
+          <!-- ============ edges: router fan-out ============ -->
+          <path class="dgm-line" d="M705,300 V350"/>
+          <path class="dgm-line" d="M245,350 H950"/>
+          <path class="dgm-line" d="M245,350 V396" marker-end="url(#ah)"/>
+          <path class="dgm-line" d="M465,350 V396" marker-end="url(#ah)"/>
+          <path class="dgm-line" d="M730,350 V396" marker-end="url(#ah)"/>
+          <path class="dgm-line" d="M950,350 V396" marker-end="url(#ah)"/>
+
+          <!-- ============ edges: lane A -> pass 2 ============ -->
+          <path class="dgm-line" d="M245,450 V500"/>
+          <path class="dgm-line" d="M465,450 V500"/>
+          <path class="dgm-line" d="M245,500 H465"/>
+          <path class="dgm-line" d="M365,500 V530" marker-end="url(#ah)"/>
+
+          <!-- pass 2 -> selector -->
+          <path class="dgm-line" d="M460,557 H490 V660" marker-end="url(#ah)"/>
+          <text class="dgm-a" x="502" y="622">re-answered</text>
+
+          <!-- ============ edges: lane B -> selector, skipping pass 2 ============ -->
+          <path class="dgm-line" d="M730,450 V692 H650" marker-end="url(#ah)"/>
+          <path class="dgm-line" d="M950,450 V752 H600 V724" marker-end="url(#ah)"/>
+          <text class="dgm-a" x="790" y="600" text-anchor="middle">no second pass —</text>
+          <text class="dgm-a" x="790" y="615" text-anchor="middle">no new evidence to weigh</text>
+
+          <!-- ============ edges: agree path ============ -->
+          <path class="dgm-line-key" d="M620,270 H100 V692 H430" marker-end="url(#ahk)"/>
+          <text class="dgm-a dgm-a-key" x="360" y="262" text-anchor="middle">agree → emit, no escalation</text>
+
+          <!-- selector -> answer -->
+          <path class="dgm-line-key" d="M540,724 V772" marker-end="url(#ahk)"/>
+        </svg>
+        <figcaption>
+          The teal path is the common case — the first pass agrees with the perception bank and
+          the answer emits straight away. Everything else is escalation, and it splits on a single
+          question: <em>would more looking actually help?</em> The upper lane buys new visual
+          evidence, so a second VLM pass is worth running. The lower lane resolves from a table,
+          where a second pass would add latency and a chance for the model to talk itself out of a
+          correct answer — so it emits directly.
+        </figcaption>
+      </figure>
+    </section>
+
+    <section id="components">
+      <h2>The seven components</h2>
+
+      <h3><span class="marker">1</span>Knowledge bundle (YAML)</h3>
+      <p>
+        Declarative, MONAI-bundle style, baked into the image. Four files:
+        <code>taxonomy.yaml</code> (the 12 test-relevant classes, the 7 rare train-only classes,
+        43 commercial names mapped to class), <code>descriptions.yaml</code> (the 21 strings, keyed by task),
+        <code>answer_forms.yaml</code> (surface form per slot type), and
+        <code>routing.yaml</code> (thresholds, budgets, frame counts). Everything tunable lives
+        here, so a sweep is a config sweep rather than a code change — and it is also what makes
+        the method legible in the report.
+      </p>
+
+      <h3><span class="marker">2</span>Question parser</h3>
+      <p>
+        Text only, deterministic, no model. Emits a slot type
+        (<code>tool_presence</code>, <code>tool_type</code>, <code>organ</code>,
+        <code>action</code>, <code>anatomy_action</code>, <code>procedure</code>,
+        <code>specialty</code>, <code>world_knowledge</code>), the queried entity normalized
+        against the taxonomy, and the granularity. Questions like <em>"What is the purpose of
+        using forceps?"</em> need no perception at all; <code>specialty</code> is answerable from
+        the task class alone via YAML. The taxonomy is deliberately <strong>open</strong>, with a
+        generic fallback path — an unrecognized slot type must degrade, not fail, because the
+        2026 question distribution is not fully known.
+      </p>
+
+      <h3><span class="marker">3</span>Tool install-state recogniser</h3>
+      <p>
+        <strong>Constrained top-3 selection over the 12 test-relevant classes</strong>, predicting
+        installed rather than visible, with temporal smoothing across the clip. The exactly-three
+        constraint is enforced at decode time rather than hoped for. Trained on SurgVU24 video
+        against install intervals derived from <code>tools.csv</code>, optionally pre-trained on
+        SurgToolLoc-2022 — which the rules explicitly permit. The seven out-of-scope rare classes
+        are kept as auxiliary training signal but never emitted.
+      </p>
+
+      <h3><span class="marker">4</span>Task classifier and description retrieval</h3>
+      <p>
+        Classifies into 8 task classes (after normalizing the 15 raw label spellings), then
+        retrieves the matching description. <strong>Organ is derived from the retrieved
+        description via YAML, not from a separate classifier</strong> — the description already
+        names the anatomy, so a dedicated organ model is redundant. This replaces the 2025 winner's
+        expensive 2048-token description-generation pass with a lookup that is both faster and
+        closer to ground truth.
+      </p>
+
+      <h3><span class="marker">5</span>VLM pass 1 with self-consistency</h3>
+      <p>
+        The VLM answers given the retrieved description, the tool list, and frames — sampled
+        <strong>N times over independent frame subsets</strong>. Confidence is the agreement rate
+        across those samples: not a logprob, not a verbalized score. The budget comes from an
+        inefficiency in the 2025 winner, who allocates 2048 output tokens to an answer that is
+        one short sentence — and under this metric the target is usually a single word.
+      </p>
+
+      <h3><span class="marker">6</span>Router / arbiter</h3>
+      <p>
+        Plain Python and a threshold file — no model. It fires when the VLM's slot value
+        disagrees with the perception bank, or when self-consistency is low. The governing
+        principle is narrow: <strong>escalate only to something that can actually reduce the
+        uncertainty you have.</strong> If no evidence you could buy would change the answer,
+        buy none.
+      </p>
+      <div class="scroller">
+        <table>
+          <thead><tr><th>Situation</th><th>Branch</th><th>Second pass?</th><th>Why</th></tr></thead>
+          <tbody>
+            <tr><td>Agreement, high consistency</td><td>Emit</td><td>no</td><td>Nothing worth buying</td></tr>
+            <tr><td>Tool question, <strong>class-level</strong>, disagreement or flip-flopping</td><td>Detector arbiter</td><td><strong>yes</strong></td><td>Occlusion is the classifier's known blind spot, and vision can fix it</td></tr>
+            <tr><td>Tool question, <strong>commercial-level</strong></td><td>Class fallback</td><td>no</td><td>No pixel separates a <em>Large</em> from a <em>Mega</em> needle driver</td></tr>
+            <tr><td>Organ, anatomy-plus-action</td><td>Dense re-sample</td><td><strong>yes</strong></td><td>Anatomy needs more frames, not boxes</td></tr>
+            <tr><td>Action</td><td>Dense re-sample</td><td><strong>yes</strong></td><td>Actions are temporal — the fix is more time, not more resolution</td></tr>
+            <tr><td>Procedure, specialty</td><td>Task class wins</td><td>no</td><td>These derive from the exercise label, not from pixels. If the VLM disagrees here, the VLM is wrong</td></tr>
+            <tr><td>World knowledge</td><td>Never escalates</td><td>no</td><td>The video was never involved</td></tr>
+            <tr><td>Parser recognizes nothing</td><td>Generic VLM path</td><td>—</td><td>Degrade, don't fail</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>The second pass runs only when new visual evidence arrived.</strong> The detector
+        and dense re-sampling both produce something the model has not seen, so re-asking is
+        worth the latency. The class fallback and the task-class-wins branch resolve by consulting
+        a table — re-asking there would add cost and give the model a chance to talk itself out of
+        an answer that is already correct. Those two emit directly.
+      </p>
+      <p>
+        The detector never contributes location to the answer text — only evidence that a tool is
+        present.
+      </p>
+
+      <h3><span class="marker">7</span>Answer-form selector</h3>
+      <p>
+        Chooses the surface form by slot type, then emits. Deliberately not left to the VLM —
+        the form choice is deterministic and sweepable, and we measure each option against the
+        official scorer rather than arguing about it.
+      </p>
+      <div class="scroller">
+        <table>
+          <thead><tr><th>Slot type</th><th>Form</th><th>Why</th></tr></thead>
+          <tbody>
+            <tr><td><code>tool_presence</code></td><td>bare <code>Yes</code> / <code>No</code></td><td>exact match with the terse reference → F1 = 1.0</td></tr>
+            <tr><td><code>tool_type</code>, <code>organ</code></td><td>bare entity, reference casing</td><td>same</td></tr>
+            <tr><td><code>procedure</code></td><td>short noun phrase</td><td>terse reference usually present</td></tr>
+            <tr><td><code>world_knowledge</code></td><td>one sentence</td><td>no terse reference exists for these</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Casing and terminal punctuation are matched to the observed reference style, because the
+        primary metric sees raw text.
+      </p>
+    </section>
+
+    <section id="validation">
+      <h2>Validation</h2>
+      <p>Two pillars.</p>
+      <ul>
+        <li>
+          <strong>The official evaluation container, run locally.</strong> It is public, so our
+          local number is the real number rather than an approximation. This replaces what would
+          otherwise have been a metric reimplementation plus a calibration exercise.
+        </li>
+        <li>
+          <strong>A synthetic validation set.</strong> The 2025 winner tuned on 11 sample videos
+          and had to hand-correct wrong answers inside them; 11 cases cannot support fitting a
+          confidence threshold. Because ground truth is generated from metadata we already hold,
+          we replicate the generator: sample a clip, read the covering <code>tools.csv</code>
+          rows and <code>tasks.csv</code> segment, and emit a question plus five paraphrased
+          references in the observed style — terse first, then paraphrases.
+        </li>
+      </ul>
+      <p>
+        The 11 public samples are held out from all tuning as a golden set, to detect drift
+        between the synthetic distribution and the real one.
+      </p>
+
+      <h3><span class="marker">0</span>Experiment 0 — establish the bar</h3>
+      <p>
+        Run Capybara's public 2025 container against the official 2026 evaluation container on
+        the 11-case sample set. This produces the BERTScore number we must beat for the
+        "overall" prize tier, and gives us the strongest available baseline for every ablation.
+        Repeat for the other three public prior-winner containers if time allows.
+      </p>
+
+      <h3><span class="marker">1</span>Experiment 1 — measure the metric's shape</h3>
+      <p>
+        Measure the metric's actual shape against the official scorer. Four numbers, all cheap
+        to obtain, and every downstream decision about answer form depends on them:
+      </p>
+      <ul>
+        <li>What does a wrong-polarity answer cost? (<code>"No"</code> against a <code>"Yes"</code> reference set)</li>
+        <li>What does <code>"yes"</code> cost versus <code>"Yes"</code>? The organizers' own fixture asks this.</li>
+        <li>Does a full sentence ever beat the bare form when both are correct?</li>
+        <li>How much does a <em>correct</em> answer in the wrong register lose?</li>
+      </ul>
+
+      <h3><span class="marker">2</span>Experiment 2 — does commercial-name granularity matter?</h3>
+      <p>
+        For each of the three commercial-name sample questions, score answering from the class
+        alone against answering from <code>P(commercial | class, task)</code> priors. If the
+        class alone matches ground truth as often, the priors are dead weight and the design
+        drops a component. A measurement, not an argument.
+      </p>
+    </section>
+
+    <section id="errors">
+      <h2>Error handling</h2>
+      <p>
+        Every failure degrades to a plausible answer rather than an exception. An empty output
+        scores zero; a wrong-but-well-formed answer often scores above zero on the templated
+        portion alone.
+      </p>
+      <div class="scroller">
+        <table>
+          <thead><tr><th>Failure</th><th>Response</th></tr></thead>
+          <tbody>
+            <tr><td>Time budget exceeded</td><td>Emit the pass-1 answer, skip arbitration</td></tr>
+            <tr><td>Out of memory</td><td>Reduce frame count, retry once, then classifier + template with no VLM</td></tr>
+            <tr><td>Parser finds no known slot type</td><td>Generic VLM path with the retrieved description</td></tr>
+            <tr><td>Both streams low-confidence</td><td>Answer from priors alone, via template</td></tr>
+            <tr><td>Any unhandled exception</td><td>Highest-prior templated answer for the parsed slot type</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="testing">
+      <h2>Testing</h2>
+      <p>Test-first, per standing practice on this project.</p>
+      <ul>
+        <li><strong>Unit</strong> — question parser against every sample question plus adversarial phrasings; answer-form selector; prior computation from <code>tools.csv</code>.</li>
+        <li><strong>Golden</strong> — the 11 public samples, end to end, scored by the official container.</li>
+        <li><strong>Integration</strong> — the full container on a T4-class GPU. Not optional: the 2025 winner reports that 4-bit quantized VLMs produce <em>different outputs</em> on Turing versus Ampere versus Hopper, so validating on an A100 and submitting to a T4 means submitting untested code.</li>
+        <li><strong>Ablation</strong> — each component removed in turn on synthetic validation, to establish that the router earns its runtime.</li>
+      </ul>
+    </section>
+
+    <section id="decisions">
+      <h2>Key decisions</h2>
+      <ul class="decisions">
+        <li><strong>Evidence arbitration over a literal confidence cascade or a full Bayesian slot filler.</strong> The cascade has no principled confidence signal; the Bayesian version needs calibration data for every evidence source and degrades badly if the reliabilities are wrong. This design keeps the cascade as its degenerate fallback and the Bayesian criterion as a one-function substitution in the router.</li>
+        <li><strong>The second VLM pass is conditional on new visual evidence, not on escalation.</strong> Branches that resolve from a table emit directly. Re-asking the model about information it already had costs latency and risks it reasoning itself away from a correct answer.</li>
+        <li><strong>Detector as evidence, not localization.</strong> No sample question asks <em>where</em>.</li>
+        <li><strong>Retrieve the description, don't generate it.</strong> Twenty-one strings, closed set.</li>
+        <li><strong>Answer tersely by default.</strong> An exact match with the terse reference is the ceiling; elaboration can only cost.</li>
+        <li><strong>Optimize for correctness, not for gaming the metric.</strong> NLI entailment is reported alongside BERTScore and would expose any hedging strategy.</li>
+        <li><strong>Target installation state, not visibility.</strong> That is what the ground truth encodes.</li>
+        <li><strong>No separate organ classifier.</strong> Redundant with description retrieval.</li>
+        <li><strong>Fully independent of OpScribe.</strong> No shared code, no 72B model, no fine-tuned adapters. The T4's 16 GB settles this regardless of preference.</li>
+      </ul>
+    </section>
+
+    <section id="risks">
+      <h2>Risks</h2>
+
+      <div class="note is-risk">
+        <span class="note-k">Largest by a wide margin</span>
+        <p>
+          <strong>The question-distribution evidence is a year stale.</strong> There is no 2026
+          sample set; the 11 cases we tune against are 2025 reference material, in a year where
+          the metric changed from BLEU to BERTScore and the tool-label scope was restated as
+          class-level. The three 2026-native questions visible in the evaluation container
+          already reveal two slot types the 11 do not contain. It is entirely possible the 2026
+          question generator was rewritten.
+        </p>
+        <p>
+          Mitigations: hold the 11 out of all tuning; keep the slot taxonomy <em>open</em> with a
+          graceful generic fallback; treat any large synthetic-versus-golden gap as
+          stop-and-reassess rather than something to tune away; and spend one preliminary
+          submission early and deliberately, to sample the real distribution before committing
+          the architecture's tunables.
+        </p>
+      </div>
+
+      <div class="note is-risk">
+        <span class="note-k">Open — unpublished</span>
+        <p>
+          <strong>The per-phase runtime limit is unknown.</strong> It bounds how many passes the
+          router can afford. Requested from the organizers; until it is known,
+          <code>routing.yaml</code> carries a conservative budget and the design degrades
+          gracefully under a tighter one.
+        </p>
+      </div>
+
+      <div class="note is-risk">
+        <span class="note-k">Open — data</span>
+        <p>
+          <strong>2026 labels may differ from the SurgVU25 labels in the bucket.</strong> Since
+          ground truth is generated from those exact strings, stale labels would corrupt every
+          measurement silently. To be checked against the challenge portal's official download.
+        </p>
+      </div>
+
+      <div class="note is-risk">
+        <span class="note-k">Deadline — 10 days out</span>
+        <p>
+          <strong>Registration closes Aug 15.</strong> The team must exist on the platform and
+          the signed agreement form must have reached
+          <code>isi.challenges@intusurg.com</code>. Acceptance was confirmed 2026-06-11, but
+          platform-side team creation should be verified rather than assumed.
+        </p>
+      </div>
+
+      <div class="note is-risk">
+        <span class="note-k">Managed</span>
+        <p>
+          <strong>Quantization is nondeterministic across GPU architectures</strong>, per the
+          2025 winner's own report — mitigated by the T4 integration-test requirement above.
+          Separately, both submission budgets are finite: <strong>10 preliminary attempts, then
+          2 final ones</strong>. Every submission must be justified by a local result first.
+        </p>
+      </div>
+    </section>
+
+    <section id="scope">
+      <h2>Out of scope</h2>
+      <ul>
+        <li>Category 1 tool localization. A detector is trained here only as an internal arbiter; beating the Cat 1 prize bar is not a goal.</li>
+        <li>Any use of challenge test data for training or tuning.</li>
+        <li>Fine-tuning the VLM. The 2025 winner tried it, it failed for a structural reason, and this design routes around the need.</li>
+      </ul>
+    </section>
+
+  </main>
+
+  <footer>
+    Source of record: <code>docs/design/specs/2026-08-04-surgvu26-cat2-design.md</code> ·
+    repo <code>surgvu26-cat2</code><br>
+    Figures derived from the public SurgVU sample set and training label tables, and from
+    Team Capybara's 2025 solution report and submission container.
+  </footer>
+
+</div>

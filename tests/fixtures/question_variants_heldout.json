@@ -1,0 +1,308 @@
+{
+  "_readme": [
+    "HELD-OUT paraphrase battery -- provenance matters more than the content.",
+    "",
+    "question_variants.json was written by the same person who then fixed the",
+    "router against it, so its score is an upper bound, not an estimate. These",
+    "45 questions were written by a separate agent that was given only the 11",
+    "public sample questions, the taxonomy, the commercial-name list and the",
+    "definitions of the intent labels -- and was explicitly forbidden from",
+    "reading src/surgvu/router.py, tests/test_router.py or the other fixture.",
+    "It never saw a rule, so it could not have been written around one.",
+    "",
+    "Same schema as question_variants.json, minus the perception scenarios:",
+    "question / intent / classes (optional) / family.",
+    "",
+    "Score it with: python scripts/router_coverage.py tests/fixtures/question_variants_heldout.json"
+  ],
+  "variants": [
+    {
+      "question": "Is the Mega SutureCut Needle Driver anywhere in this segment?",
+      "intent": "tool_presence_polar",
+      "classes": [
+        "needle driver"
+      ],
+      "family": "heldout"
+    },
+    {
+      "question": "Can you confirm there is no monopolar curved scissors cutting here?",
+      "intent": "tool_presence_polar",
+      "classes": [
+        "monopolar curved scissors"
+      ],
+      "family": "heldout"
+    },
+    {
+      "question": "Do the arms carry a ProGrasp at any point?",
+      "intent": "tool_presence_polar",
+      "classes": [
+        "prograsp forceps"
+      ],
+      "family": "heldout"
+    },
+    {
+      "question": "Was the vessel sealer ever deployed?",
+      "intent": "tool_presence_polar",
+      "classes": [
+        "vessel sealer"
+      ],
+      "family": "heldout"
+    },
+    {
+      "question": "Tip-up fenestrated grasper -- present or not?",
+      "intent": "tool_presence_polar",
+      "classes": [
+        "tip-up fenestrated grasper"
+      ],
+      "family": "heldout"
+    },
+    {
+      "question": "Is a stapler being fired in this thirty-second window?",
+      "intent": "tool_presence_polar",
+      "classes": [
+        "stapler"
+      ],
+      "family": "heldout"
+    },
+    {
+      "question": "Am I right that a clip applier shows up here?",
+      "intent": "tool_presence_polar",
+      "classes": [
+        "clip applier"
+      ],
+      "family": "heldout"
+    },
+    {
+      "question": "Isn't the Maryland Bipolar Forceps one of the instruments listed?",
+      "intent": "tool_presence_polar",
+      "classes": [
+        "bipolar forceps"
+      ],
+      "family": "heldout"
+    },
+    {
+      "question": "Does the surgeon use a needle driver to place the stitch in this clip?",
+      "intent": "tool_presence_polar",
+      "classes": [
+        "needle driver"
+      ],
+      "family": "heldout"
+    },
+    {
+      "question": "Is any kind of retractor on screen?",
+      "intent": "tool_presence_polar",
+      "classes": [
+        "grasping retractor",
+        "tip-up fenestrated grasper"
+      ],
+      "family": "heldout"
+    },
+    {
+      "question": "Name the grasper that is holding the tissue.",
+      "intent": "tool_identity_open",
+      "classes": [
+        "cadiere forceps",
+        "grasping retractor",
+        "prograsp forceps",
+        "tip-up fenestrated grasper"
+      ],
+      "family": "heldout"
+    },
+    {
+      "question": "Which bipolar device is mounted on the second arm?",
+      "intent": "tool_identity_open",
+      "classes": [
+        "bipolar forceps",
+        "force bipolar"
+      ],
+      "family": "heldout"
+    },
+    {
+      "question": "Identify the instrument in the surgeon's left hand.",
+      "intent": "tool_identity_open",
+      "family": "heldout"
+    },
+    {
+      "question": "What kind of needle driver was listed -- large, mega, or SutureCut?",
+      "intent": "tool_identity_open",
+      "classes": [
+        "needle driver"
+      ],
+      "family": "heldout"
+    },
+    {
+      "question": "Which anatomical structure is the retractor pulling on?",
+      "intent": "organ_open",
+      "classes": [
+        "grasping retractor",
+        "tip-up fenestrated grasper"
+      ],
+      "family": "heldout"
+    },
+    {
+      "question": "Name the tissue that the instruments interact with in this clip.",
+      "intent": "organ_open",
+      "family": "heldout"
+    },
+    {
+      "question": "On what organ is the dissection being performed?",
+      "intent": "organ_open",
+      "family": "heldout"
+    },
+    {
+      "question": "Tell me which structure is being retracted.",
+      "intent": "organ_open",
+      "family": "heldout"
+    },
+    {
+      "question": "Is anything being divided or transected here?",
+      "intent": "cutting_polar",
+      "family": "heldout"
+    },
+    {
+      "question": "Does the clip involve sharp dissection of tissue?",
+      "intent": "cutting_polar",
+      "family": "heldout"
+    },
+    {
+      "question": "Is no tissue actually being incised in this segment?",
+      "intent": "cutting_polar",
+      "family": "heldout"
+    },
+    {
+      "question": "Are tissues cut apart at any point during these thirty seconds?",
+      "intent": "cutting_polar",
+      "family": "heldout"
+    },
+    {
+      "question": "Does this step involve any stitching?",
+      "intent": "suture_polar",
+      "family": "heldout"
+    },
+    {
+      "question": "Is a knot being tied in this clip?",
+      "intent": "suture_polar",
+      "family": "heldout"
+    },
+    {
+      "question": "Is suturing absent from this segment?",
+      "intent": "suture_polar",
+      "family": "heldout"
+    },
+    {
+      "question": "Would this portion of the exercise call for placing sutures?",
+      "intent": "suture_polar",
+      "family": "heldout"
+    },
+    {
+      "question": "What operation does this footage come from?",
+      "intent": "procedure_open",
+      "family": "heldout"
+    },
+    {
+      "question": "Describe the surgery being summarized here.",
+      "intent": "procedure_open",
+      "family": "heldout"
+    },
+    {
+      "question": "Which procedure is being carried out in the clip?",
+      "intent": "procedure_open",
+      "family": "heldout"
+    },
+    {
+      "question": "Why would a surgeon reach for a tip-up fenestrated grasper here?",
+      "intent": "purpose_open",
+      "classes": [
+        "tip-up fenestrated grasper"
+      ],
+      "family": "heldout"
+    },
+    {
+      "question": "What is a vessel sealer used for?",
+      "intent": "purpose_open",
+      "classes": [
+        "vessel sealer"
+      ],
+      "family": "heldout"
+    },
+    {
+      "question": "Explain the role of the monopolar curved scissors in this operation.",
+      "intent": "purpose_open",
+      "classes": [
+        "monopolar curved scissors"
+      ],
+      "family": "heldout"
+    },
+    {
+      "question": "What function do the forceps serve during this step?",
+      "intent": "purpose_open",
+      "classes": [
+        "bipolar forceps",
+        "cadiere forceps",
+        "force bipolar",
+        "prograsp forceps"
+      ],
+      "family": "heldout"
+    },
+    {
+      "question": "Which training exercise is being performed?",
+      "intent": "task_open",
+      "family": "heldout"
+    },
+    {
+      "question": "What surgical step does this clip belong to?",
+      "intent": "task_open",
+      "family": "heldout"
+    },
+    {
+      "question": "Name the activity the surgeon is practicing.",
+      "intent": "task_open",
+      "family": "heldout"
+    },
+    {
+      "question": "What phase of the procedure is shown?",
+      "intent": "task_open",
+      "family": "heldout"
+    },
+    {
+      "question": "How many instruments are in view?",
+      "intent": "count_open",
+      "family": "heldout"
+    },
+    {
+      "question": "Count the number of distinct tools used in this clip.",
+      "intent": "count_open",
+      "family": "heldout"
+    },
+    {
+      "question": "How many different robotic arms carry an instrument here?",
+      "intent": "count_open",
+      "family": "heldout"
+    },
+    {
+      "question": "Is a scalpel used at any time in this video?",
+      "intent": "unknown_polar",
+      "family": "heldout"
+    },
+    {
+      "question": "Is this recording in color?",
+      "intent": "unknown_polar",
+      "family": "heldout"
+    },
+    {
+      "question": "Is this a laparoscopic case rather than a robotic one?",
+      "intent": "unknown_polar",
+      "family": "heldout"
+    },
+    {
+      "question": "How long is this clip in seconds?",
+      "intent": "unknown_open",
+      "family": "heldout"
+    },
+    {
+      "question": "Who is the attending surgeon in this recording?",
+      "intent": "unknown_open",
+      "family": "heldout"
+    }
+  ]
+}

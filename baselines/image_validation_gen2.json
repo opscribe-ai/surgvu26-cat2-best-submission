@@ -1,0 +1,21 @@
+{
+  "answers": {
+    "case122": "\"No\"",
+    "case123": "\"No\"",
+    "case124": "\"Bipolar Forceps\"",
+    "case125": "\"Yes\"",
+    "case126": "\"Yes\"",
+    "case127": "\"Uterine horn\"",
+    "case128": "\"Yes\"",
+    "case129": "\"Endoscopic surgery or a laparoscopic surgery\"",
+    "case130": "\"To grasp and hold tissues or objects during the surgery.\"",
+    "case131": "\"Yes\"",
+    "case132": "\"No\""
+  },
+  "differs_from_verified": [
+    "case126",
+    "case132"
+  ],
+  "missing": [],
+  "clean": false
+}

@@ -1,0 +1,27 @@
+[project]
+name = "surgvu"
+version = "0.1.0"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy",
+    "PyYAML",
+    "opencv-python-headless",
+]
+
+[project.optional-dependencies]
+scoring = ["bert-score", "torch"]
+dev = ["pytest"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+markers = [
+    "slow: marks tests as slow (require bert-score/torch and model download)",
+]

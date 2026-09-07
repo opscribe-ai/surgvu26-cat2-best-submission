@@ -1,0 +1,144 @@
+# Runs scripts/pseudo_label_shards.py inside surgvu26-train.sif (v5 plan4,
+# Task 1): harvests logbook-constrained YOLO pseudo-labels for the
+# groupmate's `best.pt` from the 235 unlabeled `.npz` shards under
+# /staging/groups/bhaskar_opscribe/surgvu/shards -- every detection is
+# checked against tools.csv/tasks.csv via surgvu.labels.CaseLabels before it
+# is accepted, so a detection of an un-mounted tool is dropped rather than
+# reinforced. See scripts/pseudo_label_shards.py's own module docstring for
+# the full design and scripts/pseudo_label_shards.py's HAND_LABELED_TRAIN_
+# INSTANCES for the baseline the per-class yield report compares against.
+#
+# Modelled on condor/build_qa_frames.sub for the staging mount + container
+# image handling (both proven working), and on condor/cache_evidence.sub for
+# the GPU/require_gpus sizing, the resume-by-unit convention and the
+# yolov5-deps pip install (both already run this identical detector).
+#
+# A SMOKE TEST FIRST is strongly recommended -- --limit caps how many NEW
+# shards this run processes (a shard already recorded in the resume
+# manifest never counts against it):
+#
+#   mkdir -p logs
+#   condor_submit condor/pseudo_label.sub args="--limit 5"
+#
+# Then the real run over all 235 shards (resumes automatically after any
+# eviction -- see condor/pseudo_label.sh):
+#
+#   mkdir -p logs
+#   condor_submit condor/pseudo_label.sub
+#
+# To target only full (non-MIG) GPUs instead of the 24GB floor's 40GB MIG
+# slices, or to override the confidence floor:
+#
+#   condor_submit condor/pseudo_label.sub gpumem=80000
+#   condor_submit condor/pseudo_label.sub args="--conf-floor 0.4"
+
+universe                = container
+container_image         = file:///staging/n/nkalthoff/surgvu26/surgvu26-train.sif
+
+executable              = condor/pseudo_label.sh
+# `$(args)`, unset by default -- an unset HTCondor macro expands to empty,
+# matching condor/cache_evidence.sub's identical convention rather than the
+# per-flag positional macros condor/build_qa_frames.sub uses. condor/
+# pseudo_label.sh forwards this whole string as "$@" to scripts/
+# pseudo_label_shards.py's own argparse, so any of that script's flags
+# (--limit, --conf-floor, --detector-conf, --device, --out-root, ...) can be
+# set this way without a new macro per flag.
+arguments               = "$(args)"
+
+# Required for the same two reasons condor/build_qa_frames.sub/condor/
+# cache_evidence.sub already need it: reaching the .sif under
+# /staging/n/nkalthoff, and reaching everything this job reads/writes by
+# absolute path rather than via transfer_input_files (HTCondor refuses to
+# transfer files directly from/to /staging at all -- see condor/extract.sub):
+#   /staging/groups/bhaskar_opscribe/surgvu/shards                (input, 38GB of .npz shards)
+#   /staging/groups/bhaskar_opscribe/surgvu/labels_cat2/...       (input, tools.csv/tasks.csv per case)
+#   /staging/groups/bhaskar_opscribe/surgvu_yolo_detector/*       (input, best.pt + yolov5 checkout)
+#   /staging/n/nkalthoff/surgvu26/pseudo_labels/{images,labels}     (output, YOLO-format pseudo-labels)
+#   /staging/n/nkalthoff/surgvu26/pseudo_labels/pseudo_label_manifest.jsonl  (output, resume bookkeeping)
+#   /staging/n/nkalthoff/surgvu26/pseudo_labels/pseudo_label_report.json    (output, drop tally + per-class yield)
++WantStagingMount       = true
+
+should_transfer_files   = YES
+when_to_transfer_output = ON_EXIT
+# src/scripts/config: config/ is needed (unlike condor/build_qa_frames.sub)
+# because this job reads config/splits_v2.json directly for R30's heldout
+# exclusion, mirroring condor/cache_evidence.sub's identical transfer list
+# for the identical reason.
+transfer_input_files    = src, scripts, config
+# Empty, not unset -- an unset transfer_output_files with ON_EXIT would ship
+# back the __pycache__ trees this job creates inside the transferred src/
+# scripts/ directories (and the scratch .pseudo_label_deps/ pip install)
+# instead of nothing. Everything this job actually produces (pseudo-labels,
+# the manifest, the report) is written straight through the staging mount,
+# never to job scratch -- same reasoning as condor/cache_evidence.sub.
+transfer_output_files   =
+
+# CPU count matches condor/build_qa_frames.sub/condor/cache_evidence.sub,
+# both already doing comparable seek-decode-then-model-forward-pass work
+# over this corpus.
+request_cpus             = 4
+# 16GB, matching condor/cache_evidence.sub: this job holds best.pt (a small
+# YOLOv5s checkpoint) plus a per-window batch of up to 30 decoded 512x512x3
+# frames, plus the pandas/matplotlib/seaborn import chain the yolov5 deps
+# install pulls in -- comfortably inside the same envelope cache_evidence.sub
+# already runs at.
+request_memory            = 16GB
+
+# SIZED DELIBERATELY -- read this before changing it, per condor/
+# build_qa_frames.sub's own history (a 2GB request HELD that job outright;
+# surgvu26-train.sif ALONE is 2.97GB and must land on local disk before the
+# container can even start). This job additionally pays condor/cache_
+# evidence.sh's identical scratch pip --target install of yolov5's missing
+# dependencies, and 12GB is that job's own proven floor plus margin -- NOT a
+# second guess. The shard corpus (38GB), best.pt, the yolov5 checkout, and
+# every pseudo-labelled image/label this job writes all go straight through
+# the staging mount, never to local scratch, so none of that adds to this
+# number.
+request_disk              = 12GB
+
+request_gpus              = 1
+# 24GB floor -- NOT because this job needs anywhere near that much (best.pt
+# is a YOLOv5s checkpoint, a few tens of MB, run on one window's worth of
+# frames at a time), but because `require_gpus` filters on the CARD's
+# advertised memory, not this job's actual footprint, and
+# `(GlobalMemoryMb >= $(gpumem:24000))` ALSO ADMITS 40GB MIG slices --
+# roughly a THIRD of a full card's throughput -- at the same floor a full
+# 24GB+ card clears. For a run over 235 shards / ~24,500 windows that
+# throughput difference is worth avoiding on a full run; pass gpumem=80000
+# on the condor_submit command line to target only full (non-MIG) cards:
+#   condor_submit condor/pseudo_label.sub gpumem=80000
+require_gpus               = (GlobalMemoryMb >= $(gpumem:24000))
+
+# Same blacklist as condor/cache_evidence.sub/condor/train.sub/condor/
+# train_variant.sub: dbrundage-chtcgpu5000 advertises the staging mount and
+# does not deliver it, which condor/pseudo_label.sh's guard turns into a
+# fast, clean exit (75) instead of a confusing one -- this line is what stops
+# that from becoming a retry loop against the same broken node.
+# BOTH chtcgpu5000 boxes advertise staging but do not mount it: a job
+# landing there dies at "FATAL: /staging is not mounted". dbrundage was
+# found first; zliu-chtcgpu5000 hit the v6 smoke train (job 9710296,
+# 2026-08-27) the same way. The guard in the .sh exits in seconds, but
+# nothing requeues the job, so it must not be scheduled there at all.
+requirements = (Machine != "dbrundage-chtcgpu5000.chtc.wisc.edu") && \
+               (Machine != "zliu-chtcgpu5000.chtc.wisc.edu")
+
+output = logs/pseudo_label_$(Cluster).out
+error  = logs/pseudo_label_$(Cluster).err
+# Stream stdout/stderr live rather than transferring them at exit. Without
+# this a multi-hour job with no live output is INVISIBLE until it finishes --
+# a real, already-paid cost on this project today. scripts/
+# pseudo_label_shards.py's own every-10-shards progress line (and its
+# per-shard manifest append) is the only signal of whether a run this long
+# is making progress at all.
+stream_output   = True
+stream_error    = True
+log    = logs/pseudo_label_$(Cluster).log
+
+# 5, matching condor/cache_evidence.sub/condor/train_vlm.sub: condor/
+# pseudo_label.sh exits 75 immediately on a node where +WantStagingMount did
+# not take effect (a node-specific fault a retry genuinely fixes), and this
+# job's own resume-by-shard (load_processed_shards) means a retry after a
+# real mid-run failure does not restart from shard 0 either.
+max_retries = 5
+
+queue 1

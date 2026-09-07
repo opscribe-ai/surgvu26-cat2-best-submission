@@ -1,0 +1,108 @@
+# THE v4 TEMPORAL PROGRAMME, as a DAG so it runs without a human attached.
+#
+#   condor_submit_dag condor/v4.dag
+#
+# DAGMan runs on the submit machine, not in the SSH session, so a dropped
+# connection costs nothing. That is the point: the connection dropped at
+# 23:58 on 2026-08-12 and took eight hours of supervision with it while the
+# queue sat half idle.
+#
+# The gate node blocks until the multi-burst pool stops growing, then the four
+# training arms start together. Each arm answers one of the confounds that the
+# first 3D experiment could not separate:
+#
+#   r2p1d_multi   the SAME architecture as the null, fed properly: bursts
+#                 spread across the window, four clips per window per epoch.
+#                 Against the 0.7494 it scored on one centre burst, this
+#                 isolates coverage and training budget.
+#   r2p1d_scratch identical to r2p1d_multi except Kinetics init is removed.
+#                 If it lands near r2p1d_multi, Kinetics pretraining was
+#                 contributing nothing and the domain-gap hypothesis holds.
+#   tsm_multi     our surgical ResNet-50 with a temporal shift. No depth, no
+#                 pretraining and no resolution confound left.
+#   i3d_multi     the same weights inflated to real 3D convolutions.
+#
+# TSM and I3D also run on the centre-only dense pool OUTSIDE this DAG, because
+# they do not need the new extraction to be valid tests and the GPUs are free
+# now. Those are the arms that report first.
+
+JOB gate          condor/gate_multi.sub
+JOB r2p1d_multi   condor/train_temporal.sub
+JOB r2p1d_scratch condor/train_temporal.sub
+JOB tsm_multi     condor/train_temporal.sub
+JOB i3d_multi     condor/train_temporal.sub
+
+VARS gate min_shards="200" stable_checks="6" sleep_seconds="120"
+
+# ALL FOUR ARMS GO THROUGH scripts/train_temporal.py, including the Kinetics
+# ones. train_tools_3d.py uses ShardClips, which draws a contiguous run from
+# anywhere in a window -- and on the multi-burst pool a run starting near a
+# boundary STRADDLES two bursts, splicing a 7.5-second jump cut into the middle
+# of what the model is told is continuous motion. ShardTemporal draws inside a
+# single burst. Using the old trainer here would have trained the headline arm
+# on spliced clips and reported the result as a coverage experiment.
+VARS r2p1d_multi node="r2p1dmulti" memory="64GB" gpumem="10000" \
+  script="scripts/train_temporal.py" \
+  args="--mechanism video --shards /staging/n/nkalthoff/surgvu26/shards_multi --out /staging/n/nkalthoff/surgvu26/models/tools_r2plus1d_multi.pt --bursts 4 --frames 8 --clips-per-window 4 --epochs 12 --batch-size 8"
+
+VARS r2p1d_scratch node="r2p1dscratch" memory="64GB" gpumem="10000" \
+  script="scripts/train_temporal.py" \
+  args="--mechanism video --scratch --shards /staging/n/nkalthoff/surgvu26/shards_multi --out /staging/n/nkalthoff/surgvu26/models/tools_r2plus1d_scratch.pt --bursts 4 --frames 8 --clips-per-window 4 --epochs 12 --batch-size 8"
+
+# 384px -- the 2D model's OWN resolution -- and 8 epochs.
+#
+# This was briefly set to 224 on an estimate that turned out to be wrong. TSM
+# at 384 had not finished its first epoch after twenty minutes, from which I
+# guessed thirteen hours for two clips per window; the epoch then landed at
+# exactly twenty minutes, which puts this arm at ~40 min/epoch and 8 epochs at
+# ~5.3 hours. Starting around 23:00 that finishes near 04:20, with margin.
+#
+# It is worth the hours because this is the strongest single arm in the
+# programme: our own surgical weights, our own depth, our own resolution, our
+# own preprocessing, plus temporal modelling AND coverage of the whole window.
+# Every confound that made the v3 3D null unattributable is absent here, so
+# whichever way it lands, it lands cleanly.
+VARS tsm_multi node="tsmmulti" memory="64GB" gpumem="16000" \
+  script="scripts/train_temporal.py" \
+  args="--mechanism tsm --shards /staging/n/nkalthoff/surgvu26/shards_multi --out /staging/n/nkalthoff/surgvu26/models/tools_tsm_multi.pt --bursts 4 --frames 8 --clips-per-window 2 --epochs 8 --batch-size 2"
+
+VARS i3d_multi node="i3dmulti" memory="64GB" gpumem="16000" \
+  script="scripts/train_temporal.py" \
+  args="--mechanism i3d --shards /staging/n/nkalthoff/surgvu26/shards_multi --out /staging/n/nkalthoff/surgvu26/models/tools_i3d_multi.pt --bursts 4 --frames 8 --clips-per-window 2 --epochs 10 --batch-size 4 --image-size 224"
+
+# Every arm is followed by its own honest evaluation, as a DAG child rather
+# than as something a human runs afterwards. An arm that finishes at 05:00
+# and sits unscored until someone notices is an arm that did not finish.
+JOB dump_r2p1d_multi   condor/train_temporal.sub
+JOB dump_r2p1d_scratch condor/train_temporal.sub
+JOB dump_tsm_multi     condor/train_temporal.sub
+JOB dump_i3d_multi     condor/train_temporal.sub
+
+VARS dump_r2p1d_multi node="dumpr2p1dmulti" memory="32GB" gpumem="10000" \
+  script="scripts/dump_temporal_probs.py" \
+  args="--checkpoint /staging/n/nkalthoff/surgvu26/models/tools_r2plus1d_multi.pt --out /staging/n/nkalthoff/surgvu26/dumps/temporal_r2plus1d_multi.npz"
+
+VARS dump_r2p1d_scratch node="dumpr2p1dscratch" memory="32GB" gpumem="10000" \
+  script="scripts/dump_temporal_probs.py" \
+  args="--checkpoint /staging/n/nkalthoff/surgvu26/models/tools_r2plus1d_scratch.pt --out /staging/n/nkalthoff/surgvu26/dumps/temporal_r2plus1d_scratch.npz"
+
+VARS dump_tsm_multi node="dumptsmmulti" memory="32GB" gpumem="16000" \
+  script="scripts/dump_temporal_probs.py" \
+  args="--checkpoint /staging/n/nkalthoff/surgvu26/models/tools_tsm_multi.pt --out /staging/n/nkalthoff/surgvu26/dumps/temporal_tsm_multi.npz"
+
+VARS dump_i3d_multi node="dumpi3dmulti" memory="32GB" gpumem="16000" \
+  script="scripts/dump_temporal_probs.py" \
+  args="--checkpoint /staging/n/nkalthoff/surgvu26/models/tools_i3d_multi.pt --out /staging/n/nkalthoff/surgvu26/dumps/temporal_i3d_multi.npz"
+
+PARENT gate CHILD r2p1d_multi r2p1d_scratch tsm_multi i3d_multi
+PARENT r2p1d_multi   CHILD dump_r2p1d_multi
+PARENT r2p1d_scratch CHILD dump_r2p1d_scratch
+PARENT tsm_multi     CHILD dump_tsm_multi
+PARENT i3d_multi     CHILD dump_i3d_multi
+
+# One retry per arm. A GPU node that dies mid-epoch is worth retrying; an arm
+# that fails twice is a bug, and a DAG that keeps resubmitting it hides that.
+RETRY r2p1d_multi 1
+RETRY r2p1d_scratch 1
+RETRY tsm_multi 1
+RETRY i3d_multi 1
