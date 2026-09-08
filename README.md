@@ -1,9 +1,9 @@
 # SurgVU 2026 — Category 2 (Surgical Visual Question Answering)
 
-**OpScribe-AI · 3rd place team, MICCAI 2026 EndoVis / SurgVU Category 2.**
+**OpScribe-AI · MICCAI 2026 EndoVis / SurgVU Category 2.**
 
 This repository is the submitted system that scored **0.6604 BERTScore-F1** on the
-101-case final test set — third of nineteen teams, behind 0.6873 and 0.6871.
+101-case final test set. 
 
 Category 2 gives a model a **30-second robotic surgery clip and a free-text
 question**, and asks for a free-text answer. Submissions are scored with
