@@ -3,6 +3,15 @@
 Adversarial audit run 2026-08-11 against branch `fix/staging-verification-jpeg-shards`,
 before an irreversible submission and before the repository is made public.
 
+> **Read this as a dated record, not a current description.** The audit was run
+> on 2026-08-11, against the model generation of that date. Two things have moved
+> since: the two perception recognisers were **EfficientNetV2-S** then and are
+> **ResNet-50** in the submitted v6.2 system, so §4's weight-provenance trail
+> describes the earlier checkpoints; and the repository counts in §6 (tracked
+> files, largest file) are from that date and have grown. The findings on data
+> segregation, UI blur, split discipline and secrets were re-checked before
+> publication and still hold.
+
 **Scope.** The eight areas named in the audit brief. Everything below is backed by
 command output captured during the audit; nothing is asserted from documentation
 alone. Read-only throughout: no checkpoint, config, split file or `/staging/groups`
