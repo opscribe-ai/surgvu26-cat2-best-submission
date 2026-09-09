@@ -6,7 +6,7 @@ unit of work is a `(case, part)` pair. Collapsing both files of a case to one
 `case_id` queued two jobs that decoded part-2 windows from the part-1 video and
 then raced to write the same shard path.
 
-Assumed filename convention (the real staging layout is authoritative — check
+Assumed filename convention (the real staging layout is authoritative -- check
 the SKIPPED report before submitting):
 
     case_056_video_part_001.mp4   -> case_056, part 1
@@ -14,7 +14,7 @@ the SKIPPED report before submitting):
 
 Anything matching `case_<digits>` followed later by `part` and a number is
 accepted, so `case_056_part2.mp4` and `case_056-part-02.mp4` work too. A file
-whose name yields no part number is SKIPPED and reported — the part is never
+whose name yields no part number is SKIPPED and reported -- the part is never
 guessed, not even for a case that has only one video file, because guessing
 "part 1" for an unrecognised name is precisely how a whole part's worth of
 windows gets decoded against the wrong timestamps.
