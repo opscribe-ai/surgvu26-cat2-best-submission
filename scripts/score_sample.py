@@ -4,16 +4,16 @@ Usage:
     python scripts/score_sample.py <sample_root> <candidates.json> [--label NAME]
 
 <sample_root> may be either layout:
-    nested  — <root>/caseNNN/caseNNN.json + caseNNN_question.json  (the staged
+    nested  -- <root>/caseNNN/caseNNN.json + caseNNN_question.json  (the staged
               cat2_sample set)
-    flat    — <root>/caseNNN.json + caseNNN_question.json
+    flat    -- <root>/caseNNN.json + caseNNN_question.json
 
 <candidates.json> is a flat {case_id: answer} mapping. Every case found in the
 sample root must appear in it: a missing case is an error, not a case worth
 0.0 and not a case quietly dropped, because silently scoring 10 of 11 inflates
 the mean.
 
-The metric is surgvu.scoring.Scorer — BERTScore-F1, roberta-large, rescaled
+The metric is surgvu.scoring.Scorer -- BERTScore-F1, roberta-large, rescaled
 with baseline, MAX over the five references, meaned across cases. Run this
 inside the extract container with the scoring venv:
 
@@ -96,7 +96,7 @@ def build_pairs(cases, candidates):
 
 
 def best_references(scorer, pairs):
-    """{case_id: the reference that scored highest} — for the report only.
+    """{case_id: the reference that scored highest} -- for the report only.
 
     BERTScore is computed per (candidate, reference) pair independently, so
     scoring each reference on its own picks the same winner the max in
