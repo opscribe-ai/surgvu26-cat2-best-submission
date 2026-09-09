@@ -1,10 +1,10 @@
 # The fine-tuned VLM's error structure, and what it says about arbiter mode
 
-Source: `/staging/n/nkalthoff/surgvu26/models/vlm_lora/eval_report.json` — the held-out CASE
+Source: `/staging/n/nkalthoff/surgvu26/models/vlm_lora/eval_report.json` -- the held-out CASE
 eval of the shipped adapter (cluster 9697941), n=300 QA pairs over 285 distinct held-out
 cases, `bertscore_f1 = 0.909223216228808`.
 
-That report carries only `bertscore_f1` and `case_id` per item — no question, no answer,
+That report carries only `bertscore_f1` and `case_id` per item -- no question, no answer,
 no intent. Everything below is inferred from the SHAPE of the score distribution against
 this project's known score economics, and the inference is bounded accordingly.
 
@@ -51,10 +51,10 @@ Set against the other half of the system: the router needed an entire new percep
 But it is a lot of machinery aimed at the exact slice the VLM already answers at >=98%.
 
 Meanwhile every one of the VLM's 26 failures is an open-ended noun, and `router.py` records
-a wrong noun scoring as low as **-0.086** — strictly worse than not touching the answer.
+a wrong noun scoring as low as **-0.086** -- strictly worse than not touching the answer.
 
 So the evidence points at an intent-conditional policy: **take the VLM on polar, never let
-it touch the nouns.** That policy is already implemented — it is `MODE_PRIMARY`
+it touch the nouns.** That policy is already implemented -- it is `MODE_PRIMARY`
 (`_arbitrate_primary`), which reads the VLM's polarity on `router.is_polar_question` and
 returns `router_answer` unchanged for every non-polar intent. Its own docstring calls this
 "a deliberately conservative reading of a mode whose name suggests the opposite", and the
