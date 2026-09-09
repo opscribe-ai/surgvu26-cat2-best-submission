@@ -14,7 +14,7 @@ if __name__ == "__main__":
     out.parent.mkdir(parents=True, exist_ok=True)
 
     if out.exists():
-        print("REFUSING to overwrite %s — the split must stay stable." % out)
+        print("REFUSING to overwrite %s -- the split must stay stable." % out)
         raise SystemExit(1)
 
     cases = load_all_cases(labels_root)
