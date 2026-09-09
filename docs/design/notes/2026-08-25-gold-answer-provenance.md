@@ -1,4 +1,4 @@
-# Gold answers do not track visual presence — measured 2026-08-25
+# Gold answers do not track visual presence -- measured 2026-08-25
 
 Derived from the first-ever run of the trained detector over the eleven graded sample cases
 (cluster 9684659) compared against gold. This refines ruling R24 and should be read before
@@ -24,17 +24,17 @@ case132 and gold is No. Cadiere is entirely absent from case124 and gold is cadi
 
 Reading the question wording against the gold answers, the failures separate cleanly:
 
-**(a) Size/family — case126, case132.** Both clips show a needle driver; only "is it *Large*" separates
+**(a) Size/family -- case126, case132.** Both clips show a needle driver; only "is it *Large*" separates
 Yes from No. Addressed by the variant head (Task 10) on the free logbook labels from Task 9.
 This is the one that is squarely a perception problem, and it is already the plan's top priority.
 
-**(b) List membership — case123 "among the **listed** tools", case124 "is **mentioned**".** These ask about a
+**(b) List membership -- case123 "among the **listed** tools", case124 "is **mentioned**".** These ask about a
 tool LIST, not about image content. The list is rendered in the bottom UI band, which the challenge
 PROHIBITS reading. If gold derives from that list, these questions may be structurally underivable
 from the pixels we are allowed to use. We currently score case123 correctly and case124 wrongly,
 which is consistent with guessing.
 
-**(c) Activity, not presence — case122 "being **used**".** A forceps idle in frame is visible but arguably
+**(c) Activity, not presence -- case122 "being **used**".** A forceps idle in frame is visible but arguably
 not "being used". Gold says No while forceps are visible at 0.814. This is exactly the distinction
 `src/surgvu/motion.py` was written for: its own docstring says the router answers event questions
 with a proxy for PRESENCE, and "the tool head is right, it is being asked the wrong question."
@@ -44,19 +44,19 @@ with a proxy for PRESENCE, and "the tool head is right, it is being asked the wr
 1. **Perception has a lower ceiling on this sample than the plan assumed.** The plan's headline claim
    was that all three remaining failures are tool perception. Mechanism (b) is not perception at all,
    and (c) is motion rather than identification.
-2. **The variant head keeps its priority** — mechanism (a) is real, visual, and covers two of the three.
+2. **The variant head keeps its priority** -- mechanism (a) is real, visual, and covers two of the three.
 3. **Motion (W1) gains value it was not credited with.** case122 is currently answered correctly, but
    by a route that does not reason about activity; the same question phrased the other way would be
    answered wrong. Motion evidence is the principled fix.
-4. **Do not spend further effort trying to make a detector fix case124.** It is not a detection miss —
+4. **Do not spend further effort trying to make a detector fix case124.** It is not a detection miss --
    the detector sees zero cadiere with 0.81 class recall. Spending on (b) means finding a legitimate
    non-UI route to list membership, or accepting the loss.
 
 ## Caveats, stated honestly
 
 Eleven cases is a small sample and this is a hypothesis fitted to it, not a proven model of how the
-organisers generated gold. The alternative reading — that these clips genuinely contain different
-tools than the detector reports — is not fully excluded, though a 0.000 detection from a class with
+organisers generated gold. The alternative reading -- that these clips genuinely contain different
+tools than the detector reports -- is not fully excluded, though a 0.000 detection from a class with
 0.81 recall argues against it for case124. The leaderboard set is larger and may weight these
 mechanisms differently.
 
