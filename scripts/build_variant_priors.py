@@ -1,4 +1,4 @@
-"""Write config/variant_priors.json — P(commercial name | class present in a clip).
+"""Write config/variant_priors.json -- P(commercial name | class present in a clip).
 
 `config/commercial_names.json` counts INSTALLATIONS. That is the wrong
 denominator for answering questions about a 30-second clip, for two reasons:
