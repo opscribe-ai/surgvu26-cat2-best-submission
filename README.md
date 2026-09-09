@@ -27,9 +27,9 @@ That last category only happens in niche scenarios; most questions are answered 
 
 ### The five readings
 
-| reading | what it consists of |
+| reading | what it is |
 |---|---|
-| **Tool recogniser** | A ResNet-50 that tries to identify what instruments are in the window. It outputs all 12 instrument classes, each with its own confidence score, so more than one instrument can come back at once. |
+| **Tool recogniser** | A ResNet-50 that tries to identify what instruments are in the window. It outputs all 12 instrument classes, each with its own confidence score, so more than one instrument can be identified as being in the frame. |
 | **Task recogniser** | A ResNet-50 that says what surgical step is happening, for example suturing or retraction. Unlike the tool recogniser, the task recogniser outputs just one answer, with eight possible activity classes. |
 | **Detector** | Uses YOLO to draw boxes around instruments in the individual frames. The tool recogniser tells you what instruments are probably there; the detector is a second reference for what is there, and it also tells you where they are, with confidence scores. |
 | **Motion reader** | Computes a micro and a macro score. The micro score tells you how much the picture changed between frames 67 milliseconds apart from the target frame, to see if something is moving on a small time scale. The macro score measures the movement from frame to frame across the original 16 frames we took from the 30-second clip, to see if there is larger-scale change. |
