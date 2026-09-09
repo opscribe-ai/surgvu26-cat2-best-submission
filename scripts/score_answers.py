@@ -5,7 +5,7 @@ Usage: python scripts/score_answers.py data/samples predictions.json
 predictions.json: {"case122": "Yes", "case123": "No", ...}
 
 Note: data/samples is a flat directory (caseNNN.json ground truth,
-caseNNN_question.json question, caseNNN.mp4 video — no per-case
+caseNNN_question.json question, caseNNN.mp4 video -- no per-case
 subdirectories), so case discovery below matches on "caseNNN.json"
 files directly rather than "caseNNN/caseNNN.json".
 """
