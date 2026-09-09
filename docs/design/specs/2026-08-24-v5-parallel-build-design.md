@@ -1,9 +1,9 @@
-# SurgVU 2026 Category 2 — v5: Perception Ensemble + Evidence VLM
+# SurgVU 2026 Category 2 -- v5: Perception Ensemble + Evidence VLM
 
 **Date:** 2026-08-24
 **Status:** Design approved by user, pending spec review
-**Supersedes:** nothing — extends `2026-08-04-surgvu26-cat2-design.md` (the Evidence-Arbitration Router), which remains the architectural baseline.
-**Approach:** "C" — full parallel build. Chosen by the user over a measured, staged alternative, explicitly and after hearing the attribution objection. See *Risks → Attribution*.
+**Supersedes:** nothing -- extends `2026-08-04-surgvu26-cat2-design.md` (the Evidence-Arbitration Router), which remains the architectural baseline.
+**Approach:** "C" -- full parallel build. Chosen by the user over a measured, staged alternative, explicitly and after hearing the attribution objection. See *Risks → Attribution*.
 
 ---
 
@@ -15,23 +15,23 @@ But the remaining error is small, concentrated, and entirely one kind:
 
 | Case | Score | Failure |
 |---|---|---|
-| case124 | 0.2402 | Wrong tool noun — predicted Bipolar, gold Cadiere |
-| case126 | 0.7015 | Polar wrong — needle driver not detected |
-| case132 | 0.7015 | Polar wrong — Large vs Mega needle driver variant |
-| ×8 others | 1.0000 | — |
+| case124 | 0.2402 | Wrong tool noun -- predicted Bipolar, gold Cadiere |
+| case126 | 0.7015 | Polar wrong -- needle driver not detected |
+| case132 | 0.7015 | Polar wrong -- Large vs Mega needle driver variant |
+| ×8 others | 1.0000 | -- |
 
 Total recoverable on the sample: **0.1234**, of which case124 alone is **62%**. Not one of these three is a routing, organ, purpose, or procedure error. **All three are tool perception.** That is the entire thesis of v5: the router is done, the perception is not.
 
 Two further measurements bound the design:
 
-- **`INTENT_UNKNOWN_OPEN` fires on 0 of 11 sample questions.** A VLM scoped strictly to unknown intents therefore has a ceiling of exactly zero improvement. If the VLM is to matter, the arbiter must be able to reach further than fallback — hence W5 implements three policies even though fallback ships by default.
-- **Stock VLMs score below the blind baseline.** Measured: 4B-fp16 open 0.5743, 4B-fp16 closed 0.5216, 8B-NF4 closed 0.5501, 8B-NF4 open 0.4923 — all beneath 0.6959. The cause is structural, not a prompt defect: gold answers reconstruct *our label taxonomy* (12 tools, 8 tasks, commercial name families), which the CNNs are trained on and a general VLM has never seen. **A VLM that is not fine-tuned on that taxonomy will lose to a lookup table.** This is why W6 is not optional garnish.
+- **`INTENT_UNKNOWN_OPEN` fires on 0 of 11 sample questions.** A VLM scoped strictly to unknown intents therefore has a ceiling of exactly zero improvement. If the VLM is to matter, the arbiter must be able to reach further than fallback -- hence W5 implements three policies even though fallback ships by default.
+- **Stock VLMs score below the blind baseline.** Measured: 4B-fp16 open 0.5743, 4B-fp16 closed 0.5216, 8B-NF4 closed 0.5501, 8B-NF4 open 0.4923 -- all beneath 0.6959. The cause is structural, not a prompt defect: gold answers reconstruct *our label taxonomy* (12 tools, 8 tasks, commercial name families), which the CNNs are trained on and a general VLM has never seen. **A VLM that is not fine-tuned on that taxonomy will lose to a lookup table.** This is why W6 is not optional garnish.
 
 ---
 
 ## Inputs this design consumes
 
-### The groupmate's YOLO detector — verified
+### The groupmate's YOLO detector -- verified
 
 At `/staging/groups/bhaskar_opscribe/surgvu_yolo_detector/best.pt` (14.5 MB, 2026-08-21), with run artifacts in `surg_14cls_run_results.tar.gz`.
 
@@ -39,9 +39,9 @@ Training configuration, from `opt.yaml`: **yolov5s**, 100 epochs, batch 16, imgs
 
 Final metrics, from `results.csv` epoch 99: P 0.773 / R 0.740 / mAP@0.5 0.773 / mAP@0.5:0.95 0.404. Best epoch 97 at mAP@0.5 0.792.
 
-**The split is clean.** 886 train / 240 val images. Clip-ID analysis: 624 distinct train clips, 156 distinct val clips, **zero shared**. No near-duplicate frame leakage; the metrics are not inflated by that mechanism. (Case-level disjointness is unverified — clip IDs do not encode case — and is a known residual.)
+**The split is clean.** 886 train / 240 val images. Clip-ID analysis: 624 distinct train clips, 156 distinct val clips, **zero shared**. No near-duplicate frame leakage; the metrics are not inflated by that mechanism. (Case-level disjointness is unverified -- clip IDs do not encode case -- and is a known residual.)
 
-Per-class recall from `confusion_matrix.png` — the number that actually matters here, far more than mAP:
+Per-class recall from `confusion_matrix.png` -- the number that actually matters here, far more than mAP:
 
 | Class | Recall | | Class | Recall |
 |---|---|---|---|---|
@@ -56,33 +56,33 @@ Per-class recall from `confusion_matrix.png` — the number that actually matter
 
 Two findings drive W2:
 
-1. **Bipolar↔Cadiere confusion is 0.01 in each direction.** That is precisely the error costing us case124 — the largest single recoverable item in the whole system.
+1. **Bipolar↔Cadiere confusion is 0.01 in each direction.** That is precisely the error costing us case124 -- the largest single recoverable item in the whole system.
 2. **Needle driver recall is 0.89**, and case126 is a needle-driver detection miss.
 
 The weak classes fail by *omission*, not confusion: their columns show background-FN of 0.22–0.40 with near-empty off-diagonals. Quiet when unsure, right when it fires. That is the correct failure shape for a guardrail signal.
 
 What it cannot do: the vocabulary has exactly one `needle driver` class, so it cannot resolve **Large vs Mega** (case132). That requires W2's variant head.
 
-**Note for the detector's author:** mAP@0.5:0.95 = 0.404 is the least relevant metric for Category 2. We never consume box coordinates to form an answer — we consume tool *presence* and *timing*. Box tightness at IoU 0.9 does not affect BERTScore at all. mAP@0.5 and the confusion diagonal are the numbers that matter, and both are good. Remaining headroom with **no new labels**: v5s→v5m and 100→300 epochs, per the reference recipe.
+**Note for the detector's author:** mAP@0.5:0.95 = 0.404 is the least relevant metric for Category 2. We never consume box coordinates to form an answer -- we consume tool *presence* and *timing*. Box tightness at IoU 0.9 does not affect BERTScore at all. mAP@0.5 and the confusion diagonal are the numbers that matter, and both are good. Remaining headroom with **no new labels**: v5s→v5m and 100→300 epochs, per the reference recipe.
 
 ### The groupmate's VLM pipeline
 
 At `/staging/groups/bhaskar_opscribe/surgvu_vlm_pipeline.tar.gz` (187 MB, of which ~188 MB is `sample_data/case122..case132`; the code is 686 lines).
 
 Adopted:
-- `vlm_pass1_adaptive.py` — `adaptive_confidence_sample(video, question, context, frames_per_call=5, max_samples=3, agreement_threshold=1.0, sampling_temperature=0.4)` returning `ConfidenceResult(answer, confidence, n_calls_used, all_answers, agreed)`, and `route(result, confidence_threshold=0.66)` → ACCEPT / ESCALATE. The adaptive-sampling shape is good and is kept.
+- `vlm_pass1_adaptive.py` -- `adaptive_confidence_sample(video, question, context, frames_per_call=5, max_samples=3, agreement_threshold=1.0, sampling_temperature=0.4)` returning `ConfidenceResult(answer, confidence, n_calls_used, all_answers, agreed)`, and `route(result, confidence_threshold=0.66)` → ACCEPT / ESCALATE. The adaptive-sampling shape is good and is kept.
 
 Rejected or amended, with reasons:
 - **`OVERLAY_PROMPT` in `debug_utils.py` is deleted, not ported.** It instructs the model to read the numbered tool list in the bottom UI band. The challenge rules state that using information available in the UI to make predictions is not allowed. It is currently debug-only and unreachable from `run_pipeline`, and it must never enter inference *or label generation*. There is deliberately no code path bypassing `prepare_frame`.
 - **The `opscribe_pipeline` imports are severed.** `from opscribe_pipeline.providers.vlm import get_vlm_provider` and `from opscribe_pipeline.video import VideoDecoder, FrameStore, SamplingStrategy` violate both the SurgVU-independence rule and the offline self-contained container requirement.
-- **`temperature=0.4` is treated as a hypothesis, not a constant.** The supporting sweep covers 4 cases and is scored by `is_correct()`, which uses `pred == a_clean or pred in a_clean` — substring matching that inflates accuracy. Re-measure before adopting. The *qualitative* finding is retained as a design caution: at temperature 0.1 the model was confidently wrong with full agreement on case122, case127 and case130, i.e. **agreement is not calibration**, which is exactly why W2's cross-model disagreement signal exists.
+- **`temperature=0.4` is treated as a hypothesis, not a constant.** The supporting sweep covers 4 cases and is scored by `is_correct()`, which uses `pred == a_clean or pred in a_clean` -- substring matching that inflates accuracy. Re-measure before adopting. The *qualitative* finding is retained as a design caution: at temperature 0.1 the model was confidently wrong with full agreement on case122, case127 and case130, i.e. **agreement is not calibration**, which is exactly why W2's cross-model disagreement signal exists.
 - `surgvu_pipeline_v1.py`'s `parse_question_type()` has two branches (RECORDS / LOOK_HARDER) against our 12-intent router. Superseded.
 
 ### Data assets
 
-- `/staging/groups/bhaskar_opscribe/surgvu/labels_cat2/SURGVU25_train_labels/` — 155 case directories, each with `tools.csv` (install/uninstall part + time, arm, `commercial_toolname`, `groundtruth_toolname`) and `tasks.csv` (start/stop, `taskname`, `groundtruth_taskname`, `matched_description`).
-- `/staging/groups/bhaskar_opscribe/surgvu/shards` — 38 GB, 235 `.npz` files. The pseudo-labeling and fine-tuning corpus.
-- `/staging/n/nkalthoff/` — public endoscopic corpora: `cholect50` 22 G, `DSAD.zip` 20 G, `endovis18_vqa` 2.9 G, `cataracts` 62 G.
+- `/staging/groups/bhaskar_opscribe/surgvu/labels_cat2/SURGVU25_train_labels/` -- 155 case directories, each with `tools.csv` (install/uninstall part + time, arm, `commercial_toolname`, `groundtruth_toolname`) and `tasks.csv` (start/stop, `taskname`, `groundtruth_taskname`, `matched_description`).
+- `/staging/groups/bhaskar_opscribe/surgvu/shards` -- 38 GB, 235 `.npz` files. The pseudo-labeling and fine-tuning corpus.
+- `/staging/n/nkalthoff/` -- public endoscopic corpora: `cholect50` 22 G, `DSAD.zip` 20 G, `endovis18_vqa` 2.9 G, `cataracts` 62 G.
 
 ---
 
@@ -106,14 +106,14 @@ Every workstream is independently flaggable. This is not a hedge against the des
 
 ---
 
-## W1 — Motion geometry and features (steps 1b, 1c)
+## W1 -- Motion geometry and features (steps 1b, 1c)
 
 **Current state.** 16 anchors, each with a 3-frame burst at **±67 ms** (`perceive.py:104`, `BURST_FPS = 15.0`). Micro = within-burst mean absolute difference of 64×64 Rec.601 luma; macro = between burst centres at 1.875 s. Both collapse into a single threshold.
 
-*(Corrected 2026-08-24 while writing Plan 1: an earlier draft of this section said ±0.67 s, which is wrong by a factor of ten. The corrected figure strengthens the argument rather than weakening it — see defect 1.)*
+*(Corrected 2026-08-24 while writing Plan 1: an earlier draft of this section said ±0.67 s, which is wrong by a factor of ten. The corrected figure strengthens the argument rather than weakening it -- see defect 1.)*
 
 **Three defects.**
-1. The ±67 ms offset is unjustified — never swept against any objective. Worse, **nothing at all is sampled between 67 ms and 1875 ms**, a 28× span, and that is exactly the range a single tool stroke occupies.
+1. The ±67 ms offset is unjustified -- never swept against any objective. Worse, **nothing at all is sampled between 67 ms and 1875 ms**, a 28× span, and that is exactly the range a single tool stroke occupies.
 2. A single threshold discards nearly all of the information the scores carry.
 3. Mean absolute difference cannot distinguish **camera motion** from **tool motion**. A slow endoscope pan and an active dissection produce similar scalars.
 
@@ -128,7 +128,7 @@ MotionVector = [micro_short, micro_mid, micro_long,
                 flow_mag_mean, flow_mag_p90, flow_coherence]
 ```
 
-*Optical flow.* Farnebäck dense flow at 128×128, OpenCV, CPU-only — no GPU dependency, so it survives a No-GPU draw. `flow_coherence` = fraction of flow vectors within 30° of the global median direction. High coherence ⇒ camera-dominant; low coherence ⇒ tool-dominant. **This is the discrimination the current scalar structurally cannot make**, and it is the reason to add flow at all.
+*Optical flow.* Farnebäck dense flow at 128×128, OpenCV, CPU-only -- no GPU dependency, so it survives a No-GPU draw. `flow_coherence` = fraction of flow vectors within 30° of the global median direction. High coherence ⇒ camera-dominant; low coherence ⇒ tool-dominant. **This is the discrimination the current scalar structurally cannot make**, and it is the reason to add flow at all.
 
 *Leverage rather than threshold.* The vector enters the evidence packet, and reaches the VLM as calibrated natural language ("active, tool-dominant"; "still, camera-dominant"). The binary threshold survives only where a specific router form requires a yes/no.
 
@@ -138,24 +138,24 @@ MotionVector = [micro_short, micro_mid, micro_long,
 
 ---
 
-## W2 — Perception ensemble (step 2)
+## W2 -- Perception ensemble (step 2)
 
 **CNNs stay.** They are the guardrail and they are what earns +0.047 over blind. Nothing here removes them.
 
 **YOLO joins as a second opinion.** `best.pt` runs on the 16 anchors.
 
-*Class handling.* Her 14 classes = our 12 + `bipolar dissector` + `suction irrigator`. The two extras are **kept as evidence, not suppressed**. A confident suction-irrigator detection is useful *negative* evidence — it constrains what else the frame can contain — even though it can never be the answer. Mapping 14→12 happens only at answer-formatting time, in Step 6.
+*Class handling.* Her 14 classes = our 12 + `bipolar dissector` + `suction irrigator`. The two extras are **kept as evidence, not suppressed**. A confident suction-irrigator detection is useful *negative* evidence -- it constrains what else the frame can contain -- even though it can never be the answer. Mapping 14→12 happens only at answer-formatting time, in Step 6.
 
-*Timestamped confidences.* Every detection carries `(anchor_idx, t_seconds, class, conf, box)`. Today confidences are pooled across frames and lose time entirely. Time-resolved detections unlock ordering questions ("what was used first / next") and let the VLM observe structure like "needle driver present at t=3.7 s and t=9.4 s, absent between" — which is a different claim from "needle driver present with confidence 0.6".
+*Timestamped confidences.* Every detection carries `(anchor_idx, t_seconds, class, conf, box)`. Today confidences are pooled across frames and lose time entirely. Time-resolved detections unlock ordering questions ("what was used first / next") and let the VLM observe structure like "needle driver present at t=3.7 s and t=9.4 s, absent between" -- which is a different claim from "needle driver present with confidence 0.6".
 
-*Variant head — new.* Large vs Mega needle driver. This is the only component that can address case132.
+*Variant head -- new.* Large vs Mega needle driver. This is the only component that can address case132.
 
 - **Labels are free.** `tools.csv` records `commercial_toolname` per install interval, so every frame inside an interval is automatically labeled Large-family or Mega-family. No annotation, no boxes required.
 - **Whole-frame binary classifier**, cropped to YOLO's needle-driver box when one is available. That crop is the concrete payoff of having a detector at all.
 - **Case-level priors are useless and must not be used as a shortcut.** 137 of 154 cases contain *both* families; only 16 (10.4%) are single-family. The variant must be resolved visually, per clip.
-- Corpus prior for calibration only: needle driver n=1629 — Large family 1022 (62.7%), Mega family 605 (37.1%).
+- Corpus prior for calibration only: needle driver n=1629 -- Large family 1022 (62.7%), Mega family 605 (37.1%).
 
-*Disagreement as signal.* CNN-vs-YOLO agreement is computed explicitly and exported (`tool_agreement`, `top_disagreement`). Disagreement is the honest uncertainty channel — unlike self-consistency agreement, which the groupmate's own temperature sweep showed can be confidently wrong.
+*Disagreement as signal.* CNN-vs-YOLO agreement is computed explicitly and exported (`tool_agreement`, `top_disagreement`). Disagreement is the honest uncertainty channel -- unlike self-consistency agreement, which the groupmate's own temperature sweep showed can be confidently wrong.
 
 *Router fix, in scope here.* `src/surgvu/router.py:651` lists `"large"`, `"mega"`, `"medium"`, `"long"`, `"micro"`, `"wristed"` among words that "identify nothing on their own", so **"large needle driver" collapses to "needle driver"**. With a variant head those words become resolvable, so the strip list must be narrowed to preserve family terms. This bug affects 3 of 11 sample questions (27%), of which we currently score 1/3.
 
@@ -163,7 +163,7 @@ MotionVector = [micro_short, micro_mid, micro_long,
 
 ---
 
-## W3 — Evidence packet (step 2b, always on)
+## W3 -- Evidence packet (step 2b, always on)
 
 One typed structure that every downstream stage reads. Without this contract, six concurrent workstreams become unmaintainable.
 
@@ -180,21 +180,21 @@ EvidencePacket:
   router   : {intent, slots, form, deterministic_answer | None}
 ```
 
-Serializable, loggable, and diffable across flag combinations — which is what makes the ablation in *Validation* possible at all.
+Serializable, loggable, and diffable across flag combinations -- which is what makes the ablation in *Validation* possible at all.
 
 ---
 
-## W4 — Evidence VLM (steps 3, 4)
+## W4 -- Evidence VLM (steps 3, 4)
 
 Consolidates the old steps 3 and 4 into a single VLM that receives **the 16 frames plus the evidence packet rendered as text**, and drafts an answer. It is not a blind captioner; it is a reader of our own perception output. That is the difference between the 0.49–0.57 measured for stock VLMs and what this is trying to be.
 
-*Model — decided.* **`Qwen/Qwen2.5-VL-7B-Instruct` is the single VLM for every VLM stage in v5**: the Evidence VLM here, any decision/arbitration call in W5, and the fine-tuning base in W6a. One model, one checkpoint, one quantization path — no second family to validate, tune, or fit into the image. This also matches the groupmate's existing `VLM_CONFIG` default, so her pipeline ports without a model swap.
+*Model -- decided.* **`Qwen/Qwen2.5-VL-7B-Instruct` is the single VLM for every VLM stage in v5**: the Evidence VLM here, any decision/arbitration call in W5, and the fine-tuning base in W6a. One model, one checkpoint, one quantization path -- no second family to validate, tune, or fit into the image. This also matches the groupmate's existing `VLM_CONFIG` default, so her pipeline ports without a model swap.
 
-Serving consequence, and it is tight: 7B at fp16 is ~15 GB of weights against a **16 GiB T4**, which leaves no room for the vision tower and activations. **The shipped path is 4-bit NF4** (~5 GB), which bitsandbytes supports on sm_75. That in turn means (a) the VLM cannot run at all on a No-GPU draw, and (b) 4-bit output is not bit-identical across architectures, so anything tuned elsewhere is re-validated on T4-class hardware before it ships. Note the measured 8B-NF4 scores (0.4923 open / 0.5501 closed) were **stock, pre-fine-tune** — they bound what an untuned 7B would do here, not what a taxonomy-tuned one will.
+Serving consequence, and it is tight: 7B at fp16 is ~15 GB of weights against a **16 GiB T4**, which leaves no room for the vision tower and activations. **The shipped path is 4-bit NF4** (~5 GB), which bitsandbytes supports on sm_75. That in turn means (a) the VLM cannot run at all on a No-GPU draw, and (b) 4-bit output is not bit-identical across architectures, so anything tuned elsewhere is re-validated on T4-class hardware before it ships. Note the measured 8B-NF4 scores (0.4923 open / 0.5501 closed) were **stock, pre-fine-tune** -- they bound what an untuned 7B would do here, not what a taxonomy-tuned one will.
 
 *Provenance.* Built from the groupmate's `adaptive_confidence_sample`, ported off `opscribe_pipeline`, retaining `ConfidenceResult` and the ACCEPT/ESCALATE `route()` shape. Sampling parameters re-measured, not inherited.
 
-*Hard runtime constraints — these are not negotiable and they shape the whole stage.*
+*Hard runtime constraints -- these are not negotiable and they shape the whole stage.*
 - Grand Challenge grants **10 min per case, one case per invocation, 32 GB DRAM**, and **either No GPU or a single T4** (16 GiB, sm_75). No internet.
 - sm_75 means **no bf16 and no FlashAttention-2**.
 - 4-bit NF4 is bitsandbytes/CUDA-only, so **on a No-GPU draw the VLM cannot run at all**.
@@ -206,9 +206,9 @@ Serving consequence, and it is tight: 7B at fp16 is ~15 GB of weights against a 
 
 ---
 
-## W5 — Arbiter (step 5)
+## W5 -- Arbiter (step 5)
 
-A configuration policy, not a rewrite. The user's decision was "try fallback first, but don't close out the others" — so all three are implemented and one is selected by a single key.
+A configuration policy, not a rewrite. The user's decision was "try fallback first, but don't close out the others" -- so all three are implemented and one is selected by a single key.
 
 | Mode | Behaviour |
 |---|---|
@@ -218,17 +218,17 @@ A configuration policy, not a rewrite. The user's decision was "try fallback fir
 
 The measured `INTENT_UNKNOWN_OPEN` = 0/11 means `fallback` cannot change the sample score. That is a known property of the default, accepted deliberately: fallback is the safe ship, and `challenger`/`primary` exist so the decision can be revisited on evidence rather than re-implemented.
 
-Anything the router does not have a hard-coded, high-confidence form for is handed to the VLM — the VLM is the last chance to get it right, per the user's framing.
+Anything the router does not have a hard-coded, high-confidence form for is handed to the VLM -- the VLM is the last chance to get it right, per the user's framing.
 
 **Flag:** `--arbiter-mode={fallback,challenger,primary}`.
 
 ---
 
-## W6 — Training
+## W6 -- Training
 
-### W6a — VLM pretrain then fine-tune
+### W6a -- VLM pretrain then fine-tune
 
-*Pretrain* on staged public endoscopic corpora for surgical-scene grounding: `cholect50` (22 G), `DSAD` (20 G), `endovis18_vqa` (2.9 G). **`cataracts` (62 G) is excluded or heavily down-weighted** — wrong domain (ophthalmic, not abdominal/robotic), and it is the largest disk cost in the set.
+*Pretrain* on staged public endoscopic corpora for surgical-scene grounding: `cholect50` (22 G), `DSAD` (20 G), `endovis18_vqa` (2.9 G). **`cataracts` (62 G) is excluded or heavily down-weighted** -- wrong domain (ophthalmic, not abdominal/robotic), and it is the largest disk cost in the set.
 
 *Fine-tune on SurgVU.* Base model `Qwen/Qwen2.5-VL-7B-Instruct` (see W4). QA pairs generated automatically from `tools.csv` + `tasks.csv` across 155 cases × 235 shards, in the exact answer forms the router emits.
 
@@ -236,11 +236,11 @@ Anything the router does not have a hard-coded, high-confidence form for is hand
 
 Label generation reads only `tools.csv`/`tasks.csv` and decoded frames. It never reads the UI band.
 
-### W6b — YOLO v2
+### W6b -- YOLO v2
 
 *Logbook-constrained pseudo-labeling.* Run `best.pt` over the 235 shards and **accept a detection only if the logbook says that tool is mounted at that timestamp**. The logbook turns pseudo-labeling from error-amplifying into error-suppressing: the constraint removes exactly the false positives an unconstrained self-training loop would learn to reinforce.
 
-*Retrain* at the reference recipe — v5m, 300 epochs — on 886 hand-labeled plus tens of thousands of constrained pseudo-labeled images. Expected to lift the weak classes (prograsp 0.43, clip applier 0.48, force bipolar 0.50, grasping retractor 0.56), which fail from data scarcity: their instance counts in the hand-labeled set are 38–77 against 222 for the largest class.
+*Retrain* at the reference recipe -- v5m, 300 epochs -- on 886 hand-labeled plus tens of thousands of constrained pseudo-labeled images. Expected to lift the weak classes (prograsp 0.43, clip applier 0.48, force bipolar 0.50, grasping retractor 0.56), which fail from data scarcity: their instance counts in the hand-labeled set are 38–77 against 222 for the largest class.
 
 ---
 
@@ -251,8 +251,8 @@ The user's instruction is explicit: do not over-weight the local evaluation, tak
 1. **Flag-combination matrix on the 11-case sample.** Record the score for each combination that ships or nearly ships. Cheap, and it is the only thing that will make the eventual leaderboard delta interpretable.
 2. **Timing budget, measured not assumed.** 112 decoded frames + CPU optical flow + CNNs + YOLO + up to 3 VLM samples, against 10 min/case, on both draws (T4 and No GPU).
 3. **T4-class validation of any quantized path** before it ships.
-4. **YOLO re-validated on our own held-out cases**, not only her clip-disjoint val split — case-level disjointness is currently unverified.
-5. Carried forward and still approved but de-prioritized: the synthetic evaluation corpus, and the non-circular question-space coverage audit. The existing `scripts/router_coverage.py` audit reports 98.1% intent accuracy against `tests/fixtures/question_variants.json` — 159 hand-written variants, i.e. it is circular and that number should not be quoted as evidence of anything.
+4. **YOLO re-validated on our own held-out cases**, not only her clip-disjoint val split -- case-level disjointness is currently unverified.
+5. Carried forward and still approved but de-prioritized: the synthetic evaluation corpus, and the non-circular question-space coverage audit. The existing `scripts/router_coverage.py` audit reports 98.1% intent accuracy against `tests/fixtures/question_variants.json` -- 159 hand-written variants, i.e. it is circular and that number should not be quoted as evidence of anything.
 
 ---
 
@@ -260,9 +260,9 @@ The user's instruction is explicit: do not over-weight the local evaluation, tak
 
 **Attribution.** v5 lands six workstreams at once. The leaderboard move will not be attributable to any single one. This risk was raised, understood, and the user chose the parallel build regardless; it is recorded here as a known cost, not a reopened argument. The per-workstream flags plus the combination matrix are the mitigation, and they only work if the matrix is actually recorded before submitting.
 
-This is the second time in a row. The already-shipped v4 carried **both** the Aug-13 router batch and the motion gate relative to the last scored submission (v2 = 0.8015), so any v4 movement is likewise unattributable — in particular, **a v4 move is not attributable to the motion gate.**
+This is the second time in a row. The already-shipped v4 carried **both** the Aug-13 router batch and the motion gate relative to the last scored submission (v2 = 0.8015), so any v4 movement is likewise unattributable -- in particular, **a v4 move is not attributable to the motion gate.**
 
-**Submission budget and clock.** Deadlines are **Sep 6 / 13 / 27, 2026**; today is Aug 24. The submission budget is finite (per the Aug-04 design: 10 preliminary attempts, 2 final), several preliminary attempts are already spent, and v4 is uploaded and awaiting a score. The exact remaining count is not verified in this document and should be confirmed before planning around it. Either way v5 is on a short clock against a small number of scoring opportunities. This does not change the decision; it does mean **W6a — the highest-leverage item — should not be the last thing started.**
+**Submission budget and clock.** Deadlines are **Sep 6 / 13 / 27, 2026**; today is Aug 24. The submission budget is finite (per the Aug-04 design: 10 preliminary attempts, 2 final), several preliminary attempts are already spent, and v4 is uploaded and awaiting a score. The exact remaining count is not verified in this document and should be confirmed before planning around it. Either way v5 is on a short clock against a small number of scoring opportunities. This does not change the decision; it does mean **W6a -- the highest-leverage item -- should not be the last thing started.**
 
 **Compute budget.** 112 frames + flow + two detectors + adaptive VLM sampling against 10 min/case is not obviously affordable. If it is not, the fallback ordering is: reduce burst offsets from 3 to 2, then cap VLM `max_samples` at 2, then drop flow to 64×64.
 
