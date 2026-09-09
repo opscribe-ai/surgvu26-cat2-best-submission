@@ -1,11 +1,11 @@
-# SurgVU 2026 Cat 2 — Perception Models Implementation Plan (Plan 2)
+# SurgVU 2026 Cat 2 -- Perception Models Implementation Plan (Plan 2)
 
 
-**Goal:** Train the three perception experts — tool install-state recogniser, task classifier, and action recogniser — against the extracted 24,578-window shard corpus, and emit a validation report that Plan 3's router consumes.
+**Goal:** Train the three perception experts -- tool install-state recogniser, task classifier, and action recogniser -- against the extracted 24,578-window shard corpus, and emit a validation report that Plan 3's router consumes.
 
 **Architecture:** One shared training substrate (`dataset`, `models`, `metrics`, `train`) plus three thin driver scripts, so all three models share the same loader, seeding, checkpoint format, and metric code. Each model is an ImageNet-pretrained EfficientNetV2-S over blurred 30-second window frames; per-frame predictions are averaged across a window's 30 frames into a clip-level prediction, because the label being predicted is *installation state*, which is constant across the window by construction. Training runs as HTCondor GPU jobs inside a container we build ourselves.
 
-**Tech Stack:** Python 3.11, PyTorch 2.5.1 + torchvision 0.20.1 (CUDA 12.1), pytest, numpy, OpenCV. Backbones come from torchvision (**BSD-3**, deliberately — no AGPL enters this repo).
+**Tech Stack:** Python 3.11, PyTorch 2.5.1 + torchvision 0.20.1 (CUDA 12.1), pytest, numpy, OpenCV. Backbones come from torchvision (**BSD-3**, deliberately -- no AGPL enters this repo).
 
 ## Global Constraints
 
@@ -20,16 +20,16 @@
 - **Independent of OpScribe.** Build our own containers under `/staging/n/nkalthoff/surgvu26/`. Never use `/staging/groups/bhaskar_opscribe/**` containers or `pypkgs`. Reading the shard corpus from group staging is fine and expected.
 - **Any stage that can produce zero output must treat zero as an error** unless explicitly told otherwise. This project's characteristic failure is plausible-looking nothing.
 - **When adding a test, mutate the thing it protects and confirm the test dies.** A test that passes against its own defect is not a test.
-- **Deployment target is a T4 (Turing, sm_75): no bf16, no FlashAttention-2.** Train in fp16/fp32; never default to bf16. CHTC has no T4 — validate on `NVIDIA GeForce RTX 2080 Ti` (31 available, identical compute capability 7.5).
+- **Deployment target is a T4 (Turing, sm_75): no bf16, no FlashAttention-2.** Train in fp16/fp32; never default to bf16. CHTC has no T4 -- validate on `NVIDIA GeForce RTX 2080 Ti` (31 available, identical compute capability 7.5).
 
 ## Corpus Facts (measured, do not re-derive)
 
 - Shards: `/staging/groups/bhaskar_opscribe/surgvu/shards/*.npz`, **235 shards, 24,578 windows, 40.5 GB**.
 - Every window is **30 frames at 512x512x3**, `fps=1`, `jpeg_quality=90`, `ui_blurred=True`.
 - Shard filename is `case_NNN_partP.npz`. `read_shard(path)` returns `(frames, meta)` where `frames` is `(windows, 30, 512, 512, 3)` uint8 and `meta` is a list of dicts with `case, part, start, length, task, description, tools, ui_blurred, frame_size, fps, jpeg_quality`.
-- Tool class frequencies over train windows (`config/tool_frequency.json`): `cadiere forceps` 15,600 down to `stapler` 137. A **90x** imbalance — `pos_weight` is mandatory, not optional.
+- Tool class frequencies over train windows (`config/tool_frequency.json`): `cadiere forceps` 15,600 down to `stapler` 137. A **90x** imbalance -- `pos_weight` is mandatory, not optional.
 - Task distribution over all windows: suturing 8,633; uterine horn 4,058; rectal artery/vein 3,674; suspensory ligaments 3,525; skills application 2,530; retraction and collision avoidance 1,322; other 483; range of motion 353.
-- **The 7 out-of-scope tool classes are NOT in the shards.** `labels._load_tools` drops them at load time via `normalize_tool`. The spec offers them as auxiliary signal; recovering them means re-querying `tools.csv` using each window's `case`/`part`/`start`. Deferred to ablation — do not block on it.
+- **The 7 out-of-scope tool classes are NOT in the shards.** `labels._load_tools` drops them at load time via `normalize_tool`. The spec offers them as auxiliary signal; recovering them means re-querying `tools.csv` using each window's `case`/`part`/`start`. Deferred to ablation -- do not block on it.
 
 ## File Structure
 
@@ -150,7 +150,7 @@ python3 -c "
 import torch
 print('cuda', torch.cuda.is_available(), torch.cuda.get_device_name(0))
 print('capability', torch.cuda.get_device_capability(0))
-assert torch.cuda.get_device_capability(0) == (7, 5), 'not Turing — wrong validation target'
+assert torch.cuda.get_device_capability(0) == (7, 5), 'not Turing -- wrong validation target'
 "
 ```
 
@@ -176,7 +176,7 @@ git add containers/ && git commit -m "feat: GPU training container, independent 
   - `encode_tools(tools) -> np.ndarray` shape `(12,)` float32 multi-hot.
   - `encode_task(task) -> int` in `[0, 8)`.
   - `shard_paths_for_split(shard_dir, splits_path, split) -> list[Path]`
-  - `ShardFrames(shards, frames_per_window=8, seed=0, shuffle=True)` — a `torch.utils.data.IterableDataset` yielding `(frame_uint8_hwc, tools_multihot, task_index)`.
+  - `ShardFrames(shards, frames_per_window=8, seed=0, shuffle=True)` -- a `torch.utils.data.IterableDataset` yielding `(frame_uint8_hwc, tools_multihot, task_index)`.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -517,7 +517,7 @@ git commit -m "feat: EfficientNetV2-S / ResNet-50 backbones with configurable he
 - Test: `tests/test_metrics.py`
 
 **Interfaces:**
-- Consumes: numpy only (no sklearn — it is not in the container).
+- Consumes: numpy only (no sklearn -- it is not in the container).
 - Produces:
   - `per_class_f1(y_true, y_pred) -> np.ndarray` shape `(C,)`
   - `macro_f1(y_true, y_pred) -> float`
@@ -675,7 +675,7 @@ git commit -m "feat: macro-F1 and per-class threshold tuning without sklearn"
 - Consumes: `surgvu.dataset.ShardFrames`, `surgvu.models.build_model`, `surgvu.metrics`.
 - Produces:
   - `seed_everything(seed) -> None`
-  - `prepare_batch(frames_uint8, device, image_size=None) -> torch.Tensor` — `(B, 3, H, W)` float32 scaled to `[0, 1]`, channel-first, BGR→RGB, bilinearly resized to `image_size` when given. **Training and inference both go through this one function**, so the resolution a model trained at cannot drift from the resolution it is served at.
+  - `prepare_batch(frames_uint8, device, image_size=None) -> torch.Tensor` -- `(B, 3, H, W)` float32 scaled to `[0, 1]`, channel-first, BGR→RGB, bilinearly resized to `image_size` when given. **Training and inference both go through this one function**, so the resolution a model trained at cannot drift from the resolution it is served at.
   - `run_epoch(model, loader, loss_fn, target_fn, optimizer=None, device="cpu", image_size=None) -> dict` with keys `loss`, `probs`, `targets`. `target_fn(tools, task) -> Tensor` selects which label this model trains against; it is explicit because all three models share one loader but consume different labels, and inferring it from the loss class would silently hand the action model the tool labels.
   - `save_checkpoint(path, model, meta) -> None` / `load_checkpoint(path, model) -> dict`
 
@@ -878,7 +878,7 @@ git commit -m "feat: shared training loop, seeding, and checkpoint format"
 
 **Interfaces:**
 - Consumes: everything from Tasks 1–5, `config/splits.json`, `config/tool_frequency.json`.
-- Produces: `/staging/n/nkalthoff/surgvu26/models/tools_<backbone>.pt` — checkpoint whose `meta` carries `{"macro_f1", "per_class_f1", "thresholds", "classes", "backbone", "epochs", "frames_per_window", "image_size"}`.
+- Produces: `/staging/n/nkalthoff/surgvu26/models/tools_<backbone>.pt` -- checkpoint whose `meta` carries `{"macro_f1", "per_class_f1", "thresholds", "classes", "backbone", "epochs", "frames_per_window", "image_size"}`.
 
 **Why this model first:** it is the only source of tool identity at test time, so its accuracy caps roughly two-thirds of the questions.
 
@@ -1061,7 +1061,7 @@ Run: `condor_submit condor/train.sub` with
 `script = scripts/train_tools.py` and
 `args = --out /staging/n/nkalthoff/surgvu26/models/tools_efficientnet_v2_s.pt --epochs 8`
 
-Expected: `BEST val macro-F1` printed. **The 2025 winner reported 97% macro-F1 on this data with this backbone** — treat anything below ~0.85 as a bug hunt rather than a tuning exercise, and check first that `pos_weight` is applied and that rare classes are not uniformly zero in `per_class_f1`.
+Expected: `BEST val macro-F1` printed. **The 2025 winner reported 97% macro-F1 on this data with this backbone** -- treat anything below ~0.85 as a bug hunt rather than a tuning exercise, and check first that `pos_weight` is applied and that rare classes are not uniformly zero in `per_class_f1`.
 
 - [ ] **Step 6: Commit**
 
@@ -1082,7 +1082,7 @@ git commit -m "feat: train the tool install-state recogniser"
 - Consumes: Tasks 1–5, `surgvu.descriptions.DescriptionRetriever`, `config/descriptions.yaml`.
 - Produces: `/staging/n/nkalthoff/surgvu26/models/task_<backbone>.pt` with `meta` carrying `{"accuracy", "macro_f1", "per_class_f1", "description_accuracy", "classes", "backbone"}`.
 
-**Why this matters most for score:** the task class selects the `matched_description`, which is verbatim the text the ground-truth answers were generated from. Two of the 21 descriptions are shared across task classes (one by three, one by four), so **description accuracy is strictly higher than task accuracy** — confusing two classes that share a description still retrieves the right text. Report both.
+**Why this matters most for score:** the task class selects the `matched_description`, which is verbatim the text the ground-truth answers were generated from. Two of the 21 descriptions are shared across task classes (one by three, one by four), so **description accuracy is strictly higher than task accuracy** -- confusing two classes that share a description still retrieves the right text. Report both.
 
 - [ ] **Step 1: Write the driver**
 
@@ -1199,7 +1199,7 @@ if __name__ == "__main__":
 - [ ] **Step 2: Smoke-test on two shards**
 
 Same reduced-split procedure as Task 6, Step 4.
-Expected: a printed `desc_acc` **greater than or equal to** `val_acc` on every epoch. If it is ever lower, `description_accuracy` is wrong — the shared-description classes can only help.
+Expected: a printed `desc_acc` **greater than or equal to** `val_acc` on every epoch. If it is ever lower, `description_accuracy` is wrong -- the shared-description classes can only help.
 
 - [ ] **Step 3: Run the real training job**
 
@@ -1223,7 +1223,7 @@ git commit -m "feat: train the task classifier and report description accuracy"
 **Interfaces:**
 - Consumes: Tasks 2–5.
 - Produces:
-  - `aggregate_window(frame_probs) -> np.ndarray` — mean over a window's frames.
+  - `aggregate_window(frame_probs) -> np.ndarray` -- mean over a window's frames.
   - `predict_window(model, frames, device, image_size) -> np.ndarray` of per-class probabilities for one window.
 
 **Why:** the graded unit is a clip, not a frame. Installation state is constant across a window, so averaging per-frame probabilities is both correct and a free variance reduction over ~30 views of the same label.
@@ -1326,7 +1326,7 @@ git commit -m "feat: clip-level aggregation over a window's frames"
 
 ---
 
-### Task 9: Action recogniser — and the honest case that it is redundant
+### Task 9: Action recogniser -- and the honest case that it is redundant
 
 **Files:**
 - Create: `scripts/train_action.py`
@@ -1335,18 +1335,18 @@ git commit -m "feat: clip-level aggregation over a window's frames"
 - Consumes: Tasks 1–6, 8, plus the tool checkpoint from Task 6.
 - Produces: `/staging/n/nkalthoff/surgvu26/models/action_<backbone>.pt` with `meta` carrying `{"verdict": "keep"|"drop", "accuracy", "majority_baseline", "tool_channel_baseline"}`.
 
-**Read this before writing any code — the design has a problem worth surfacing.**
+**Read this before writing any code -- the design has a problem worth surfacing.**
 
 The spec calls for a temporal CNN answering *"is tissue being cut"*, with labels derived "from the task segments in `tasks.csv` combined with tool presence, since cutting co-occurs with monopolar curved scissors."
 
-But nothing in the corpus states that tissue is being cut. The only available label is a **proxy computed from installed tools** — and `monopolar curved scissors ∈ tools` is *exactly one output channel of the tool recogniser already trained in Task 6*. So:
+But nothing in the corpus states that tissue is being cut. The only available label is a **proxy computed from installed tools** -- and `monopolar curved scissors ∈ tools` is *exactly one output channel of the tool recogniser already trained in Task 6*. So:
 
 1. **A model trained on this proxy cannot beat the tool recogniser's own channel**, because it is trained on that channel's label with strictly less capacity devoted to it.
 2. **A temporal architecture cannot help.** The proxy label is a function of installation state, which is constant across the window by construction. There is no motion signal in the label for a temporal model to learn. Building a temporal CNN here would be modelling machinery pointed at a label that does not vary in time.
 
-That does not mean skip the task — it means **the gate is against the tool channel, not against a majority-class baseline.** A majority baseline is too weak and would license keeping a model that adds nothing.
+That does not mean skip the task -- it means **the gate is against the tool channel, not against a majority-class baseline.** A majority baseline is too weak and would license keeping a model that adds nothing.
 
-**Proxy definition, stated plainly:** `cutting = monopolar curved scissors ∈ tools`. Those scissors are the only cutting instrument among the 12. `vessel sealer` and `stapler` divide tissue but seal rather than cut, so they are excluded — a judgement call, not a fact, recorded here so it is reviewable.
+**Proxy definition, stated plainly:** `cutting = monopolar curved scissors ∈ tools`. Those scissors are the only cutting instrument among the 12. `vessel sealer` and `stapler` divide tissue but seal rather than cut, so they are excluded -- a judgement call, not a fact, recorded here so it is reviewable.
 
 **Expected outcome: `drop`.** Action questions then route to dense re-sampling in Plan 3, and the tool channel answers "is cutting happening" directly for free. Reaching `drop` quickly is the cheapest good result in this plan.
 
@@ -1476,11 +1476,11 @@ Run: `condor_submit condor/train.sub` with
 `script = scripts/train_action.py` and
 `args = --tool-checkpoint /staging/n/nkalthoff/surgvu26/models/tools_efficientnet_v2_s.pt --out /staging/n/nkalthoff/surgvu26/models/action_efficientnet_v2_s.pt`
 
-Expected: all three numbers printed and a verdict. **If the verdict is `keep`, be suspicious** — check that the tool checkpoint loaded (its `meta["thresholds"]` should have 12 entries) and that both models saw the same validation windows. A genuine `keep` would mean the dedicated model extracts something the shared backbone did not, which is possible but is the surprising result, not the expected one.
+Expected: all three numbers printed and a verdict. **If the verdict is `keep`, be suspicious** -- check that the tool checkpoint loaded (its `meta["thresholds"]` should have 12 entries) and that both models saw the same validation windows. A genuine `keep` would mean the dedicated model extracts something the shared backbone did not, which is possible but is the surprising result, not the expected one.
 
 - [ ] **Step 3: Record the verdict where Plan 3 will read it**
 
-Add one line to `docs/OUTSTANDING.md` giving the accuracy, the tool-channel baseline, and the decision. Plan 3's router branches on this, and the methodology report should state that a component was measured and dropped — that is a stronger result than never having tried it.
+Add one line to `docs/OUTSTANDING.md` giving the accuracy, the tool-channel baseline, and the decision. Plan 3's router branches on this, and the methodology report should state that a component was measured and dropped -- that is a stronger result than never having tried it.
 
 - [ ] **Step 4: Commit**
 
@@ -1498,7 +1498,7 @@ git commit -m "feat: action recogniser gated against the tool recogniser channel
 
 **Interfaces:**
 - Consumes: the three checkpoints.
-- Produces: `docs/plan2-validation.md` plus `config/perception.json` — the frozen artefact Plan 3's router reads: `{"tools": {"checkpoint", "thresholds", "macro_f1", "per_class_f1"}, "task": {...}, "action": {"verdict", ...}}`.
+- Produces: `docs/plan2-validation.md` plus `config/perception.json` -- the frozen artefact Plan 3's router reads: `{"tools": {"checkpoint", "thresholds", "macro_f1", "per_class_f1"}, "task": {...}, "action": {"verdict", ...}}`.
 
 - [ ] **Step 1: Write the reporter**
 
@@ -1536,8 +1536,8 @@ git commit -m "feat: combined perception validation report for Plan 3"
 - **No detector / YOLO.** A detector predicts *visible* instruments; ground truth is *installed*. The eyeball check confirmed three-listed/two-visible is routine, so a perfect detector would systematically under-report. It is also the only component needing hand-drawn boxes. Build the CNN first, measure how often the router would even call a detector, and annotate only if that number is large. See the licensing note below if it is.
 - **No VLM work.** Plan 3.
 - **No auxiliary out-of-scope classes.** They are not in the shards and recovering them means re-querying `tools.csv`. Ablation only.
-- **No per-arm formulation.** The heads are not identifiable — nothing in the image says which arm an instrument is on — and the exactly-three premise it relies on does not hold. Ablation only.
+- **No per-arm formulation.** The heads are not identifiable -- nothing in the image says which arm an instrument is on -- and the exactly-three premise it relies on does not hold. Ablation only.
 
 ## Licensing note for any later detector work
 
-Ultralytics YOLOv5/v8/YOLO11 are **AGPL-3.0**. This repo goes public at submission, so publishing is fine, but AGPL would require the entire distributed work to be AGPL and commercial use needs a paid licence. Permissive alternatives: **YOLOX** (Apache-2.0), **RT-DETR** (Apache-2.0), torchvision detection (BSD-3). Settle the licence question before benchmarking versions — it may eliminate most candidates. Everything in Plan 2 uses torchvision, which is BSD-3.
+Ultralytics YOLOv5/v8/YOLO11 are **AGPL-3.0**. This repo goes public at submission, so publishing is fine, but AGPL would require the entire distributed work to be AGPL and commercial use needs a paid licence. Permissive alternatives: **YOLOX** (Apache-2.0), **RT-DETR** (Apache-2.0), torchvision detection (BSD-3). Settle the licence question before benchmarking versions -- it may eliminate most candidates. Everything in Plan 2 uses torchvision, which is BSD-3.
