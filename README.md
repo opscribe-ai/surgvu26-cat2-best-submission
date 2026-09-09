@@ -101,46 +101,45 @@ not fall into the wrong bucket. For example, "how many instruments are in use?" 
 the word *instrument*, so there is potential for it to be incorrectly put in an
 instrument bucket even though we want a number as the output.
 
-### Three ways an answer gets made
+### All the possible outcomes from the pipeline
 
-Walk three questions through the same pipeline and you get three different
-machines doing the work.
+Here are three examples of the pipeline answering questions from each of the three
+different mechanisms: the measurements, the VLM, and the hard-coded fact answers.
 
-**One: the perception channels decide.** Ask *"Is tissue being cut in this
-clip?"* and it classifies as `cutting_polar`. The tool recogniser is checked for
-a credible cutting instrument, and if there isn't one the answer is No. If there
-is, motion gets consulted before committing, because an earlier version of this
-answered Yes to a pair of scissors sitting perfectly still in frame. That was a presence
-signal standing in for an event, and no amount of improving the tool recogniser
-would have fixed. So two channels have to agree: something that can cut is
-installed, *and* the scene isn't static. Most intents work roughly like this,
-though usually with one channel rather than two.
+**Example 1: the measurements pick the answer.** In this scenario the question could be
+"Is tissue being cut in this clip?", which would be classified as `cutting_polar`. The
+tool recogniser checks for a credible cutting instrument, and if there isn't one, the
+answer is No. If there is one, the outputs from the motion measurement are also taken
+into account before committing. Motion comes into play if something that cuts is
+installed and the scene is very static, which could show that tissue is not actually
+being cut in this clip. Most answers end up being fairly complex, with the pipeline
+taking in a lot of differing opinions from the measurements and deciding which one is
+the most confident.
 
-**Two: the VLM decides.** Ask *"What instrument is the surgeon using?"* and it
-classifies as `tool_identity_open`, the one intent where the model's answer ships
-instead of the router's. That's a measured choice, not a hedge. Three of the
-twelve instrument classes share the head noun *forceps*, and when the classifier's
-top two candidates are close its top-1 is barely better than a coin flip, while
-the correct answer sits in that top two about 91% of the time. A classifier can't
-exploit that, because naming both scores worse than naming one. A model that can
-actually look at the frames can. The VLM still receives everything the perception
-channels found; it just gets the final word here.
+**Example 2: the VLM outputs the answer.** Here the question could be "What instrument
+is the surgeon using?", which classifies as a `tool_identity_open` question. This is the
+one question type that is always diverted to the VLM. We did a lot of internal testing
+and found that the router had a specifically tough time with this question, and that the
+VLM was a lot better at this question type than at a lot of the others, which is why the
+measurements are the dominant choice of answer for most question types. Three of the
+instruments are all forceps, just different types of forceps, which makes it very hard
+for the measurements and the router to be anything better than a coin flip here. So this
+is perfect for the VLM to come in, use its own intelligence, and be the final word.
 
-**Three: we already know the answer.** Ask *"What is the purpose of using
-forceps?"* and no amount of staring at the clip helps, because that's a question
-about what forceps are *for*. It resolves through a lookup keyed on the instrument
-the question itself names. Two other intents work the same way: every clip in this
-corpus is robotic endoscopic dry-lab surgery, so `procedure_open` returns a
-constant and `approach_polar` answers from the question's own wording. Three
-intents in total, and on the eleven-case public sample they accounted for 2 of 11
-questions. A per-clip guess could only have been worse than a known fact.
+**Example 3: we already know the fact.** The question could be "What is the purpose of
+using forceps?". Looking at the clip doesn't help answer this, because the question is
+about the definition of what forceps are for. It resolves by looking through what is
+essentially a pre-made file to find the answer about an instrument of that type. Two
+other question types work this way, because we know every clip in SurgVU is going to be
+endoscopic surgery. This is a very simple deterministic approach, and we found it has
+the highest probability of success compared with sending these questions to the VLM or
+the measurements.
 
-Anything the classifier can't place at all falls to `unknown_open` or
-`unknown_polar`, and both go to the VLM, because the router has no form for those
-questions, so its "answer" would be a generic string written without reference to
-what was asked.
-
----
+Anything the classifier can't place with the patterns it has falls to `unknown_open` or
+`unknown_polar`, and both of those go to the VLM. The router has no form to answer these
+questions, so we aren't able to set the answer up for success. The VLM has the potential
+to output whatever and answer whatever, whereas the router is constrained to what we
+have set it up for.
 
 ## Measured results
 
