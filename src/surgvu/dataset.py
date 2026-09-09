@@ -54,13 +54,13 @@ class ShardFrames(IterableDataset):
     each epoch, and frames are subsampled per window, so a given frame is seen
     on some epochs and not others rather than the same 8 every time.
 
-    WARNING — `set_epoch` is silently inert under `DataLoader(...,
+    WARNING -- `set_epoch` is silently inert under `DataLoader(...,
     persistent_workers=True)`. Persistent workers are forked once and never
     re-pickle this dataset, so a worker process's copy of `self.epoch` stays
     0 for the life of training no matter how many times the main process
     calls `set_epoch` on its own copy. The per-epoch RNG seed is
     `self.seed + 1000 * self.epoch`, so a stuck epoch means every epoch draws
-    the identical frame subsample and shard order — the epoch-to-epoch frame
+    the identical frame subsample and shard order -- the epoch-to-epoch frame
     diversity this design depends on quietly disappears while training loss
     curves look completely normal. Callers must either leave
     `persistent_workers` False, or rebuild the `DataLoader` (not just call
@@ -82,7 +82,7 @@ class ShardFrames(IterableDataset):
         self.shuffle = shuffle
         self.epoch = 0
 
-    # WARNING: inert under DataLoader(..., persistent_workers=True) — see the
+    # WARNING: inert under DataLoader(..., persistent_workers=True) -- see the
     # class docstring. Mutating self.epoch here only reaches a persistent
     # worker's copy of this dataset if the DataLoader (and its workers) are
     # rebuilt; otherwise the worker keeps using epoch 0 forever and the
