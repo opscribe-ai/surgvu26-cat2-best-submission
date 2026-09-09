@@ -1,42 +1,40 @@
-# SurgVU 2026, Category 2 (Surgical Visual Question Answering)
+# OpScribe-AI's SurgVU 2026 Category 2 Surgical Visual Question Answering (Submission)
 
 **OpScribe-AI. MICCAI 2026 EndoVis / SurgVU Category 2.**
 
-This repository is the submitted system. It scored **0.9128** on the preliminary
-phase and **0.6604** on the 101-case final phase, both BERTScore-F1.
+This repository is the company's best submitted system. It scored **0.9128** on the
+preliminary phase via BERTScore-F1.
 
-Category 2 gives a model a **30-second robotic surgery clip and a free-text
-question**, and asks for a free-text answer. Submissions are scored with
-**BERTScore-F1** (roberta-large, `rescale_with_baseline=True`), taking the
-**maximum over five independent human reference answers** and averaging across
-cases. A one-word answer and a fluent sentence can score very differently against
-the same reference, so answer *surface* matters as much as answer *content*, and
-that fact shaped most of the design below.
+Category 2 involves giving a pipeline a 30-second surgical clip along with a free-text
+question, and then the pipeline will output a free-text answer. Submissions are scored
+with BERTScore-F1, taking the best answer graded across five independent human
+reference answers.
 
 ---
 
 ## How it works
 
-A clip and a question come in together, and the first thing that happens is that
-they go their separate ways. The clip gets decoded into 16 frames and read by
-five perception channels; the question, meanwhile, is sorted into one of thirteen
-intents purely on its wording. What those two results meet at is an arbiter,
-which decides, per intent, whether the answer should come from the perception
-channels, from the vision-language model, or from something we already know about
-the dataset and don't need to look at the clip to say.
+As soon as a clip gets ingested into our pipeline, it gets decoded into 16 frames, and
+five signals are read from those frames. The question, separately, is sorted into one of
+thirteen question types, based on the words and the actual string of the question.
 
-That last category is smaller than the other two, but it's real, and we'd rather
-name it than bury it.
+The end of the pipeline is concluded by an arbiter, which decides, based on the question
+type, whether the answer should come from the five signals, from the vision-language
+model, or from a fact we already know about the dataset and don't need to look at the
+clip to say.
 
-### The five perception channels
+That last category is smaller than the other two, but it's real, and we'd rather name it
+than bury it.
 
-| channel | what it produces |
+### The five signals
+
+| signal | what it consists of |
 |---|---|
-| **Tool recogniser** | ResNet-50 at 384px, 12 classes, multi-label. Predicts which instruments are **installed** across the window rather than which are visible in any one frame. |
-| **Task recogniser** | ResNet-50 at 384px, 8 classes, single-label. |
-| **Detector** | Per-class instrument detections, each with a timestamp and a confidence. |
-| **Motion** | Mean absolute inter-frame difference over a 64×64 greyscale reduction, measured at two time bases: 67 ms apart *within* a burst, and 1.9 s apart *across* the clip. |
-| **Agreement** | How well the tool recogniser and the detector concur, which is a useful check on either one alone. |
+| **Tool recogniser** | A ResNet-50 that says which instruments are **mounted on the robot** during the window, not which are visible in any one frame. It can name several at once, because several usually are. 12 instrument classes. |
+| **Task recogniser** | A ResNet-50 that says which single activity is happening, such as suturing or retraction. Exactly one answer, unlike the tool recogniser. 8 activity classes. |
+| **Detector** | Draws boxes around instruments in individual frames, so you get what, where and when, each with a confidence. |
+| **Motion** | Measures how much the picture changes between frames, at two speeds. Frames 67 ms apart say whether something is moving right now; frames 1.9 s apart say whether the whole scene shifted. A lot of the first and little of the second means someone is working in one spot; the reverse means the camera moved. |
+| **Agreement** | Checks whether the tool recogniser and the detector name the same instruments. Two of them independently saying "bipolar forceps" is worth more than either saying it alone. |
 
 Frame probabilities get averaged into clip-level probabilities, then cut with
 per-class thresholds that were tuned against that exact averaging step. Change
