@@ -12,7 +12,7 @@ byte-identical to the configuration that scored 0.8558.
 
 | stage | base | data | why |
 |---|---|---|---|
-| 0 | `nvidia/Qwen2.5-VL-7B-Surg-CholecT50` | — | already surgical: triplet F1 0.81 instrument. Free. |
+| 0 | `nvidia/Qwen2.5-VL-7B-Surg-CholecT50` | -- | already surgical: triplet F1 0.81 instrument. Free. |
 | 1 | stage 0 | SSG-VQA, ~55k pairs | question variety over real surgical frames |
 | 2 | **stage 1's adapter** | SurgVU v2, 16-frame | the task, the taxonomy, **the answer form** |
 
