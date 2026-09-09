@@ -101,7 +101,7 @@ def test_extract_window_honours_a_non_default_window_length(synthetic_video):
 
 def test_extract_window_refuses_a_window_from_a_different_part(synthetic_video):
     """Timestamps reset at the part boundary, so decoding a part-2 window
-    from the part-1 video returns real frames from the wrong moment — the
+    from the part-1 video returns real frames from the wrong moment -- the
     single most damaging silent failure available in this pipeline."""
     part_two_window = _window(10.0, part="2.0")
 
