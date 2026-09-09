@@ -3,8 +3,8 @@
 `config/splits.json` (v1) has two defects, both verified against the real
 shards:
 
-  1. All 11 public sample cases — the only question-and-answer data that
-     exists for Category 2 — are inside it: 8 in train, 3 in val. The sample
+  1. All 11 public sample cases -- the only question-and-answer data that
+     exists for Category 2 -- are inside it: 8 in train, 3 in val. The sample
      directories are named `case122` and the split names its cases
      `case_122`, so a raw set intersection reports no overlap and the leak
      reads as clean.
@@ -62,7 +62,7 @@ def read_shard_meta(path):
     out with `str(z['meta'])` and parsed. Iterating `z['meta']` directly
     iterates a 0-d array and raises; `z['meta'].item()` happens to work but
     reads as if the array were the table. Only the `meta` member is touched,
-    so this never decompresses the JPEG payload — 235 shards is 38 GB on disk
+    so this never decompresses the JPEG payload -- 235 shards is 38 GB on disk
     and under a second of reading here.
     """
     with np.load(str(path), allow_pickle=True) as shard:
@@ -75,7 +75,7 @@ def read_all_shard_meta(shard_dir):
     paths = sorted(shard_dir.glob("*.npz"))
     if not paths:
         raise SystemExit(
-            "no *.npz shards under %s — a split built from nothing would be "
+            "no *.npz shards under %s -- a split built from nothing would be "
             "an empty file that looks like a successful run" % shard_dir)
     return {p.name: read_shard_meta(p) for p in paths}
 
@@ -84,7 +84,7 @@ def case_windows_from_shard_meta(meta_by_shard):
     """Regroup shard metadata into `{case_id: [[tool, ...], ...]}`.
 
     A case has one shard per video part, so the parts must be summed back
-    together before anything is counted per case — assigning `case_012_part1`
+    together before anything is counted per case -- assigning `case_012_part1`
     to train and `case_012_part2` to val would leak near-duplicate frames
     across the split boundary.
     """
@@ -168,7 +168,7 @@ def main(argv=None):
     heldout = heldout_case_ids(p.name for p in sample_dir.iterdir() if p.is_dir())
     if not heldout:
         raise SystemExit(
-            "found no sample cases under %s — an empty heldout list would hand "
+            "found no sample cases under %s -- an empty heldout list would hand "
             "back exactly the leak this script exists to remove" % sample_dir)
 
     windows = case_windows_from_shard_meta(read_all_shard_meta(args.shard_dir))
@@ -184,7 +184,7 @@ def main(argv=None):
         "seed reproduce this file byte for byte)"
         % (args.seed, args.val_fraction, args.min_val_windows, args.restarts))
     result["meta"]["supersedes"] = (
-        "config/splits.json, which is left untouched — the current "
+        "config/splits.json, which is left untouched -- the current "
         "checkpoints were trained on it.")
 
     out.parent.mkdir(parents=True, exist_ok=True)
