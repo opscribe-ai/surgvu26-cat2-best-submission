@@ -18,7 +18,7 @@ logs/
 # Container images live in /staging, never in git. HTCondor's
 # when_to_transfer_output = ON_EXIT copies build outputs back into the submit
 # directory (containers/ here), so a stray multi-GB .sif can land in the repo
-# root after a build job runs — never commit it.
+# root after a build job runs -- never commit it.
 *.sif
 
 # HTCondor transfer_output_files drops the validation harness's reports into
