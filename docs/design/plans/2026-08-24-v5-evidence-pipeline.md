@@ -1,7 +1,7 @@
-# v5 Plan 1 — Evidence Pipeline Implementation Plan
+# v5 Plan 1 -- Evidence Pipeline Implementation Plan
 
 
-**Goal:** Give the pipeline richer, calibrated, time-resolved evidence — multi-scale motion with optical flow, a YOLO second opinion, and a Large/Mega needle-driver variant head — all additive to the existing perception record and all behind flags.
+**Goal:** Give the pipeline richer, calibrated, time-resolved evidence -- multi-scale motion with optical flow, a YOLO second opinion, and a Large/Mega needle-driver variant head -- all additive to the existing perception record and all behind flags.
 
 **Architecture:** Nothing is replaced. `perceive.clip_record()` already returns a JSON record with a proven byte-identity property (omit an optional block and the dict is unchanged); every new evidence source becomes another optional block on that record. Motion v2 runs alongside, never instead of, the existing `decode_clip_bursts` contract, because `shards_multi16` and `surgvu/temporal.py` depend on the current uniform-burst layout. Thresholds are fitted and recorded, never guessed.
 
@@ -13,7 +13,7 @@
 
 - **Runtime contract:** 10 min per case, one case per container invocation, 32 GB DRAM, no internet.
 - **GPU draw is not guaranteed:** either No GPU or a single **T4 (16 GiB, sm_75)**. sm_75 means **no bf16 and no FlashAttention-2**. Every component in this plan must produce a correct answer with **zero GPU**. Optical flow is therefore CPU-only by construction.
-- **UI band:** `preprocess.prepare_frame` crops black side margins and blurs the bottom UI band. This is a challenge rule — "using the information available in the UI to make predictions is not allowed". **No code path may bypass `prepare_frame`**, including label generation.
+- **UI band:** `preprocess.prepare_frame` crops black side margins and blurs the bottom UI band. This is a challenge rule -- "using the information available in the UI to make predictions is not allowed". **No code path may bypass `prepare_frame`**, including label generation.
 - **Independence:** no imports from `opscribe_pipeline`, and no use of the OpScribe container, venv, HF cache, or `pypkgs`.
 - **Login node `ap2001` is for editing and numpy/cv2 tests only.** numpy 2.0.2 and cv2 4.13.0 are importable there; **torch is not**. Any task touching torch runs its tests inside the container via `python3 scripts/run_tests.py`, submitted as a compute job. Never build containers or train on the login node.
 - **Additivity:** every new record block is optional. With all flags off, `clip_record()` must return a dict byte-identical to today's. This is asserted, not assumed.
@@ -127,7 +127,7 @@ def test_rejects_mismatched_shapes():
 - [ ] **Step 2: Run test to verify it fails**
 
 Run: `python3 -m pytest tests/test_flow.py -q`
-Expected: FAIL — `ModuleNotFoundError: No module named 'surgvu.flow'`
+Expected: FAIL -- `ModuleNotFoundError: No module named 'surgvu.flow'`
 
 - [ ] **Step 3: Write the implementation**
 
@@ -260,7 +260,7 @@ moved patch against a static background must not."
 
 ### Task 2: Multi-scale burst decode
 
-The existing burst samples t−67 ms, t, t+67 ms; macro compares burst centres 1.875 s apart. **Nothing is sampled between 67 ms and 1875 ms — a 28× span.** This adds probes inside that gap without touching the existing burst, because `shards_multi16`, `surgvu/dataset.py` and `surgvu/temporal.py` all depend on the current uniform layout.
+The existing burst samples t−67 ms, t, t+67 ms; macro compares burst centres 1.875 s apart. **Nothing is sampled between 67 ms and 1875 ms -- a 28× span.** This adds probes inside that gap without touching the existing burst, because `shards_multi16`, `surgvu/dataset.py` and `surgvu/temporal.py` all depend on the current uniform layout.
 
 **Files:**
 - Modify: `src/surgvu/perceive.py` (add after `decode_clip_bursts`, ~line 200)
@@ -355,7 +355,7 @@ def test_probe_pairs_are_preprocessed_frames(clip):
 - [ ] **Step 2: Run test to verify it fails**
 
 Run: `python3 -m pytest tests/test_perceive_multiscale.py -q`
-Expected: FAIL — `ImportError: cannot import name 'decode_clip_multiscale'`
+Expected: FAIL -- `ImportError: cannot import name 'decode_clip_multiscale'`
 
 - [ ] **Step 3: Write the implementation**
 
@@ -456,7 +456,7 @@ def decode_clip_multiscale(video_path, n_frames=DEFAULT_FRAMES,
 - [ ] **Step 4: Run test to verify it passes**
 
 Run: `python3 -m pytest tests/test_perceive_multiscale.py tests/test_perceive.py -q`
-Expected: PASS. `tests/test_perceive.py` must still pass — it holds the existing `decode_clip_bursts` contract.
+Expected: PASS. `tests/test_perceive.py` must still pass -- it holds the existing `decode_clip_bursts` contract.
 
 - [ ] **Step 5: Commit**
 
@@ -577,7 +577,7 @@ def test_summary_ignores_none_rather_than_counting_it_as_zero():
 - [ ] **Step 2: Run test to verify it fails**
 
 Run: `python3 -m pytest tests/test_motion_v2.py -q`
-Expected: FAIL — `ImportError: cannot import name 'MOTION_V2_VERSION'`
+Expected: FAIL -- `ImportError: cannot import name 'MOTION_V2_VERSION'`
 
 - [ ] **Step 3: Write the implementation**
 
@@ -702,7 +702,7 @@ def motion_record_v2(centres, probes):
 - [ ] **Step 4: Run test to verify it passes**
 
 Run: `python3 -m pytest tests/test_motion_v2.py tests/test_motion.py -q`
-Expected: PASS. `tests/test_motion.py` must still pass — v1 is untouched.
+Expected: PASS. `tests/test_motion.py` must still pass -- v1 is untouched.
 
 - [ ] **Step 5: Commit**
 
@@ -804,7 +804,7 @@ def test_refuses_a_single_class():
 - [ ] **Step 2: Run test to verify it fails**
 
 Run: `python3 -m pytest tests/test_calibrate_motion_v2.py -q`
-Expected: FAIL — `ModuleNotFoundError: No module named 'calibrate_motion_v2'`
+Expected: FAIL -- `ModuleNotFoundError: No module named 'calibrate_motion_v2'`
 
 - [ ] **Step 3: Write the implementation**
 
@@ -988,7 +988,7 @@ direction, so this ranks candidates, it does not prove the winner helps."
 
 **Interfaces:**
 - Consumes: `decode_clip_multiscale` (Task 2), `motion_record_v2` (Task 3).
-- Produces: `clip_record(..., motion_v2=None)` — an optional `"motion_v2"` key on the record. Consumed by Tasks 6–9 and by Plan 2's VLM.
+- Produces: `clip_record(..., motion_v2=None)` -- an optional `"motion_v2"` key on the record. Consumed by Tasks 6–9 and by Plan 2's VLM.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -1053,7 +1053,7 @@ def test_v1_and_v2_blocks_coexist():
 - [ ] **Step 2: Run test to verify it fails**
 
 Run: `python3 -m pytest tests/test_inference_motion_v2.py -q`
-Expected: FAIL — `TypeError: clip_record() got an unexpected keyword argument 'motion_v2'`
+Expected: FAIL -- `TypeError: clip_record() got an unexpected keyword argument 'motion_v2'`
 
 - [ ] **Step 3: Write the implementation**
 
@@ -1150,7 +1150,7 @@ uniform burst layout the multiscale decode does not produce."
 
 ### Task 6: YOLO detector adapter
 
-`best.pt` is a 14-class YOLOv5s trained by a groupmate on 886 clip-disjoint images: P 0.773 / R 0.740 / mAP@0.5 0.773. Per-class recall is what matters here, and it separates bipolar↔cadiere at 0.01 confusion each way — the pair that costs us case124, the single largest recoverable item on the sample.
+`best.pt` is a 14-class YOLOv5s trained by a groupmate on 886 clip-disjoint images: P 0.773 / R 0.740 / mAP@0.5 0.773. Per-class recall is what matters here, and it separates bipolar↔cadiere at 0.01 confusion each way -- the pair that costs us case124, the single largest recoverable item on the sample.
 
 **Files:**
 - Create: `src/surgvu/detect.py`
@@ -1159,8 +1159,8 @@ uniform burst layout the multiscale decode does not produce."
 **Interfaces:**
 - Consumes: `TOOL_CLASSES` from `surgvu.taxonomy`.
 - Produces:
-  - `YOLO_CLASSES` — the 14 names in her `surg_14cls.yaml` index order.
-  - `map_to_taxonomy(name) -> str | None` — 14→12, returning `None` for the two out-of-taxonomy classes.
+  - `YOLO_CLASSES` -- the 14 names in her `surg_14cls.yaml` index order.
+  - `map_to_taxonomy(name) -> str | None` -- 14→12, returning `None` for the two out-of-taxonomy classes.
   - `detections_to_record(detections, timestamps) -> dict` with keys `version`, `per_anchor`, `by_class`.
   - `Detector.detect(frames) -> list[list[dict]]`, each dict `{cls, conf, box, anchor_idx, t_seconds}`.
   Consumed by Tasks 7 and 9.
@@ -1249,7 +1249,7 @@ def test_mismatched_timestamps_raise():
 - [ ] **Step 2: Run test to verify it fails**
 
 Run: `python3 -m pytest tests/test_detect.py -q`
-Expected: FAIL — `ModuleNotFoundError: No module named 'surgvu.detect'`
+Expected: FAIL -- `ModuleNotFoundError: No module named 'surgvu.detect'`
 
 - [ ] **Step 3: Write the implementation**
 
@@ -1451,7 +1451,7 @@ function-local so the mapping and record logic stay testable without torch."
 
 ### Task 7: CNN↔YOLO agreement
 
-Two independently-trained models that agree are better evidence than either alone; when they disagree, that is the honest uncertainty channel — and unlike self-consistency, it cannot be confidently wrong in unison. The groupmate's own temperature sweep found the VLM agreeing 2/2 on wrong answers at temperature 0.1, which is exactly why agreement between *different* models is the signal worth having.
+Two independently-trained models that agree are better evidence than either alone; when they disagree, that is the honest uncertainty channel -- and unlike self-consistency, it cannot be confidently wrong in unison. The groupmate's own temperature sweep found the VLM agreeing 2/2 on wrong answers at temperature 0.1, which is exactly why agreement between *different* models is the signal worth having.
 
 **Files:**
 - Create: `src/surgvu/agreement.py`
@@ -1543,7 +1543,7 @@ def test_no_disagreement_leaves_top_none():
 - [ ] **Step 2: Run test to verify it fails**
 
 Run: `python3 -m pytest tests/test_agreement.py -q`
-Expected: FAIL — `ModuleNotFoundError: No module named 'surgvu.agreement'`
+Expected: FAIL -- `ModuleNotFoundError: No module named 'surgvu.agreement'`
 
 - [ ] **Step 3: Write the implementation**
 
@@ -1641,7 +1641,7 @@ were never asked about those classes, so a detection is not a disagreement."
 
 ### Task 8: Router captures the variant qualifier as a slot
 
-`router.py:651` lists `"large"` and `"mega"` in `_BRAND_TOKEN_STOPLIST`, so **"large needle driver" collapses to "needle driver"**. The stoplist is right about what it does — those tokens must not *register a class*, or a specific question would widen into a generic one. The fix is not to remove them; it is to capture them separately as a qualifier slot. This affects 3 of 11 sample questions (27%), currently scored 1/3.
+`router.py:651` lists `"large"` and `"mega"` in `_BRAND_TOKEN_STOPLIST`, so **"large needle driver" collapses to "needle driver"**. The stoplist is right about what it does -- those tokens must not *register a class*, or a specific question would widen into a generic one. The fix is not to remove them; it is to capture them separately as a qualifier slot. This affects 3 of 11 sample questions (27%), currently scored 1/3.
 
 **Files:**
 - Modify: `src/surgvu/router.py`
@@ -1706,7 +1706,7 @@ def test_the_stoplist_is_unchanged():
 - [ ] **Step 2: Run test to verify it fails**
 
 Run: `python3 -m pytest tests/test_router_variant_slot.py -q`
-Expected: FAIL — `ImportError: cannot import name 'variant_qualifier'`
+Expected: FAIL -- `ImportError: cannot import name 'variant_qualifier'`
 
 - [ ] **Step 3: Write the implementation**
 
@@ -1857,7 +1857,7 @@ def test_unparseable_time_drops_the_row(tmp_path):
 - [ ] **Step 2: Run test to verify it fails**
 
 Run: `python3 -m pytest tests/test_build_variant_labels.py -q`
-Expected: FAIL — `ModuleNotFoundError: No module named 'build_variant_labels'`
+Expected: FAIL -- `ModuleNotFoundError: No module named 'build_variant_labels'`
 
 - [ ] **Step 3: Write the implementation**
 
@@ -2088,7 +2088,7 @@ def test_rejects_a_cutoff_at_or_below_chance():
 - [ ] **Step 2: Run test to verify it fails**
 
 Run: `python3 -m pytest tests/test_variant.py -q`
-Expected: FAIL — `ModuleNotFoundError: No module named 'surgvu.variant'`
+Expected: FAIL -- `ModuleNotFoundError: No module named 'surgvu.variant'`
 
 - [ ] **Step 3: Write the implementation**
 
@@ -2209,7 +2209,7 @@ class VariantHead:
         return variant_record(dict(zip(FAMILIES, probs)), self.cutoff)
 ```
 
-`scripts/train_variant.py` trains it: sample frames from `config/variant_labels.json` intervals via `surgvu.extract`, hold out by CASE (never by frame — frames from one interval are near-duplicates and a frame-level split would report memorisation as accuracy), train ResNet-18 for 15 epochs with Adam at 1e-4, sweep the cutoff on the held-out cases for the accuracy-vs-coverage point where accuracy first exceeds 0.75, and write `config/variant_head.json` with `{"weights", "cutoff", "val_accuracy", "val_coverage", "held_out_cases"}`.
+`scripts/train_variant.py` trains it: sample frames from `config/variant_labels.json` intervals via `surgvu.extract`, hold out by CASE (never by frame -- frames from one interval are near-duplicates and a frame-level split would report memorisation as accuracy), train ResNet-18 for 15 epochs with Adam at 1e-4, sweep the cutoff on the held-out cases for the accuracy-vs-coverage point where accuracy first exceeds 0.75, and write `config/variant_head.json` with `{"weights", "cutoff", "val_accuracy", "val_coverage", "held_out_cases"}`.
 
 - [ ] **Step 4: Run test to verify it passes**
 
@@ -2285,7 +2285,7 @@ def test_variant_head_requires_yolo_or_says_why():
 - [ ] **Step 2: Run test to verify it fails**
 
 Run: `python3 -m pytest tests/test_inference_evidence.py -q`
-Expected: FAIL — `AttributeError: 'Namespace' object has no attribute 'yolo'`
+Expected: FAIL -- `AttributeError: 'Namespace' object has no attribute 'yolo'`
 
 - [ ] **Step 3: Write the implementation**
 
@@ -2451,7 +2451,7 @@ def test_ordering_is_stable_so_keys_are_comparable_across_runs():
 - [ ] **Step 2: Run test to verify it fails**
 
 Run: `python3 -m pytest tests/test_flag_matrix.py -q`
-Expected: FAIL — `ModuleNotFoundError: No module named 'flag_matrix'`
+Expected: FAIL -- `ModuleNotFoundError: No module named 'flag_matrix'`
 
 - [ ] **Step 3: Write the implementation**
 
@@ -2552,6 +2552,6 @@ it does not decide what ships."
 
 **Corrections against the spec.** Two spec statements are wrong and this plan uses the corrected values: the shipped burst offset is **±67 ms** (`perceive.py:104`, `BURST_FPS = 15.0`), not ±0.67 s; and the evidence packet is not a new type but an extension of `perceive.clip_record()`, which already has the additivity property W3 wanted. The spec should be amended to match.
 
-**Type consistency.** `motion_vector` returns the eight keys `motion_record_v2` summarises and `calibrate_motion_v2.py` sweeps — checked against `_VECTOR_KEYS` and the `slots` tuple. `detections_to_record` produces `max_conf`, which `agreement_record` reads. `variant_record`'s `cutoff` is written by `train_variant.py` into `config/variant_head.json` and read by `VariantHead`. `map_to_taxonomy` and `OUT_OF_TAXONOMY` are defined in `detect.py` and imported by `agreement.py`.
+**Type consistency.** `motion_vector` returns the eight keys `motion_record_v2` summarises and `calibrate_motion_v2.py` sweeps -- checked against `_VECTOR_KEYS` and the `slots` tuple. `detections_to_record` produces `max_conf`, which `agreement_record` reads. `variant_record`'s `cutoff` is written by `train_variant.py` into `config/variant_head.json` and read by `VariantHead`. `map_to_taxonomy` and `OUT_OF_TAXONOMY` are defined in `detect.py` and imported by `agreement.py`.
 
 **Placeholder scan.** No TBDs, no "add error handling", no "similar to Task N". Every code step carries the code. One gap found and fixed inline: Task 11 referenced `args.variant_config` without adding the flag; the flag is now in Task 11's own flag block.
