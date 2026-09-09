@@ -135,7 +135,7 @@ class CaseLabels:
     def task_at(self, part, seconds):
         """(task_class, matched_description) covering this moment, or None.
 
-        Where segments overlap, the shortest wins — it is the most specific.
+        Where segments overlap, the shortest wins -- it is the most specific.
         """
         part = _part(part)
         hits = [s for s in self._segments
@@ -155,7 +155,7 @@ def load_all_cases(root):
     A directory holding neither CSV is not a case and is skipped quietly. A
     directory holding one but not the other IS a case, and a broken one: with
     `tasks.csv` missing it yields zero segments, therefore zero windows,
-    therefore an empty shard — silently, and only at the far end of a
+    therefore an empty shard -- silently, and only at the far end of a
     day-scale extraction run. Half a case is an error, and it is raised here
     at queue-build time where it costs nothing to fix.
     """
