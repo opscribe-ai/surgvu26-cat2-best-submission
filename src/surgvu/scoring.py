@@ -17,7 +17,7 @@ _PUNCT = str.maketrans("", "", string.punctuation)
 
 
 def normalize(text):
-    """Lowercase and strip punctuation — the organizers' BLEU/ROUGE path."""
+    """Lowercase and strip punctuation -- the organizers' BLEU/ROUGE path."""
     return (text or "").translate(_PUNCT).lower().strip()
 
 
