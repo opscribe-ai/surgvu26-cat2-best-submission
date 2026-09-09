@@ -30,7 +30,7 @@ Consequences, each checked rather than assumed:
 | Upload an Apptainer `.sif` | **No** | Not a tar, no `manifest.json`, fails the extension validator immediately. `singularity`/`apptainer`/`.sif` appear **zero** times in the Grand Challenge codebase. |
 | Upload an **OCI** archive (`podman save --format oci-archive`, `buildah push oci-archive:`) | **No** | OCI archives carry `oci-layout` + `index.json` + `blobs/` and no `manifest.json`, which is the exact `KeyError` above. Server-side they push with **crane**, and there is no OCI-archive branch. |
 | `docker save` from Docker ≥25 (containerd image store) | Yes | Their validator explicitly handles both the `<25` and `>=25` layouts, and the `sha256:`-prefixed config crane produces. |
-| `podman save` **without** `--format` | Probably | It defaults to `docker-archive`, which does write `manifest.json`. Format-compatible, but undocumented by GC — treat as a fallback, not a plan. |
+| `podman save` **without** `--format` | Probably | It defaults to `docker-archive`, which does write `manifest.json`. Format-compatible, but undocumented by GC -- treat as a fallback, not a plan. |
 | Pull from ghcr.io / Docker Hub | **No** | No image-URL field exists; the docs offer only "link a GitHub repository" and "upload the container image". |
 | Link a GitHub repository, let AWS CodeBuild build it | Yes, **but** | Requires a `Dockerfile` at the repository **root**, the Grand Challenge GitHub app installed, and **an open-source licence GC recognises** (Apache-2.0, MIT, GPLv3, AGPLv3, MPL-2.0, BSL-1.0, Unlicence). Satisfied: this repository is public and carries a root `LICENSE` (Apache-2.0, one of the recognised set). |
 
@@ -43,7 +43,7 @@ Consequences, each checked rather than assumed:
     $ apptainer --version
     apptainer version 1.5.2-1.el9
 
-Apptainer 1.5.2's `build` writes a SIF or a sandbox directory — those are the
+Apptainer 1.5.2's `build` writes a SIF or a sandbox directory -- those are the
 only two output formats it offers. Its `buildkit:` build spec can consume a
 `Dockerfile`, but the output is still a SIF and the daemon it needs is not
 installed (`/usr/libexec/apptainer/bin/` holds no `buildkitd`/`buildctl`).
@@ -72,7 +72,7 @@ The build context is staged as a single downloadable tarball:
     /staging/n/nkalthoff/surgvu26/submission_context.tar.gz
 
 It contains `src/`, `scripts/`, `config/`, `models/tools_v2.pt`,
-`models/task_v2.pt`, `Dockerfile` and `.dockerignore` — nothing else. On any
+`models/task_v2.pt`, `Dockerfile` and `.dockerignore` -- nothing else. On any
 machine with Docker:
 
     scp <chtc>:/staging/n/nkalthoff/surgvu26/submission_context.tar.gz .
@@ -93,7 +93,7 @@ network.
 per-class cuts re-tuned on the CLIP MEAN the container thresholds rather than
 on a frame, worth **+0.0195 macro-F1** for no retrain. `scripts/inference.py`
 falls back to the checkpoint's per-frame cuts with a WARNING when that block is
-missing or bound to other weights — right at serving time, and wrong at build
+missing or bound to other weights -- right at serving time, and wrong at build
 time, where it means an image ships 0.0195 worse and says so only in a log line
 nobody reads. So `scripts/verify_checkpoints.py` FAILS the build on: no block,
 a block whose `provenance.checkpoint_sha256` is not the bound checkpoint (or is
@@ -102,8 +102,8 @@ that disagrees with the served `values`, a `tuned_against_checkpoint_thresholds`
 that is not the config's mirror, a block on the softmax task head, and a
 `schema_version` the gate does not understand.
 
-Building deliberately WITHOUT the block — the counterpart of
-`scripts/build_perception_config.py --drop-serving-thresholds` — has to be
+Building deliberately WITHOUT the block -- the counterpart of
+`scripts/build_perception_config.py --drop-serving-thresholds` -- has to be
 typed:
 
     docker build --platform linux/amd64 \
@@ -242,7 +242,7 @@ yet. This paragraph is the decision record for whoever takes the next step.
    perception code is unaffected and only a thin HTTP wrapper is needed.
 2. **Where the Docker build happens.** A local machine (recommended), or the
    linked-GitHub-repo route, which requires a public repository with a
-   recognised open-source licence — both of which now hold.
+   recognised open-source licence -- both of which now hold.
 
 ## The Apptainer twin, and what it does and does not prove
 
