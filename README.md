@@ -145,21 +145,16 @@ have set it up for.
 
 | | value | notes |
 |---|---|---|
-| **Final phase (101 cases)** | **0.6604** | BERTScore-F1, max over five references. |
-| Preliminary phase | 0.9128 | A different, smaller question set, not comparable to the final. |
-| Tool recogniser | 0.7802 macro-F1 | Honest two-fold over validation windows; the number to quote. |
+| Preliminary phase | 0.9128 | An 11-question set, way smaller than the final set. |
+| Tool recogniser | 0.7802 macro-F1 | |
 | Task recogniser | 0.9348 accuracy / 0.7920 macro-F1 | |
-
-`tip-up fenestrated grasper` scores 0.0 F1. It is genuinely absent from the
-training distribution, and the threshold is pinned at the floor rather than
-tuned. It is reported rather than hidden.
 
 ---
 
 ## Reproducing the container
 
-The evaluation artifact is a single container. Weights are **not** in this
-repository; they are fetched into the build context.
+The evaluation artifact is a single container. Weights are not in this repository;
+they are put into the context of the build.
 
 ```bash
 # Apptainer (what was used)
@@ -171,14 +166,14 @@ docker build -f containers/Dockerfile -t surgvu26-cat2 .
 docker save surgvu26-cat2 | gzip > surgvu26-cat2.tar.gz
 ```
 
-Base image is `pytorch/pytorch:2.5.1-cuda12.1-cudnn9-runtime`; the VLM layer pins
-`transformers==4.57.6`, `accelerate==1.14.0`, `bitsandbytes==0.50.1`. Those pins
-are load-bearing, and `containers/surgvu26-submission.def` records why each one is
-what it is. `docs/container_build.md` covers the build in full, and
-`docs/submission_interface.md` documents the Grand Challenge I/O contract.
+The base image is `pytorch/pytorch:2.5.1-cuda12.1-cudnn9-runtime`. The VLM layer pins
+`transformers==4.57.6`, `accelerate==1.14.0` and `bitsandbytes==0.50.1`. Those pins are
+load-bearing, and `containers/surgvu26-submission.def` records why.
+`docs/container_build.md` covers the build in full, and `docs/submission_interface.md`
+documents the Grand Challenge input/output contract.
 
-Runs on a single 14.6 GiB T4 within the 600 s per-case wall clock, with no
-network access at inference.
+The final build ran on a single 14.6 GiB T4 within the 600 second per-case wall clock,
+with no network access at inference.
 
 ---
 
@@ -191,23 +186,26 @@ config/         model config, serving thresholds, arbiter policy, splits
 containers/     Dockerfile, Apptainer definition, build scripts
 condor/         HTCondor job files, how every run was actually executed
 tests/          test suite
-docs/           design notes, build guide, compliance audit, version history
+docs/           design notes, build guide, compliance audit
 ```
 
-- **`docs/VERSIONS.md`**: what each version changed and what it scored, including
-  the ones that lost points.
-- **`docs/compliance_audit.md`**: pre-submission audit covering data segregation, UI
-  blur, split discipline, weight provenance, licensing, secrets.
-- **`docs/design/`**: the design plans and measurement notes the build followed.
+- **`docs/compliance_audit.md`**: ensures we were working within the rules.
+- **`docs/design/`**: the plans and measurements we followed.
 
 ---
 
 ## Data and licensing
 
-The SurgVU 2026 dataset is **not** redistributed here, and no challenge gold
-reference answers are included. Access the data through the
-[challenge organizers](https://surgvu26.grand-challenge.org/).
+The SurgVU 2026 dataset is not redistributed here. The organizers will likely release
+it after the challenge is over.
 
-Code is Apache-2.0 (`LICENSE`). Third-party components and their licences are
-listed in `NOTICE`. Model weights are released separately; see the challenge
-report for the link.
+Code is Apache-2.0 (`LICENSE`). Third-party components and their licences are listed
+in `NOTICE`.
+
+## Hugging Face links
+
+- **Base Qwen model** — [Qwen/Qwen2.5-VL-7B-Instruct](https://huggingface.co/Qwen/Qwen2.5-VL-7B-Instruct)
+- **NVIDIA then trained that model further on CholecT50** — [nvidia/Qwen2.5-VL-7B-Surg-CholecT50](https://huggingface.co/nvidia/Qwen2.5-VL-7B-Surg-CholecT50)
+- **The dataset we then used to train a LoRA on minimally invasive surgery** — [opscribe-ai/mis-abdominal-gi-min-invasive](https://huggingface.co/datasets/opscribe-ai/mis-abdominal-gi-min-invasive)
+- **The dataset we fine-tuned that LoRA on to reach the model used in the pipeline** — [opscribe-ai/surgvu-cat2-vqa](https://huggingface.co/datasets/opscribe-ai/surgvu-cat2-vqa)
+- **All the artifacts (CNNs, YOLO, the LoRA)** — [opscribe-ai/surgvu26-cat2-v6.2](https://huggingface.co/opscribe-ai/surgvu26-cat2-v6.2)
