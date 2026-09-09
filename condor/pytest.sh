@@ -30,7 +30,7 @@ export PYTHONPATH="$DEPS${PYTHONPATH:+:$PYTHONPATH}"
 # "require bert-score/torch and model download"). surgvu26-train.def
 # deliberately installs only opencv-python-headless and PyYAML alongside the
 # base image's torch/torchvision (see its "Independent by construction"
-# docstring) — bert-score is a scoring-time dependency, not a training one,
+# docstring) -- bert-score is a scoring-time dependency, not a training one,
 # and its tests would also need to download a roberta-large checkpoint that
 # an execute node has no guaranteed path to. Filtering here, rather than
 # registering the marker via an ini file, works even though pyproject.toml
