@@ -1,7 +1,7 @@
 """The 21-string description corpus.
 
 Across all 155 cases there are exactly 21 unique matched_description values.
-This is not a training set — it is a closed retrieval corpus, and it is the
+This is not a training set -- it is a closed retrieval corpus, and it is the
 verbatim text the challenge's ground-truth answers were generated from.
 Classify the task, retrieve the string, and you hold the source material.
 """
