@@ -1,4 +1,4 @@
-<title>SurgVU Cat 2 — How Each Step Works</title>
+<title>SurgVU Cat 2 -- How Each Step Works</title>
 
 <style>
   :root {
@@ -213,7 +213,7 @@
     <p class="standfirst">
       Written so you can draw the architecture yourself. Every step gets a plain-English
       description, a concrete example of what goes wrong without it, and exactly what flows in
-      and out — so the boxes and arrows draw themselves.
+      and out -- so the boxes and arrows draw themselves.
     </p>
   </header>
 
@@ -225,7 +225,7 @@
   </p>
   <p>
     The key thing we worked out: those five answers were <strong>not written by anyone watching
-    the video</strong>. They were written by someone reading a logbook — a spreadsheet recording
+    the video</strong>. They were written by someone reading a logbook -- a spreadsheet recording
     which instruments were plugged into the robot, and which training exercise was underway. So
     our real job isn't "understand this surgery." It's <strong>work out what the logbook
     said</strong>.
@@ -239,16 +239,16 @@
       would actually help.
     </p>
     <p>
-      A doctor X-rays to find a broken bone. A doctor does not X-ray to find a blood type — that's
+      A doctor X-rays to find a broken bone. A doctor does not X-ray to find a blood type -- that's
       on the chart. If your diagram makes that split obvious, it's working.
     </p>
   </div>
 
   <p>
     One useful way to describe the whole thing: it's a <strong>mixture of experts</strong>. Rather
-    than one enormous model that tries to do everything, we keep a bench of narrow specialists —
+    than one enormous model that tries to do everything, we keep a bench of narrow specialists --
     an instrument reader, an exercise reader, a detector, an action model, a set of lookup tables,
-    and one general-purpose language model — and the question parser decides which specialists get
+    and one general-purpose language model -- and the question parser decides which specialists get
     called for this particular question.
   </p>
   <div class="note">
@@ -273,14 +273,14 @@
       <p>
         Before touching the video, sort the question into a type. Is it yes/no? Is it asking for
         an organ name? Is it asking something general about surgery that has nothing to do with
-        this clip? Also pull out <em>what</em> it's asking about — "forceps," "needle driver,"
+        this clip? Also pull out <em>what</em> it's asking about -- "forceps," "needle driver,"
         "organ."
       </p>
       <div class="why">
         <span class="why-k">Without it</span>
         <p>
           The question <em>"What is the purpose of using forceps?"</em> is general medical
-          knowledge — the video is irrelevant. With no sorting step, we'd run the whole expensive
+          knowledge -- the video is irrelevant. With no sorting step, we'd run the whole expensive
           pipeline on it anyway, and worse, we'd let what we saw in the clip contaminate a
           textbook answer.
         </p>
@@ -296,14 +296,14 @@
       <div class="step-tech">CNN image classifier (EfficientNetV2-S, ~22M params) · we train it · GPU, milliseconds</div>
       <p>
         A small image model looks at frames from the clip and names the three instruments mounted
-        on the robot. Always exactly three — the da Vinci has four arms and one holds the camera,
+        on the robot. Always exactly three -- the da Vinci has four arms and one holds the camera,
         so three carry tools.
       </p>
       <p>
         Concretely: the model outputs <strong>12 numbers</strong>, one per possible instrument,
         each a probability. We train it against a target that has three of those set high, and at
         the end we take the top three. So the "exactly three" fact lives in both the training
-        target and the final selection — it isn't something we hope the model figures out. (A
+        target and the final selection -- it isn't something we hope the model figures out. (A
         neater variant gives the model three separate 12-way outputs, one per robot arm, since the
         logbook records which arm each tool sits on. Elegant, but the model can't tell which arm
         it's looking at, so it needs extra machinery. Worth trying second.)
@@ -312,7 +312,7 @@
         <span class="why-k">Without it</span>
         <p>
           The big AI model has to identify surgical instruments from raw pixels, which it is
-          genuinely bad at — a needle driver and a bipolar forceps look nearly identical at
+          genuinely bad at -- a needle driver and a bipolar forceps look nearly identical at
           endoscope resolution. Adding this one component is essentially the entire reason last
           year's winner won.
         </p>
@@ -333,7 +333,7 @@
       <div class="why">
         <span class="why-k">Without it</span>
         <p>
-          Two things break. We can't look up the description in step 4 — which is the single
+          Two things break. We can't look up the description in step 4 -- which is the single
           biggest advantage we have. And questions like <em>"Which surgical specialty is this?"</em>
           become unanswerable, because the answer follows from the exercise, not from anything
           visible on screen.
@@ -351,7 +351,7 @@
       <p>
         Across the entire dataset there are only <strong>21 possible descriptions</strong> of what's
         happening. Twenty-one, total. So once we know the exercise, we look up the exact paragraph
-        that goes with it — and that paragraph is the very text the graders were reading when they
+        that goes with it -- and that paragraph is the very text the graders were reading when they
         wrote the correct answers. It's a dictionary lookup, nothing more.
       </p>
       <div class="why">
@@ -359,7 +359,7 @@
         <p>
           We'd be guessing at wording the graders derived from a specific paragraph we could
           simply have read. Last year's winner saw the same 21 descriptions, judged the dataset
-          "too small to train on," and threw them away. They aren't a training set — they're the
+          "too small to train on," and threw them away. They aren't a training set -- they're the
           answer key.
         </p>
       </div>
@@ -371,7 +371,7 @@
     <div class="step-n">5</div>
     <div class="step-body">
       <div class="step-name">Ask the big model<span class="tag open">partner owns this</span></div>
-      <div class="step-tech">VLM — a ~7B-parameter transformer, 4-bit NF4, off the shelf · GPU, <strong>seconds</strong></div>
+      <div class="step-tech">VLM -- a ~7B-parameter transformer, 4-bit NF4, off the shelf · GPU, <strong>seconds</strong></div>
       <p>
         Now hand everything to the large vision-language model: the frames, the three instrument
         names, the official description, and the question. It gives back a short answer.
@@ -379,10 +379,10 @@
       <p>
         <strong>We run it at 4-bit.</strong> Models store their numbers at a chosen precision, and
         squeezing them smaller trades a little accuracy for a lot of memory. At full precision a
-        7B model needs about 14 GB — the GPU we're given has 16 GB, and we also need room for the
+        7B model needs about 14 GB -- the GPU we're given has 16 GB, and we also need room for the
         video frames and the two CNNs. It won't fit. Half-size (8-bit) fits but runs slowly.
         Quarter-size (4-bit) needs about 4 GB, leaves plenty of headroom, and is exactly what won
-        this challenge last year. <strong>This is decided — not something to experiment with.</strong>
+        this challenge last year. <strong>This is decided -- not something to experiment with.</strong>
       </p>
       <div class="why">
         <span class="why-k">Without it</span>
@@ -404,7 +404,7 @@
         We need a number saying how much to trust step 5. Our working proposal is to ask the model
         the same question several times, each time showing it a <em>different</em> set of frames.
         Same answer every time means it knows. Flip-flopping means it's guessing. We don't ask the
-        model "how confident are you?" — models are notoriously bad at answering that honestly.
+        model "how confident are you?" -- models are notoriously bad at answering that honestly.
       </p>
       <div class="why">
         <span class="why-k">Without it</span>
@@ -425,7 +425,7 @@
       <div class="step-tech">Python if/else + thresholds in a YAML file · no model, no GPU, microseconds</div>
       <p>
         Compare the model's answer against what steps 2 and 3 found. If they agree and confidence
-        is high, we're done — emit the answer. If they disagree, or the model was flip-flopping,
+        is high, we're done -- emit the answer. If they disagree, or the model was flip-flopping,
         we ask one question before spending anything:
         <strong>could we find this out by looking at the video longer or harder?</strong>
       </p>
@@ -435,7 +435,7 @@
       <div class="why">
         <span class="why-k">Without it</span>
         <p>
-          We'd spend identical effort on every question. Roughly four in five are easy — they'd
+          We'd spend identical effort on every question. Roughly four in five are easy -- they'd
           eat the entire compute budget, leaving nothing for the hard fifth that actually needed
           it. Worse, we'd run the expensive detector on questions it physically cannot answer,
           and it would hand back misleading evidence.
@@ -453,18 +453,18 @@
       <p>Three specialists the router can call, depending on what's in doubt.</p>
       <ul>
         <li>
-          <strong>Object detector</strong> — hunts specifically for the one instrument the question
+          <strong>Object detector</strong> -- hunts specifically for the one instrument the question
           asked about. Useful because the whole-frame model in step 2 squashes everything down and
           misses a tool that's mostly hidden or at the edge of view, whereas a detector scores
           small regions and can catch it.
         </li>
         <li>
-          <strong>Action model</strong> — a small CNN that watches motion across many frames and
+          <strong>Action model</strong> -- a small CNN that watches motion across many frames and
           answers "is tissue being cut?" directly. Purpose-built for exactly that, so it's faster
           and more accurate than asking a general 7B model.
         </li>
         <li>
-          <strong>More frames</strong> — sometimes we just sampled badly. Decode thirty frames
+          <strong>More frames</strong> -- sometimes we just sampled badly. Decode thirty frames
           instead of five and re-ask.
         </li>
       </ul>
@@ -473,7 +473,7 @@
         <p>
           The detector and the extra frames give the VLM <strong>something new to look at</strong>,
           so they hand back to <em>VLM Pass 2</em>. The action model gives us <strong>the answer
-          itself</strong>, so it goes <em>straight to Answer Form</em> — no second pass. Same rule
+          itself</strong>, so it goes <em>straight to Answer Form</em> -- no second pass. Same rule
           as the records branch: only re-ask the model when it has something new to weigh.
         </p>
       </div>
@@ -481,7 +481,7 @@
         <span class="why-k">Without it</span>
         <p>
           An instrument that's plugged in but hidden behind tissue gets called absent. Since the
-          logbook says it's there, the correct answer is "yes" — so this is the single most common
+          logbook says it's there, the correct answer is "yes" -- so this is the single most common
           way to be wrong.
         </p>
       </div>
@@ -496,7 +496,7 @@
       <div class="step-tech">YAML lookups + counting from <code>tools.csv</code> · Python, no model, microseconds</div>
       <p>
         Some questions can't be answered by looking, no matter how long you look. Those get
-        resolved from our tables — either by answering at the level we can actually see, or by
+        resolved from our tables -- either by answering at the level we can actually see, or by
         trusting the exercise classifier over the big model.
       </p>
       <p>
@@ -507,7 +507,7 @@
       <div class="why">
         <span class="why-k">Without it</span>
         <p>
-          <em>"Is a <strong>large</strong> needle driver installed?"</em> — we can see a needle
+          <em>"Is a <strong>large</strong> needle driver installed?"</em> -- we can see a needle
           driver plainly. But Large vs Mega vs Large SutureCut differ by a few millimetres of
           shaft and a part number stamped where no endoscope will ever see it. Send that to the
           detector and you burn the budget to learn nothing.
@@ -523,14 +523,14 @@
       <div class="step-name">Say it in as few words as possible<span class="tag code">plain code</span></div>
       <div class="step-tech">a YAML file of answer shapes + string formatting in Python · no model</div>
       <p>
-        One of the five accepted answers is always the bare form — just <code>"Yes"</code>, or just
+        One of the five accepted answers is always the bare form -- just <code>"Yes"</code>, or just
         <code>"Uterine horn"</code>. An exact match scores perfect. So for most question types we
         emit a single word. Only explanation-type questions get a full sentence.
       </p>
       <div class="why">
         <span class="why-k">Without it</span>
         <p>
-          You write a well-formed, medically accurate sentence — and score lower than someone who
+          You write a well-formed, medically accurate sentence -- and score lower than someone who
           typed "Yes." Saying more than necessary can only lose points.
         </p>
       </div>
@@ -550,19 +550,19 @@
       <tbody>
         <tr>
           <td class="lbl">YAML file</td>
-          <td>A plain text file holding a list or a table, readable by a human in a text editor. Ours hold the 21 descriptions, the tool names, the answer shapes, and the router's thresholds. Not a program and not a model — just written-down facts we can edit without touching code.</td>
+          <td>A plain text file holding a list or a table, readable by a human in a text editor. Ours hold the 21 descriptions, the tool names, the answer shapes, and the router's thresholds. Not a program and not a model -- just written-down facts we can edit without touching code.</td>
         </tr>
         <tr>
           <td class="lbl">Python code</td>
-          <td>Ordinary programming. Rules, <code>if</code> statements, counting, string handling. Deterministic — same input always gives the same output — and effectively free to run.</td>
+          <td>Ordinary programming. Rules, <code>if</code> statements, counting, string handling. Deterministic -- same input always gives the same output -- and effectively free to run.</td>
         </tr>
         <tr>
           <td class="lbl">CNN</td>
-          <td>Convolutional neural network. An image model that takes a picture and outputs a label ("this frame contains a needle driver"). Small — tens of millions of numbers. <strong>We train these ourselves</strong> on the challenge's video. Fast: milliseconds per frame.</td>
+          <td>Convolutional neural network. An image model that takes a picture and outputs a label ("this frame contains a needle driver"). Small -- tens of millions of numbers. <strong>We train these ourselves</strong> on the challenge's video. Fast: milliseconds per frame.</td>
         </tr>
         <tr>
           <td class="lbl">VLM</td>
-          <td>Vision-language model. Takes pictures <em>and</em> text and writes an answer in English. Huge by comparison — billions of numbers. We use one <strong>off the shelf</strong>, unmodified. Slow: seconds per call, and it's the only thing here that can actually compose an answer to an arbitrary question.</td>
+          <td>Vision-language model. Takes pictures <em>and</em> text and writes an answer in English. Huge by comparison -- billions of numbers. We use one <strong>off the shelf</strong>, unmodified. Slow: seconds per call, and it's the only thing here that can actually compose an answer to an arbitrary question.</td>
         </tr>
       </tbody>
     </table>
@@ -600,7 +600,7 @@
       one question: <em>how few times can we call the VLM and still be right?</em>
     </p>
     <p>
-      That's why steps 2, 3 and 4 exist — they hand the VLM the answer on a plate so it doesn't
+      That's why steps 2, 3 and 4 exist -- they hand the VLM the answer on a plate so it doesn't
       have to work it out. It's why step 9 caps the answer at a word or two. And it's why the
       router refuses to run a second pass on the records branch, where the second pass would learn
       nothing.
@@ -611,7 +611,7 @@
     <span class="note-k">Why this matters for the confidence workstream</span>
     <p>
       Only three of the thirteen rows above cost anything: the two VLM passes and the detector.
-      Everything else is free. So <strong>the confidence method is effectively the budget</strong> —
+      Everything else is free. So <strong>the confidence method is effectively the budget</strong> --
       checking consistency across five frame-subsets means five VLM calls, which is five times the
       cost of the naive approach. Whatever method your partner picks, its price is measured in VLM
       calls, and that's the number that has to fit inside the per-clip time limit.
@@ -636,7 +636,7 @@
         <tr>
           <td>"Is tissue being cut during this clip?"</td>
           <td class="lbl">LOOK HARDER<br>(action model)</td>
-          <td>Cutting might last three seconds out of thirty, so five frames can miss it. But this is a motion question, so a purpose-built action model answers it directly — no need to involve the big model at all.</td>
+          <td>Cutting might last three seconds out of thirty, so five frames can miss it. But this is a motion question, so a purpose-built action model answers it directly -- no need to involve the big model at all.</td>
         </tr>
         <tr>
           <td>"What organ is being manipulated?"</td>
@@ -656,7 +656,7 @@
         <tr>
           <td>"What is the purpose of using forceps?"</td>
           <td class="lbl">RECORDS</td>
-          <td>Textbook knowledge. The video is irrelevant — this one never touches the video pipeline at all.</td>
+          <td>Textbook knowledge. The video is irrelevant -- this one never touches the video pipeline at all.</td>
         </tr>
       </tbody>
     </table>
@@ -666,7 +666,7 @@
     <span class="note-k">The bit that trips people up</span>
     <p>
       <em>"Are <strong>forceps</strong> involved?"</em> goes to LOOK HARDER, but <em>"Is a
-      <strong>large needle driver</strong> involved?"</em> goes to RECORDS — even though both are
+      <strong>large needle driver</strong> involved?"</em> goes to RECORDS -- even though both are
       "is this tool present?" questions. The first asks about a <em>kind of object</em>, which is
       visible. The second asks <em>which model</em> of that object, which is paperwork.
       <strong>Presence-of-a-kind is visible. Which-model-of-that-kind is a catalogue fact.</strong>
@@ -677,7 +677,7 @@
 
   <div class="trace">
     <div class="trace-q">"Are forceps involved in the procedure?"</div>
-    <div class="trace-sub">The easy path — about 4 in 5 questions</div>
+    <div class="trace-sub">The easy path -- about 4 in 5 questions</div>
     <ol>
       <li><strong>Read it</strong> → yes/no question, about forceps.</li>
       <li><strong>Instruments</strong> → needle driver, monopolar curved scissors, prograsp forceps. A forceps is there.</li>
@@ -691,12 +691,12 @@
 
   <div class="trace">
     <div class="trace-q">"Are forceps involved in the procedure?"</div>
-    <div class="trace-sub">Same question, harder clip — looking helps</div>
+    <div class="trace-sub">Same question, harder clip -- looking helps</div>
     <ol>
       <li><strong>Instruments</strong> → needle driver, monopolar curved scissors, clip applier. <em>No forceps found.</em></li>
       <li><strong>Ask the model</strong>, five times → Yes, No, Yes, Yes, No. It's guessing.</li>
-      <li><strong>Router</strong> → they disagree <em>and</em> confidence is low. Could looking harder settle it? Yes — a forceps is a physical object. Escalate.</li>
-      <li><strong>Detector</strong> → hunts only for forceps. Finds a bipolar forceps in frame 12, mostly behind tissue — exactly why the whole-frame model missed it.</li>
+      <li><strong>Router</strong> → they disagree <em>and</em> confidence is low. Could looking harder settle it? Yes -- a forceps is a physical object. Escalate.</li>
+      <li><strong>Detector</strong> → hunts only for forceps. Finds a bipolar forceps in frame 12, mostly behind tissue -- exactly why the whole-frame model missed it.</li>
       <li><strong>Ask again</strong>, now told a forceps was detected → Yes, confidently.</li>
     </ol>
     <div class="out">→ "Yes" &nbsp;·&nbsp; would have been wrong without step 8a</div>
@@ -704,12 +704,12 @@
 
   <div class="trace">
     <div class="trace-q">"Which surgical specialty is this procedure associated with?"</div>
-    <div class="trace-sub">The records path — no second look, ever</div>
+    <div class="trace-sub">The records path -- no second look, ever</div>
     <ol>
       <li><strong>Read it</strong> → specialty question. Not about instruments at all.</li>
       <li><strong>Exercise</strong> → uterine horn dissection.</li>
       <li><strong>Ask the model</strong> → it says "urology." The classifier implies gynecology. They disagree.</li>
-      <li><strong>Router</strong> → could looking harder settle this? <strong>No.</strong> Nothing on screen names a specialty. Don't buy evidence — and on this branch the exercise classifier outranks the big model.</li>
+      <li><strong>Router</strong> → could looking harder settle this? <strong>No.</strong> Nothing on screen names a specialty. Don't buy evidence -- and on this branch the exercise classifier outranks the big model.</li>
       <li><strong>Records</strong> → uterine horn → gynecology. Straight to the answer, no second model pass.</li>
     </ol>
     <div class="out">→ "Gynecology" &nbsp;·&nbsp; the model was overruled, correctly</div>
@@ -728,13 +728,13 @@
         <tr><td class="lbl">Instruments (3 of 12)</td><td><strong>CNN</strong></td><td>from Video</td></tr>
         <tr><td class="lbl">Exercise classifier</td><td><strong>CNN</strong></td><td>from Video</td></tr>
         <tr><td class="lbl">Description lookup (21)</td><td>YAML</td><td>after Exercise</td></tr>
-        <tr><td class="lbl">VLM — first pass</td><td><strong>VLM</strong> · partner's box</td><td>where all three meet</td></tr>
+        <tr><td class="lbl">VLM -- first pass</td><td><strong>VLM</strong> · partner's box</td><td>where all three meet</td></tr>
         <tr><td class="lbl">Confidence check</td><td>Python · partner's box</td><td>right after the VLM</td></tr>
-        <tr><td class="lbl">ROUTER</td><td>Python + YAML</td><td>centre — make it prominent</td></tr>
+        <tr><td class="lbl">ROUTER</td><td>Python + YAML</td><td>centre -- make it prominent</td></tr>
         <tr><td class="lbl">Detector</td><td><strong>CNN</strong></td><td>upper lane → Pass 2</td></tr>
         <tr><td class="lbl">Action model</td><td><strong>CNN</strong>, temporal</td><td>upper lane → straight to Answer Form</td></tr>
         <tr><td class="lbl">More frames</td><td>Python</td><td>upper lane → Pass 2</td></tr>
-        <tr><td class="lbl">VLM — second pass</td><td><strong>VLM</strong> · partner's box</td><td>upper lane only</td></tr>
+        <tr><td class="lbl">VLM -- second pass</td><td><strong>VLM</strong> · partner's box</td><td>upper lane only</td></tr>
         <tr><td class="lbl">Class fallback</td><td>YAML + Python</td><td>lower lane</td></tr>
         <tr><td class="lbl">Exercise wins</td><td>YAML</td><td>lower lane</td></tr>
         <tr><td class="lbl">Answer form</td><td>YAML + Python</td><td>both lanes end here</td></tr>
@@ -743,10 +743,10 @@
     </table>
   </div>
 
-  <p><strong>Arrow labels worth writing on</strong> — the rest can stay unlabelled:</p>
+  <p><strong>Arrow labels worth writing on</strong> -- the rest can stay unlabelled:</p>
   <ul>
-    <li>Question parser → Router: <code>question type</code> — <strong>easy to forget, and the router can't work without it</strong></li>
-    <li>Router → Answer form: <code>agree — emit</code></li>
+    <li>Question parser → Router: <code>question type</code> -- <strong>easy to forget, and the router can't work without it</strong></li>
+    <li>Router → Answer form: <code>agree -- emit</code></li>
     <li>Router → upper lane: <code>looking would help</code></li>
     <li>Router → lower lane: <code>looking can't help</code></li>
     <li>Lower lane → Answer form: <code>no second pass</code></li>
@@ -757,7 +757,7 @@
     <span class="note-k">Two arrows that are easy to get backwards</span>
     <p>
       <strong>The question parser must feed the Router, not just the VLM.</strong> The router
-      decides which lane to take, and that decision is driven by the <em>question type</em> —
+      decides which lane to take, and that decision is driven by the <em>question type</em> --
       without that arrow the router has only an answer and a confidence number, which isn't enough
       to choose a branch.
     </p>
@@ -771,22 +771,22 @@
   <p><strong>Three things that make or break the drawing:</strong></p>
   <ol>
     <li>
-      <strong>Draw the two lanes as visibly separate</strong> — a shaded band, a dividing line, two
+      <strong>Draw the two lanes as visibly separate</strong> -- a shaded band, a dividing line, two
       colours. Label them <em>LOOKING HELPS</em> and <em>LOOKING CAN'T HELP</em>. This is the idea;
       everything else is plumbing.
     </li>
     <li>
-      <strong>Put "VLM — second pass" only in the upper lane.</strong> If it sits under both, the
+      <strong>Put "VLM -- second pass" only in the upper lane.</strong> If it sits under both, the
       diagram says the opposite of what we mean.
     </li>
     <li>
-      <strong>Make the agree-path visually dominant</strong> — thicker, or the only coloured arrow.
+      <strong>Make the agree-path visually dominant</strong> -- thicker, or the only coloured arrow.
       It's what happens most of the time, and a reader should see that instantly.
     </li>
   </ol>
 
   <p>
-    <strong>Consider colour-coding by what each box <em>is</em></strong> — one colour for CNNs, one
+    <strong>Consider colour-coding by what each box <em>is</em></strong> -- one colour for CNNs, one
     for the VLM, one for the plain Python and YAML boxes. It makes an obvious point without a word
     of explanation: only three boxes are expensive, and everything else is nearly free.
   </p>
@@ -797,9 +797,9 @@
   <div class="note is-open">
     <span class="note-k">Boxes your partner owns</span>
     <p>
-      <strong>VLM — first pass</strong>, <strong>Confidence check</strong>, and <strong>VLM — second
+      <strong>VLM -- first pass</strong>, <strong>Confidence check</strong>, and <strong>VLM -- second
       pass</strong> are open. Which model, and how confidence gets measured, is their call. Draw
-      them as boxes with the arrows in and out fixed — the rest of the design doesn't change
+      them as boxes with the arrows in and out fixed -- the rest of the design doesn't change
       whatever they pick. All the router needs from them is <em>an answer</em> and <em>a number
       from 0 to 1</em>.
     </p>
