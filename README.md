@@ -75,27 +75,31 @@ The training we did touches on how the model outputs and the words that it speak
 further fine-tuning it on minimally invasive surgery, and then finally showing it
 SurgVU-style frames and answers to set it up for success on actual runs.
 
-### The router's thirteen intents
+### The router's thirteen question types
 
 ```
-OPEN                              POLAR
+OPEN ANSWER                       YES OR NO
   tool_identity_open                tool_presence_polar
   task_open                         cutting_polar
   organ_open                        suture_polar
   count_open                        task_confirmation_polar
   procedure_open                    approach_polar
   purpose_open
-                                  FALLBACK
+                                  NO MATCH
                                     unknown_open
                                     unknown_polar
 ```
 
-`classify_question()` picks one of these from the question text alone: regexes
-and keyword rules, no model, no perception. Rule order is the design: COUNT is
-tested before the tool rules because "how many instruments" contains the word
-*instruments*; ORGAN before PROCEDURE because "what organ is manipulated in this
-procedure" contains *procedure*. Polarity gets checked before any open rule,
-since "is this laparoscopic?" wants a *Yes*, not the name of a procedure.
+`classify_question()` picks one of these buckets based on the question text alone,
+using pattern matching. The main thing we are working out here is the shape of the
+answer being asked for. If a question falls in the `tool_identity_open` bucket, we know
+we are looking for an answer like "Bipolar Forceps". If it falls under `suture_polar`,
+we know it is asking for a yes or no.
+
+It is also worth knowing that the patterns are double-checked so that a question does
+not fall into the wrong bucket. For example, "how many instruments are in use?" contains
+the word *instrument*, so there is potential for it to be incorrectly put in an
+instrument bucket even though we want a number as the output.
 
 ### Three ways an answer gets made
 
