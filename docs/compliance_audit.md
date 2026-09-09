@@ -1,4 +1,4 @@
-# Pre-submission compliance audit — SurgVU 2026 Category 2
+# Pre-submission compliance audit -- SurgVU 2026 Category 2
 
 Adversarial audit run 2026-08-11 against branch `fix/staging-verification-jpeg-shards`,
 before an irreversible submission and before the repository is made public.
@@ -32,11 +32,11 @@ as the content proof; `/staging/n/nkalthoff/surgvu26/submission_context.tar.gz`
 | 1 | Forbidden Category 1 data | **PASS** |
 | 2a | UI blur on every path into a model | **PASS** |
 | 2b | What the blur destroys, measured | **PASS** |
-| 2c | The unblurred top banner | **NEEDS A HUMAN DECISION** — the premise it was accepted on is false |
+| 2c | The unblurred top banner | **NEEDS A HUMAN DECISION** -- the premise it was accepted on is false |
 | 3 | Held-out integrity of `case_122`–`case_132` | **PASS** on the split and the training runs; see §3.4 |
 | 4 | Model and weight provenance | **PASS** |
 | 5 | Licensing of dependencies | **PASS** on copyleft; **NEEDS A HUMAN DECISION** on the missing repo licence |
-| 6 | Secrets | **PASS** — with four personal-path leaks to clean up |
+| 6 | Secrets | **PASS** -- with four personal-path leaks to clean up |
 | 7 | Anything in the image that should not ship | **PASS** |
 | 8 | Internet at inference | **PASS** |
 
@@ -45,7 +45,7 @@ publication-hygiene item that is cheap to fix.
 
 ---
 
-## 1. Forbidden Category 1 data — PASS
+## 1. Forbidden Category 1 data -- PASS
 
 `cat1_test_set_public.zip` must never have been used for training or tuning. Per
 the brief, this was checked at filename level only; the archive was never opened.
@@ -104,7 +104,7 @@ path can reach it, and no artifact derives from it.
 
 ## 2. UI information
 
-### 2a. The blur is on every path that reaches a model — PASS
+### 2a. The blur is on every path that reaches a model -- PASS
 
 `preprocess.prepare_frame` is crop → blur → resize, in that order, always:
 
@@ -122,10 +122,10 @@ path can reach it, and no artifact derives from it.
     src/surgvu/extract.py:291:       frame = cv2.imdecode(...)                   # reads back its own shards
     src/surgvu/perceive.py:89:   capture = cv2.VideoCapture(str(video_path))     # serving decode_clip
 
-- **Training extraction**: `extract.py:91` — `frames.append(prepare_frame(frame, size=size))`.
+- **Training extraction**: `extract.py:91` -- `frames.append(prepare_frame(frame, size=size))`.
   Shards therefore store already-blurred JPEGs; `extract.py:291`'s `imdecode` only
   reads those back, so the training loader cannot see an unblurred frame.
-- **Serving**: `perceive.py:105` — `frames.append(prepare_frame(frame, size=size))`,
+- **Serving**: `perceive.py:105` -- `frames.append(prepare_frame(frame, size=size))`,
   inside `decode_clip`, which is the single frame source in `scripts/inference.py:581`.
 
 **No path bypasses it, including the VLM.** `scripts/inference.py:589` passes the
@@ -135,11 +135,11 @@ The VLM is off by default in any case: `--vlm` is `action="store_true"` and the
 Dockerfile `ENTRYPOINT` does not pass it, so `build_vlm` returns `None`.
 
 The property is pinned by tests, so a regression fails the suite rather than
-shipping quietly — `tests/test_perceive.py::test_decode_clip_blurs_the_ui_band`
+shipping quietly -- `tests/test_perceive.py::test_decode_clip_blurs_the_ui_band`
 and `tests/test_preprocess.py::test_prepare_frame_is_square_and_blurred`
 ("deleting the `blur_ui_band` call from `prepare_frame` must fail this test").
 
-### 2b. What the blur actually destroys, measured on real frames — PASS
+### 2b. What the blur actually destroys, measured on real frames -- PASS
 
 Measured on a mid-clip frame from each of the 11 sample clips, in the container,
 not assumed. All 11 are 1280×720 with 193 px black margins each side, cropping to
@@ -163,7 +163,7 @@ not assumed. All 11 are 1280×720 with 193 px black margins each side, cropping 
     bar Laplacian var AFTER   min 5.7040  max 42.4268 median 14.2755
     reduction factor          min 103x    max 870x    median 338x
 
-A Laplacian variance of ~14 is the level of flat, textureless image — the same
+A Laplacian variance of ~14 is the level of flat, textureless image -- the same
 scale as the non-text rows above the bar. The text is destroyed, not softened.
 
 **The band covers the whole bar with margin to spare.** Per-row Laplacian variance
@@ -185,7 +185,7 @@ validated on 1280×720 material. A test clip in a different format whose UI bar
 occupies more than 8% of frame height would be under-blurred. The Cat 2 sample
 format is the format the test set is expected in, so this is noted, not raised.
 
-### 2c. The unblurred top banner — NEEDS A HUMAN DECISION
+### 2c. The unblurred top banner -- NEEDS A HUMAN DECISION
 
 The brief states the banner is constant text and asks that the basis be documented,
 and that it be flagged **if the region turns out not to be constant**.
@@ -193,8 +193,8 @@ and that it be flagged **if the region turns out not to be constant**.
 **It is not constant. It is present in some cases and absent in others.**
 
 Detected by normalised cross-correlation against a banner template, over 21 evenly
-spaced frames per sample clip. The separation is total — ~0.97 with the banner,
-~0.14 without — and it does not vary within a clip (min ≈ max in every row):
+spaced frames per sample clip. The separation is total -- ~0.97 with the banner,
+~0.14 without -- and it does not vary within a clip (min ≈ max in every row):
 
     case          min     med     max   verdict
     case122     0.992   0.994   1.000   BANNER
@@ -218,7 +218,7 @@ show surgical video to the frame edge. The pattern is identical at frame 0 and a
 mid-clip.
 
 Separately, a whole-frame constancy map over 22 frames confirms there is **nothing
-else** fixed in the top region — the only pixels identical in every frame are rows
+else** fixed in the top region -- the only pixels identical in every frame are rows
 0–2, which are a black letterbox edge:
 
     pixels identical across all 22 frames: 3559 of 643680 (0.55%)
@@ -228,7 +228,7 @@ else** fixed in the top region — the only pixels identical in every frame are 
       share of them that are near-black (<8): 100.0%
 
 **The banner survives unblurred into the training data.** Applying the same
-detector in the 512×512 shard domain — literally the array the CNNs were fed —
+detector in the 512×512 shard domain -- literally the array the CNNs were fed --
 across 45 sampled corpus cases:
 
     case_000   ncc med  0.154  no banner
@@ -258,8 +258,8 @@ The two 0% classes have n=1 and n=2 and carry no weight. The four well-supported
 classes span 29–43% against a 31% base rate. It is also a single bit, so it cannot
 identify a case; at most it is a weak nuisance variable.
 
-**Why it still needs a decision.** The stated basis for accepting it — "it is
-constant text, so probably not predictive" — is false as a matter of fact, and
+**Why it still needs a decision.** The stated basis for accepting it -- "it is
+constant text, so probably not predictive" -- is false as a matter of fact, and
 `docs/submission_interface.md:58` records the acceptance as *"the untouched top
 banner is not a problem"* on that basis. The correct basis is the weaker but real
 one: it varies, the model saw it, and it is measurably near-independent of the
@@ -272,20 +272,20 @@ framing hid:
    meant to use.
 2. **Remediation is not free.** Extending the blur to a top band is a small change
    to `preprocess.py`, but it invalidates every extracted shard and both shipped
-   checkpoints — a full re-extract and retrain of both CNNs.
+   checkpoints -- a full re-extract and retrain of both CNNs.
 
 **Recommended disposition:** ship as-is, and replace the "constant text" claim in
 `docs/submission_interface.md` with the measurement above, so the record states
 what was actually checked. Re-blurring and retraining is defensible but is a
 multi-day cost against a signal measured to be near-zero. This is the user's call,
-not the auditor's — it is flagged, as the brief required, because the region is
+not the auditor's -- it is flagged, as the brief required, because the region is
 **not** in fact constant.
 
 ---
 
 ## 3. Held-out integrity of `case_122`–`case_132`
 
-### 3.1 The split file holds them out, under the correct id form — PASS
+### 3.1 The split file holds them out, under the correct id form -- PASS
 
 The id-format trap was checked explicitly rather than by raw set intersection:
 
@@ -300,14 +300,14 @@ The id-format trap was checked explicitly rather than by raw set intersection:
     train cases in 122-132 range: []
     val   cases in 122-132 range: []
 
-### 3.2 The shipped checkpoints were trained on that split — PASS, from the artifacts
+### 3.2 The shipped checkpoints were trained on that split -- PASS, from the artifacts
 
 The checkpoints themselves record no split, so this was established from the job
 records and an independent count, not from documentation.
 
 **The submitted arguments name `splits_v2.json` for both runs.** Note that
-`train_tools.py:36` and `train_task.py` default to `config/splits.json` — the
-*leaky* v1 split — so this had to be passed explicitly, and it was:
+`train_tools.py:36` and `train_task.py` default to `config/splits.json` -- the
+*leaky* v1 split -- so this had to be passed explicitly, and it was:
 
     $ condor_history 9623711 9623712 -af ClusterId Args Cmd Out
     9623711  scripts/train_tools.py --splits config/splits_v2.json
@@ -330,7 +330,7 @@ achievable **only** under `splits_v2`:
     config/splits.json:    train_shards=187 val_shards=48 heldout_shards=0  sum=235
        unassigned: []
 
-176 + 45 = 221, and 235 − 221 = 14 — which is exactly the shard count of
+176 + 45 = 221, and 235 − 221 = 14 -- which is exactly the shard count of
 `case_122`…`case_132` (`case_124`, `case_131`, `case_132` have two parts each,
 the other eight have one). The loader (`dataset.shard_paths_for_split`) selects by
 `p.name.rsplit("_part", 1)[0] in cases`, so `case_122_part1.npz` maps to
@@ -345,7 +345,7 @@ out of the `.pt` pickles matches each log line exactly:
                  description_accuracy 0.8803398058252427, epochs 4
       <- log 9623712: "epoch 3 ... val_acc 0.8695 macroF1 0.6803 desc_acc 0.8803"
 
-### 3.3 The shipped bytes are those checkpoints, everywhere — PASS
+### 3.3 The shipped bytes are those checkpoints, everywhere -- PASS
 
 One sha256 per expert, identical in all four places it exists:
 
@@ -365,8 +365,8 @@ truncated weight file fails the Docker build rather than every graded case.
 ### 3.4 The sample-clip → corpus-case correspondence
 
 `config/splits_v2.json` holds out `case_122`…`case_132` because the sample
-directories are named `case122`…`case132`. That mapping is done **by name only** —
-`sampling.py:168` normalises `case122` → `case_122` — and was never verified
+directories are named `case122`…`case132`. That mapping is done **by name only** --
+`sampling.py:168` normalises `case122` → `case_122` -- and was never verified
 against content. It is load-bearing: if sample clip `caseNNN` is in fact an excerpt
 of some *other* corpus case, the wrong cases were held out and the sample leaked
 into training after all.
@@ -390,13 +390,13 @@ geometry exactly (both 1280×720 @ 60 fps), so nothing prevents a match:
     CORPUS case_122    1280x720 fps=60.000 frames=502947 dur=8382.5s
 
 **Result of the first scan:** a full sweep of `case_122`'s video at 2 s stride
-(4192 of 502947 frames) found a best hamming distance of **40** — above the match
+(4192 of 502947 frames) found a best hamming distance of **40** -- above the match
 threshold. `case122`'s content was **not** found in corpus `case_122`.
 
 A 155-way parallel scan (HTCondor cluster 9636602, one job per corpus case,
 all 11 sample clips' hashes as targets) was launched to determine whether the
-sample clips appear in some *other* corpus case — the only outcome that would mean
-real leakage — or nowhere in the corpus at all, which would make the heldout list
+sample clips appear in some *other* corpus case -- the only outcome that would mean
+real leakage -- or nowhere in the corpus at all, which would make the heldout list
 harmless over-caution and leave the no-leakage conclusion intact.
 
 > **STATUS: this scan had not finished when the audit was written.** See
@@ -406,7 +406,7 @@ harmless over-caution and leave the no-leakage conclusion intact.
 
 ---
 
-## 4. Model and weight provenance — PASS
+## 4. Model and weight provenance -- PASS
 
 **The image contains exactly two weight files, and nothing else that could carry
 learned parameters:**
@@ -416,7 +416,7 @@ learned parameters:**
     /opt/algorithm/models/tools_v2.pt
     /opt/conda/lib/python3.11/site-packages/distutils-precedence.pth   # a path file, not weights
 
-No torchvision hub cache ships either — `/opt/algorithm/.torch` and
+No torchvision hub cache ships either -- `/opt/algorithm/.torch` and
 `/root/.cache/torch` do not exist in the image.
 
 **Initialisation is torchvision ImageNet, and only that.** `src/surgvu/models.py`
@@ -428,11 +428,11 @@ exactly one pretrained file was ever fetched into the training `TORCH_HOME`:
       /staging/n/nkalthoff/surgvu26/torch_cache/hub/checkpoints/efficientnet_v2_s-dd5fe13b.pth
 
 torchvision names its weight files with the leading 8 hex of their sha256, and
-`dd5fe13b…` matches `efficientnet_v2_s-dd5fe13b.pth` — this is the official
+`dd5fe13b…` matches `efficientnet_v2_s-dd5fe13b.pth` -- this is the official
 upstream ImageNet-1k checkpoint, unmodified. Chain: torchvision ImageNet (BSD-3)
 → fine-tuned on SurgVU shards → `tools_v2.pt` / `task_v2.pt`. Nothing else.
 
-**Strict independence from OpScribe holds.** Scanning the image's filesystem —
+**Strict independence from OpScribe holds.** Scanning the image's filesystem --
 raw byte-grepping the `.sif` is a false negative because squashfs is compressed,
 so this was done inside the container:
 
@@ -446,7 +446,7 @@ so this was done inside the container:
     src/surgvu/vlm.py:74:  DEFAULT_MODEL_DIR = "/staging/n/nkalthoff/surgvu26/models/qwen3vl-8b-nf4"
 
 Every hit is a **path string naming the shared group scratch directory where the
-SurgVU dataset is staged** — `bhaskar_opscribe` is the storage allocation's name.
+SurgVU dataset is staged** -- `bhaskar_opscribe` is the storage allocation's name.
 No OpScribe adapter, checkpoint, container, `pypkgs` tree or `.sif` is present, and
 no OpScribe code is imported. The base image is the public
 `pytorch/pytorch:2.5.1-cuda12.1-cudnn9-runtime`, not `opscribe.sif`. Nothing in
@@ -454,13 +454,13 @@ the image derives from a model whose training history touches private clinical
 data: the only pretrained weights are torchvision ImageNet, and the only fine-tuning
 corpus is the SurgVU challenge release.
 
-The 6 GB Qwen3-VL NF4 weights are **not** in the image — `src/surgvu/vlm.py` ships
+The 6 GB Qwen3-VL NF4 weights are **not** in the image -- `src/surgvu/vlm.py` ships
 but its `DEFAULT_MODEL_DIR` does not exist inside the container, and the VLM is
 disabled by default.
 
 ---
 
-## 5. Licensing — PASS on copyleft; NEEDS A HUMAN DECISION on the repo licence
+## 5. Licensing -- PASS on copyleft; NEEDS A HUMAN DECISION on the repo licence
 
 **Dependency surface is tiny.** `containers/Dockerfile` and
 `containers/surgvu26-submission.def` install exactly two packages beyond the base,
@@ -487,13 +487,13 @@ and neither file contains a single `apt-get` line:
 
 Three LGPL packages, all arriving with the base image's conda toolchain
 (`conda-build` depends on both `chardet` and `frozendict`), none imported by any
-first-party module — the serving path imports only `torch`, `torchvision`, `cv2`,
+first-party module -- the serving path imports only `torch`, `torchvision`, `cv2`,
 `yaml`, `numpy` and the standard library. LGPL on unmodified, dynamically-loaded
 libraries imposes a notice duty, not a copyleft obligation on our code.
 
 **The AGPL detector was successfully avoided.** `ultralytics`, `yolov5`, `yolox`,
 `mmdet` and `detectron2` are all absent from the image, and `git log --all -S'ultralytics'`
-returns no commits — it was never in the tree. The one AGPL string in the image is
+returns no commits -- it was never in the tree. The one AGPL string in the image is
 MPL-2.0 §1.12 boilerplate inside opencv's `LICENSE-3RD-PARTY.txt`, in the libsrt
 section, and libsrt is not shipped in the Linux wheel.
 
@@ -518,7 +518,7 @@ question for the SurgVU/Intuitive data agreement, not one the code can answer.
 
 ---
 
-## 6. Secrets — PASS, with four personal-path leaks to clean up
+## 6. Secrets -- PASS, with four personal-path leaks to clean up
 
 **No credentials anywhere, in the tree or in history.** History coverage used full
 object-database enumeration rather than reachable objects, which matters because a
@@ -540,7 +540,7 @@ The 4 unreachable blobs were dumped in full and are ordinary pre-amend revisions
 **The previously-revoked PAT has no trace here.** `git log --all -S` per prefix
 returned 0 commits for `ghp_`, `github_pat_`, `gho_`, `ghs_`, `AKIA`, `xox`,
 `glpat-` and `PRIVATE KEY`. `hf_` (4 commits) and `sk-` (14) are `-S` substring
-false positives — `export HF_HOME=...`, `job 9618015 was HELD` — and the
+false positives -- `export HF_HOME=...`, `job 9618015 was HELD` -- and the
 length-anchored regexes matched nothing. The prior leak was in a different
 repository or predates this history.
 
@@ -557,7 +557,7 @@ No `.env`, `.pem`, `.key`, `id_rsa*`, `.netrc` or keytab exists in the tree, and
 no weight/archive/video file is tracked (largest tracked file is 65 KB; 146 tracked
 files, all text/code plus one 46 KB `.docx`).
 
-**Four tracked files leak a personal Windows path** — not secrets, but permanent
+**Four tracked files leak a personal Windows path** -- not secrets, but permanent
 once public:
 
     $ git grep -nE "C:\\\\Users|/Users/|/home/[a-z]+|AppData"
