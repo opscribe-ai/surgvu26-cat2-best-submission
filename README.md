@@ -25,15 +25,15 @@ clip to say (ex; if a question is "what does x instrument do?", the answer to th
 
 That last category only happens in niche scenarios; most questions are answered by the five readings in this pipeline. 
 
-### The five signals
+### The five readings
 
-| signal | what it consists of |
+| reading | what it consists of |
 |---|---|
-| **Tool recogniser** | A ResNet-50 that says which instruments are **mounted on the robot** during the window, not which are visible in any one frame. It can name several at once, because several usually are. 12 instrument classes. |
-| **Task recogniser** | A ResNet-50 that says which single activity is happening, such as suturing or retraction. Exactly one answer, unlike the tool recogniser. 8 activity classes. |
-| **Detector** | Draws boxes around instruments in individual frames, so you get what, where and when, each with a confidence. |
-| **Motion** | Measures how much the picture changes between frames, at two speeds. Frames 67 ms apart say whether something is moving right now; frames 1.9 s apart say whether the whole scene shifted. A lot of the first and little of the second means someone is working in one spot; the reverse means the camera moved. |
-| **Agreement** | Checks whether the tool recogniser and the detector name the same instruments. Two of them independently saying "bipolar forceps" is worth more than either saying it alone. |
+| **Tool recogniser** | A ResNet-50 that tries to identify what instruments are in the window. It outputs all 12 instrument classes, each with its own confidence score, so more than one instrument can come back at once. |
+| **Task recogniser** | A ResNet-50 that says what surgical step is happening, for example suturing or retraction. Unlike the tool recogniser, the task recogniser outputs just one answer, with eight possible activity classes. |
+| **Detector** | Uses YOLO to draw boxes around instruments in the individual frames. The tool recogniser tells you what instruments are probably there; the detector is a second reference for what is there, and it also tells you where they are, with confidence scores. |
+| **Motion reader** | Computes a micro and a macro score. The micro score tells you how much the picture changed between frames 67 milliseconds apart from the target frame, to see if something is moving on a small time scale. The macro score measures the movement from frame to frame across the original 16 frames we took from the 30-second clip, to see if there is larger-scale change. |
+| **Agreement reader** | Deterministic code that checks whether the tool recogniser and the detector named the same instrument. This gives the pipeline more confidence when they agree, and flags things when they disagree. |
 
 Frame probabilities get averaged into clip-level probabilities, then cut with
 per-class thresholds that were tuned against that exact averaging step. Change
