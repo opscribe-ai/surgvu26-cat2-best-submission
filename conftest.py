@@ -4,7 +4,7 @@ The Condor pytest job transfers `src`, `scripts`, `tests`, `config`, and this
 file into job scratch -- not `pyproject.toml` -- so pytest's `pythonpath` ini
 option never takes effect there. conftest.py is always collected by pytest
 regardless of how it was invoked, so it is the one place this path insertion
-is guaranteed to run in both the login-node and container environments.
+is guaranteed to run in both the login-node and container environments!
 """
 import sys
 from pathlib import Path
