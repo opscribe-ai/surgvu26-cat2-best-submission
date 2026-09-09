@@ -153,24 +153,26 @@ have set it up for.
 
 ## Reproducing and running the container
 
-The submission is **two artifacts**, not one:
+The submission is two artifacts rather than one.
 
 | artifact | contains |
 |---|---|
 | the container image | the code, both ResNet-50 recognisers, the detector, the variant head, and the VLM's LoRA adapter |
 | a model tarball | the NF4-quantised Qwen2.5-VL-7B base, ~5 GB |
 
-They are separate because Grand Challenge caps the image at 10 GB. The platform
-extracts the model tarball to `/opt/ml/model/` at run time, and
-`resolve_vlm_model_dir()` looks there **first**, falling back to an in-image copy only
-for older builds. The image's LoRA expects that exact base, so the two must be paired.
+We split them because Grand Challenge caps the image at 10 GB and the base model on its
+own is about 5 GB. Grand Challenge extracts the model tarball to `/opt/ml/model/` when
+the container runs, and `resolve_vlm_model_dir()` checks there before it checks anywhere
+else. The LoRA inside the image was trained on that exact base, so the two have to be
+used together.
 
 ### Getting the weights
 
-Weights are not in this repository. Every learned artifact is published at
+We don't keep weights in this repository. All of them are on Hugging Face at
 [opscribe-ai/surgvu26-cat2-v6.2](https://huggingface.co/opscribe-ai/surgvu26-cat2-v6.2).
-`containers/build_submission.sh` stages them into the build context; point
-`VLM_MODEL_SRC` at a directory holding `qwen25vl-7b-nf4/` if yours lives elsewhere.
+`containers/build_submission.sh` pulls them into the build context, and if yours are
+somewhere else you can point `VLM_MODEL_SRC` at a directory that holds
+`qwen25vl-7b-nf4/`.
 
 ### Building
 
@@ -190,8 +192,8 @@ tar -czf surgvu26-models.tar.gz -C /path/to/models .
 
 ### Running one case
 
-The container reads and writes fixed paths, and both JSON files hold a **JSON-encoded
-string**, not raw text.
+The container reads and writes fixed paths, and both JSON files hold a JSON-encoded
+string rather than raw text.
 
 | direction | path |
 |---|---|
@@ -215,8 +217,8 @@ docker run --rm --gpus all \
 cat output/visual-context-response.json            # e.g. "Bipolar Forceps"
 ```
 
-Without the `/opt/ml/model` mount the container still runs: the VLM fails to resolve
-its weights, and every question falls back to the router.
+If you forget the `/opt/ml/model` mount the container will still run, but the VLM won't
+find its weights and every question ends up being answered by the router instead.
 
 ### Environment
 
@@ -268,12 +270,11 @@ in `NOTICE`.
 
 ## AI assistance
 
-Parts of this codebase, its documentation and its commit history were developed with
-[Claude Code](https://claude.com/claude-code) (Anthropic), working under the direction
-of the maintainer.
+We used [Claude Code](https://claude.com/claude-code) while building this. It helped
+with the pipeline code, the evaluation tooling, the documentation and a lot of the
+commit messages in this repository. The design decisions, the measurements and what we
+actually submitted to the challenge were ours.
 
-
-Commits made with Claude's assistance from 2026-09-09 onward carry a
-`Co-Authored-By: Claude` trailer. Commits before that date do not, because the
-repository was created under an earlier convention that omitted the trailer; the
-assistance is disclosed here instead.
+Commits from 2026-09-09 onward carry a `Co-Authored-By: Claude` trailer. The ones before
+that don't, because the repository was set up under an earlier convention that left the
+trailer out, so we are disclosing the assistance here instead.
