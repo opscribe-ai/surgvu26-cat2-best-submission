@@ -151,10 +151,28 @@ have set it up for.
 
 ---
 
-## Reproducing the container
+## Reproducing and running the container
 
-The evaluation artifact is a single container. Weights are not in this repository;
-they are put into the context of the build.
+The submission is **two artifacts**, not one:
+
+| artifact | contains |
+|---|---|
+| the container image | the code, both ResNet-50 recognisers, the detector, the variant head, and the VLM's LoRA adapter |
+| a model tarball | the NF4-quantised Qwen2.5-VL-7B base, ~5 GB |
+
+They are separate because Grand Challenge caps the image at 10 GB. The platform
+extracts the model tarball to `/opt/ml/model/` at run time, and
+`resolve_vlm_model_dir()` looks there **first**, falling back to an in-image copy only
+for older builds. The image's LoRA expects that exact base, so the two must be paired.
+
+### Getting the weights
+
+Weights are not in this repository. Every learned artifact is published at
+[opscribe-ai/surgvu26-cat2-v6.2](https://huggingface.co/opscribe-ai/surgvu26-cat2-v6.2).
+`containers/build_submission.sh` stages them into the build context; point
+`VLM_MODEL_SRC` at a directory holding `qwen25vl-7b-nf4/` if yours lives elsewhere.
+
+### Building
 
 ```bash
 # Apptainer (what was used)
@@ -164,7 +182,43 @@ apptainer build surgvu26-submission.sif containers/surgvu26-submission.def
 # Docker (Grand Challenge upload format)
 docker build -f containers/Dockerfile -t surgvu26-cat2 .
 docker save surgvu26-cat2 | gzip > surgvu26-cat2.tar.gz
+
+# the model tarball. The trailing dot is load-bearing: Grand Challenge uses the
+# archive's paths as-is, so packing the parent directory makes every lookup miss.
+tar -czf surgvu26-models.tar.gz -C /path/to/models .
 ```
+
+### Running one case
+
+The container reads and writes fixed paths, and both JSON files hold a **JSON-encoded
+string**, not raw text.
+
+| direction | path |
+|---|---|
+| read | `/input/endoscopic-robotic-surgery-video.mp4` |
+| read | `/input/visual-context-question.json` |
+| write | `/output/visual-context-response.json` |
+
+```bash
+mkdir -p input output model
+tar -xzf surgvu26-models.tar.gz -C model/          # gives model/qwen25vl-7b-nf4/
+
+cp your_clip.mp4 input/endoscopic-robotic-surgery-video.mp4
+echo '"What instrument is being used?"' > input/visual-context-question.json
+
+docker run --rm --gpus all \
+  -v "$(pwd)/input:/input:ro" \
+  -v "$(pwd)/output:/output" \
+  -v "$(pwd)/model:/opt/ml/model:ro" \
+  surgvu26-cat2
+
+cat output/visual-context-response.json            # e.g. "Bipolar Forceps"
+```
+
+Without the `/opt/ml/model` mount the container still runs: the VLM fails to resolve
+its weights, and every question falls back to the router.
+
+### Environment
 
 The base image is `pytorch/pytorch:2.5.1-cuda12.1-cudnn9-runtime`. The VLM layer pins
 `transformers==4.57.6`, `accelerate==1.14.0` and `bitsandbytes==0.50.1`. Those pins are

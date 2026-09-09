@@ -143,6 +143,16 @@ zero there.
 
 ### Weights are baked in, not uploaded separately
 
+> **SUPERSEDED at v6.1.** This section was written on 2026-08-25, when no
+> pre-quantised NF4 checkpoint existed and the conclusion was that the VLM could not
+> be shipped at all. One was built shortly afterwards, and the submitted v6.2 system
+> does the opposite of what is described below: the ~5 GB NF4 base ships in Grand
+> Challenge's **separate model tarball**, extracted to `/opt/ml/model/` at run time,
+> and `resolve_vlm_model_dir()` searches there first. Only the two CNN checkpoints,
+> the detector, the variant head and the LoRA adapter are baked into the image.
+> The reasoning below is kept because it records why the split was necessary.
+
+
 Grand Challenge supports a separate `model.tar.gz` extracted to `/opt/ml/model/`
 at runtime, and their guidance is "Model weights should be uploaded
 separately." That guidance exists because of the 10 GB image ceiling. Both
