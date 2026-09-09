@@ -218,10 +218,6 @@ Parts of this codebase, its documentation and its commit history were developed 
 [Claude Code](https://claude.com/claude-code) (Anthropic), working under the direction
 of the maintainer.
 
-Claude contributed to the pipeline implementation, the evaluation and analysis tooling,
-and the repository documentation, and authored many of the commit messages in this
-repository. Design decisions, measurements and what was submitted to the challenge were
-made and reviewed by the maintainer.
 
 Commits made with Claude's assistance from 2026-09-09 onward carry a
 `Co-Authored-By: Claude` trailer. Commits before that date do not, because the
