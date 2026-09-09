@@ -1,4 +1,4 @@
-<title>SurgVU 2026 · Category 2 — Design</title>
+<title>SurgVU 2026 · Category 2 -- Design</title>
 
 <style>
   :root {
@@ -465,7 +465,7 @@
     <h1>Evidence-Arbitration Router for Surgical VQA</h1>
     <p class="standfirst">
       Category 2 presents itself as open-ended video question answering. It isn't. It is
-      metadata recovery and single-slot filling — and under this year's metric, being right
+      metadata recovery and single-slot filling -- and under this year's metric, being right
       is worth far more than sounding right.
     </p>
     <div class="meta-row">
@@ -481,7 +481,7 @@
     <div class="timeline">
       <div class="tl-item is-now">
         <div class="tl-date">Aug 5</div>
-        <div class="tl-what">Today. Preliminary phase open — the only real iteration surface.</div>
+        <div class="tl-what">Today. Preliminary phase open -- the only real iteration surface.</div>
       </div>
       <div class="tl-item">
         <div class="tl-date">Aug 21</div>
@@ -493,7 +493,7 @@
       </div>
       <div class="tl-item is-hard">
         <div class="tl-date">Sep 6</div>
-        <div class="tl-what">Final phase closes — two submissions only</div>
+        <div class="tl-what">Final phase closes -- two submissions only</div>
       </div>
       <div class="tl-item is-hard">
         <div class="tl-date">Sep 13</div>
@@ -511,11 +511,11 @@
     <div class="figures">
       <div class="fig is-target">
         <div class="fig-n">$3,000</div>
-        <div class="fig-t">1st place, but only if we beat 2025's methods re-scored — otherwise $1,000</div>
+        <div class="fig-t">1st place, but only if we beat 2025's methods re-scored -- otherwise $1,000</div>
       </div>
       <div class="fig">
         <div class="fig-n">1.00</div>
-        <div class="fig-t">Ceiling per question — reachable with one word, if it's the right one</div>
+        <div class="fig-t">Ceiling per question -- reachable with one word, if it's the right one</div>
       </div>
       <div class="fig">
         <div class="fig-n">21</div>
@@ -523,7 +523,7 @@
       </div>
       <div class="fig">
         <div class="fig-n">3 of 12</div>
-        <div class="fig-t">Instruments installed at any moment — a hard constraint, built into the model</div>
+        <div class="fig-t">Instruments installed at any moment -- a hard constraint, built into the model</div>
       </div>
       <div class="fig">
         <div class="fig-n">7 / 11</div>
@@ -541,9 +541,9 @@
       <li><a href="#winning">What winning requires</a></li>
       <li><a href="#metric">The metric</a></li>
       <li><a href="#task">What the task actually is</a></li>
-      <li><a href="#c1">Consequence 1 — a closed corpus</a></li>
-      <li><a href="#c2">Consequence 2 — name granularity</a></li>
-      <li><a href="#c3">Consequence 3 — installed ≠ visible</a></li>
+      <li><a href="#c1">Consequence 1 -- a closed corpus</a></li>
+      <li><a href="#c2">Consequence 2 -- name granularity</a></li>
+      <li><a href="#c3">Consequence 3 -- installed ≠ visible</a></li>
       <li><a href="#arch">Architecture</a></li>
       <li><a href="#components">The seven components</a></li>
       <li><a href="#validation">Validation</a></li>
@@ -579,7 +579,7 @@
         </p>
       </blockquote>
       <p>
-        So the objective is not "place well" — it is <strong>beat the 2025 methods re-scored
+        So the objective is not "place well" -- it is <strong>beat the 2025 methods re-scored
         under the 2026 metric</strong>. That is a 3× difference in prize money at first place.
         Separately there is <strong>$500 for best methodology report</strong>, and all
         submissions are eligible for it regardless of how the algorithm performed.
@@ -589,7 +589,7 @@
       <p>
         The metric changed from BLEU to BERTScore this year, so last year's published 0.4215
         tells us nothing directly. But the organizers require editor access on submitted
-        containers <em>"to enable re-evaluation on future datasets"</em> — they re-run prior
+        containers <em>"to enable re-evaluation on future datasets"</em> -- they re-run prior
         winners under the new scoring. And every prior Category 2 winner's container is public:
       </p>
       <div class="scroller">
@@ -635,7 +635,7 @@
       <p>
         The official evaluation container is
         <a href="https://github.com/isi-challenges/surgvu26-category-2-eval-public">public on GitHub</a>.
-        We do not have to infer the metric or reimplement it — <strong>we can run the exact
+        We do not have to infer the metric or reimplement it -- <strong>we can run the exact
         scorer locally</strong>, which eliminates an entire class of risk before it exists.
       </p>
       <p>
@@ -655,8 +655,8 @@ bertscore_f1s.append(F1.<span class="hl">max()</span>.item())</code></pre>
 
       <h3><span class="marker">i</span>Terse answers are optimal</h3>
       <p>
-        Reference lists lead with the bare form — <code>"Yes"</code>, <code>"No"</code>,
-        <code>"Cadiere Forceps"</code>, <code>"Uterine horn"</code> — and scoring takes the max
+        Reference lists lead with the bare form -- <code>"Yes"</code>, <code>"No"</code>,
+        <code>"Cadiere Forceps"</code>, <code>"Uterine horn"</code> -- and scoring takes the max
         across references. An identical string scores F1 = 1.0, and rescaling maps 1.0 to 1.0.
         So emitting exactly <code>"Yes"</code> hits the ceiling. <strong>No elaborate answer can
         beat a one-word exact match</strong>, and a longer answer risks scoring lower.
@@ -667,7 +667,7 @@ bertscore_f1s.append(F1.<span class="hl">max()</span>.item())</code></pre>
         Under n-gram overlap, a wrong-polarity answer that echoes the question's noun phrase
         still collects most of the credit. Under BERTScore against a terse reference,
         <code>"No"</code> scored against <code>"Yes"</code> has almost no lexical or semantic
-        overlap to fall back on. The exact cost is unmeasured — it is experiment #1 below — but
+        overlap to fall back on. The exact cost is unmeasured -- it is experiment #1 below -- but
         the direction is not in doubt.
       </p>
       <div class="note is-key">
@@ -682,7 +682,7 @@ bertscore_f1s.append(F1.<span class="hl">max()</span>.item())</code></pre>
       <h3><span class="marker">iii</span>The primary metric sees raw text</h3>
       <p>
         In <code>evaluate.py</code>, BLEU and ROUGE are computed on lowercased,
-        punctuation-stripped strings — but the candidate and references reach BERTScore and NLI
+        punctuation-stripped strings -- but the candidate and references reach BERTScore and NLI
         <strong>un-normalized</strong>. Casing and terminal punctuation therefore affect the
         score that ranks us. The organizers' own test fixture probes exactly this:
         <code>answer001c.json</code> is <code>"yes"</code> against a ground truth of
@@ -711,7 +711,7 @@ bertscore_f1s.append(F1.<span class="hl">max()</span>.item())</code></pre>
       <h3><span class="marker">i</span>The container is invoked once per case</h3>
       <p>
         One video, one question, one answer. The time budget is therefore <em>per case</em>,
-        not per test set — which is what makes a multi-pass routing system affordable at all.
+        not per test set -- which is what makes a multi-pass routing system affordable at all.
       </p>
 <pre><code>/input/endoscopic-robotic-surgery-video.mp4
 /input/visual-context-question.json    <span class="cm">→</span>  "Was a large needle driver used in this clip?"
@@ -729,16 +729,16 @@ bertscore_f1s.append(F1.<span class="hl">max()</span>.item())</code></pre>
 "Yes, needle driver is part of the procedure."</code></pre>
       <p>
         Perception has to supply exactly one thing: the polarity. Of the 11 sample questions, 7
-        are yes/no and the remaining 4 fill a single slot — tool type, organ, procedure type,
+        are yes/no and the remaining 4 fill a single slot -- tool type, organ, procedure type,
         and tool purpose.
       </p>
 
       <div class="note is-risk">
-        <span class="note-k">Provenance — read before trusting the above</span>
+        <span class="note-k">Provenance -- read before trusting the above</span>
         <p>
           <strong>There is no 2026 sample set.</strong> The 2026 page links
           <code>SURGVU25_cat_2_sample_set_public.zip</code> as <em>"10 video samples… to be used
-          as reference"</em> — last year's set, last uploaded 2025-07-22, and the bucket holds no
+          as reference"</em> -- last year's set, last uploaded 2025-07-22, and the bucket holds no
           2026 object at all. (It contains 11 cases, not 10.) Everything about question
           <em>distribution</em> is extrapolated from prior-year material, in a year where the
           metric changed and the label scope was restated. <strong>Where the 2026 site's text
@@ -748,8 +748,8 @@ bertscore_f1s.append(F1.<span class="hl">max()</span>.item())</code></pre>
 
       <p>
         The only 2026-native question evidence that exists publicly is inside the evaluation
-        container. Its ground-truth fixtures are deliberately scrubbed — <code>case002</code>
-        reads <em>"No, the specific tool was not used"</em>, with the tool name redacted — but
+        container. Its ground-truth fixtures are deliberately scrubbed -- <code>case002</code>
+        reads <em>"No, the specific tool was not used"</em>, with the tool name redacted -- but
         <code>test_metrics.py</code> names three real questions, and its tool-question ground
         truth is <code>"Forceps"</code>, class-level with no commercial name:
       </p>
@@ -757,7 +757,7 @@ bertscore_f1s.append(F1.<span class="hl">max()</span>.item())</code></pre>
 Q5 (case005): Which surgical <span class="hl">specialty</span> is this procedure associated with?
 Q6 (case006): Are <span class="hl">forceps</span> involved in the procedure?</code></pre>
       <p>
-        Two of those are slot types the 11 prior-year samples do not cover at all —
+        Two of those are slot types the 11 prior-year samples do not cover at all --
         <strong>surgical specialty</strong>, and <strong>anatomy-plus-action</strong> (<em>what</em>
         is cauterized, not merely whether cautery occurs). The taxonomy has been widened
         accordingly.
@@ -779,12 +779,12 @@ Q6 (case006): Are <span class="hl">forceps</span> involved in the procedure?</co
             <tr>
               <td><code>tools.csv</code></td>
               <td><code>install_case_time</code>, <code>uninstall_case_time</code>, <code>arm</code>, <code>commercial_toolname</code>, <code>groundtruth_toolname</code></td>
-              <td>The "listed tools" — every row whose install interval covers the clip</td>
+              <td>The "listed tools" -- every row whose install interval covers the clip</td>
             </tr>
             <tr>
               <td><code>tasks.csv</code></td>
               <td><code>start_time</code>, <code>stop_time</code>, <code>groundtruth_taskname</code>, <code>matched_description</code></td>
-              <td>The "summary" — the description of the covering task segment</td>
+              <td>The "summary" -- the description of the covering task segment</td>
             </tr>
           </tbody>
         </table>
@@ -794,14 +794,14 @@ Q6 (case006): Are <span class="hl">forceps</span> involved in the procedure?</co
         <span class="note-k">Why this matters</span>
         <p>
           If ground truth is generated from tables we already hold, then we can replicate the
-          generator — which turns an 11-example tuning set into thousands. Every decision below
+          generator -- which turns an 11-example tuning set into thousands. Every decision below
           follows from this.
         </p>
       </div>
     </section>
 
     <section id="c1">
-      <h2>Consequence 1 — the descriptions are a closed corpus of 21 strings</h2>
+      <h2>Consequence 1 -- the descriptions are a closed corpus of 21 strings</h2>
       <p>
         Across all 155 cases there are exactly 21 unique <code>matched_description</code> values,
         and most task classes map to one or two:
@@ -820,7 +820,7 @@ Q6 (case006): Are <span class="hl">forceps</span> involved in the procedure?</co
         </table>
       </div>
       <p>
-        The defending winner saw this same number and read it as a defect — their report calls
+        The defending winner saw this same number and read it as a defect -- their report calls
         21 captions <em>"insufficient for training"</em>, and abandoned fine-tuning on that
         basis. That conclusion is correct and the inference from it is backwards. It is not a
         training set. It is a <strong>retrieval corpus</strong>. Classify the task, retrieve the
@@ -828,18 +828,18 @@ Q6 (case006): Are <span class="hl">forceps</span> involved in the procedure?</co
         from.
       </p>
       <p>
-        Twenty-one strings fit trivially in a YAML file baked into the container — which also
+        Twenty-one strings fit trivially in a YAML file baked into the container -- which also
         happens to satisfy the no-network constraint for free.
       </p>
     </section>
 
     <section id="c2">
-      <h2>Consequence 2 — exactly three instruments, out of twelve</h2>
+      <h2>Consequence 2 -- exactly three instruments, out of twelve</h2>
       <p>
         The data description is explicit: for the extent of each clip <em>"there are three
         robotic surgical tools installed and within the surgical field"</em>, and each clip
         <em>"can contain up to three of 12 possible tools."</em> That reconciles exactly with the
-        arm structure in <code>tools.csv</code> — four USM arms, one carrying the endoscope
+        arm structure in <code>tools.csv</code> -- four USM arms, one carrying the endoscope
         (<code>nan(camera in)</code>), leaving three instrument arms.
       </p>
       <div class="note is-key">
@@ -852,16 +852,16 @@ Q6 (case006): Are <span class="hl">forceps</span> involved in the procedure?</co
         </p>
       </div>
       <p>
-        <strong>Class scope is 12, not 20.</strong> The label tables do contain rarer classes —
+        <strong>Class scope is 12, not 20.</strong> The label tables do contain rarer classes --
         <code>suction irrigator</code>, <code>synchroseal</code>, <code>curved scissors</code>,
         <code>potts scissors</code>, <code>tenaculum forceps</code>,
-        <code>bipolar dissector</code>, <code>crocodile grasper</code> — but the data description
+        <code>bipolar dissector</code>, <code>crocodile grasper</code> -- but the data description
         states that <em>"these tools will not be part of the testing set and the submissions will
         not need to recognize those."</em> They are auxiliary training signal and nothing more.
         The 2025 winner's 12-class list was correct.
       </p>
       <div class="note is-risk">
-        <span class="note-k">Open question — settle by measurement</span>
+        <span class="note-k">Open question -- settle by measurement</span>
         <p>
           Three of the eleven sample questions name a <em>"large needle driver"</em>, which is a
           <code>commercial_toolname</code>. But the data description states that <em>"the test
@@ -875,14 +875,14 @@ Q6 (case006): Are <span class="hl">forceps</span> involved in the procedure?</co
     </section>
 
     <section id="c3">
-      <h2>Consequence 3 — installed is not the same as visible</h2>
+      <h2>Consequence 3 -- installed is not the same as visible</h2>
       <p>
         Ground truth keys off install intervals, and the challenge's own data description warns
         that tools may be <em>"installed yet obscured from view."</em> A needle driver mounted on
         USM1 but off-screen is still a <strong>yes</strong>.
       </p>
       <p>
-        So the estimation target is <strong>installation state</strong> — which is temporally
+        So the estimation target is <strong>installation state</strong> -- which is temporally
         smooth, strongly predicted by task context, and a materially easier problem than
         detection. It also means the obvious instinct is a trap: getting better at
         <em>seeing</em> tools moves you away from the ground truth, not toward it.
@@ -1026,7 +1026,7 @@ Q6 (case006): Are <span class="hl">forceps</span> involved in the procedure?</co
           <!-- ============ edges: lane B -> selector, skipping pass 2 ============ -->
           <path class="dgm-line" d="M730,450 V692 H650" marker-end="url(#ah)"/>
           <path class="dgm-line" d="M950,450 V752 H600 V724" marker-end="url(#ah)"/>
-          <text class="dgm-a" x="790" y="600" text-anchor="middle">no second pass —</text>
+          <text class="dgm-a" x="790" y="600" text-anchor="middle">no second pass --</text>
           <text class="dgm-a" x="790" y="615" text-anchor="middle">no new evidence to weigh</text>
 
           <!-- ============ edges: agree path ============ -->
@@ -1037,12 +1037,12 @@ Q6 (case006): Are <span class="hl">forceps</span> involved in the procedure?</co
           <path class="dgm-line-key" d="M540,724 V772" marker-end="url(#ahk)"/>
         </svg>
         <figcaption>
-          The teal path is the common case — the first pass agrees with the perception bank and
+          The teal path is the common case -- the first pass agrees with the perception bank and
           the answer emits straight away. Everything else is escalation, and it splits on a single
           question: <em>would more looking actually help?</em> The upper lane buys new visual
           evidence, so a second VLM pass is worth running. The lower lane resolves from a table,
           where a second pass would add latency and a chance for the model to talk itself out of a
-          correct answer — so it emits directly.
+          correct answer -- so it emits directly.
         </figcaption>
       </figure>
     </section>
@@ -1057,7 +1057,7 @@ Q6 (case006): Are <span class="hl">forceps</span> involved in the procedure?</co
         43 commercial names mapped to class), <code>descriptions.yaml</code> (the 21 strings, keyed by task),
         <code>answer_forms.yaml</code> (surface form per slot type), and
         <code>routing.yaml</code> (thresholds, budgets, frame counts). Everything tunable lives
-        here, so a sweep is a config sweep rather than a code change — and it is also what makes
+        here, so a sweep is a config sweep rather than a code change -- and it is also what makes
         the method legible in the report.
       </p>
 
@@ -1070,7 +1070,7 @@ Q6 (case006): Are <span class="hl">forceps</span> involved in the procedure?</co
         against the taxonomy, and the granularity. Questions like <em>"What is the purpose of
         using forceps?"</em> need no perception at all; <code>specialty</code> is answerable from
         the task class alone via YAML. The taxonomy is deliberately <strong>open</strong>, with a
-        generic fallback path — an unrecognized slot type must degrade, not fail, because the
+        generic fallback path -- an unrecognized slot type must degrade, not fail, because the
         2026 question distribution is not fully known.
       </p>
 
@@ -1080,7 +1080,7 @@ Q6 (case006): Are <span class="hl">forceps</span> involved in the procedure?</co
         installed rather than visible, with temporal smoothing across the clip. The exactly-three
         constraint is enforced at decode time rather than hoped for. Trained on SurgVU24 video
         against install intervals derived from <code>tools.csv</code>, optionally pre-trained on
-        SurgToolLoc-2022 — which the rules explicitly permit. The seven out-of-scope rare classes
+        SurgToolLoc-2022 -- which the rules explicitly permit. The seven out-of-scope rare classes
         are kept as auxiliary training signal but never emitted.
       </p>
 
@@ -1088,7 +1088,7 @@ Q6 (case006): Are <span class="hl">forceps</span> involved in the procedure?</co
       <p>
         Classifies into 8 task classes (after normalizing the 15 raw label spellings), then
         retrieves the matching description. <strong>Organ is derived from the retrieved
-        description via YAML, not from a separate classifier</strong> — the description already
+        description via YAML, not from a separate classifier</strong> -- the description already
         names the anatomy, so a dedicated organ model is redundant. This replaces the 2025 winner's
         expensive 2048-token description-generation pass with a lookup that is both faster and
         closer to ground truth.
@@ -1096,16 +1096,16 @@ Q6 (case006): Are <span class="hl">forceps</span> involved in the procedure?</co
 
       <h3><span class="marker">5</span>VLM pass 1 with self-consistency</h3>
       <p>
-        The VLM answers given the retrieved description, the tool list, and frames — sampled
+        The VLM answers given the retrieved description, the tool list, and frames -- sampled
         <strong>N times over independent frame subsets</strong>. Confidence is the agreement rate
         across those samples: not a logprob, not a verbalized score. The budget comes from an
         inefficiency in the 2025 winner, who allocates 2048 output tokens to an answer that is
-        one short sentence — and under this metric the target is usually a single word.
+        one short sentence -- and under this metric the target is usually a single word.
       </p>
 
       <h3><span class="marker">6</span>Router / arbiter</h3>
       <p>
-        Plain Python and a threshold file — no model. It fires when the VLM's slot value
+        Plain Python and a threshold file -- no model. It fires when the VLM's slot value
         disagrees with the perception bank, or when self-consistency is low. The governing
         principle is narrow: <strong>escalate only to something that can actually reduce the
         uncertainty you have.</strong> If no evidence you could buy would change the answer,
@@ -1119,10 +1119,10 @@ Q6 (case006): Are <span class="hl">forceps</span> involved in the procedure?</co
             <tr><td>Tool question, <strong>class-level</strong>, disagreement or flip-flopping</td><td>Detector arbiter</td><td><strong>yes</strong></td><td>Occlusion is the classifier's known blind spot, and vision can fix it</td></tr>
             <tr><td>Tool question, <strong>commercial-level</strong></td><td>Class fallback</td><td>no</td><td>No pixel separates a <em>Large</em> from a <em>Mega</em> needle driver</td></tr>
             <tr><td>Organ, anatomy-plus-action</td><td>Dense re-sample</td><td><strong>yes</strong></td><td>Anatomy needs more frames, not boxes</td></tr>
-            <tr><td>Action</td><td>Dense re-sample</td><td><strong>yes</strong></td><td>Actions are temporal — the fix is more time, not more resolution</td></tr>
+            <tr><td>Action</td><td>Dense re-sample</td><td><strong>yes</strong></td><td>Actions are temporal -- the fix is more time, not more resolution</td></tr>
             <tr><td>Procedure, specialty</td><td>Task class wins</td><td>no</td><td>These derive from the exercise label, not from pixels. If the VLM disagrees here, the VLM is wrong</td></tr>
             <tr><td>World knowledge</td><td>Never escalates</td><td>no</td><td>The video was never involved</td></tr>
-            <tr><td>Parser recognizes nothing</td><td>Generic VLM path</td><td>—</td><td>Degrade, don't fail</td></tr>
+            <tr><td>Parser recognizes nothing</td><td>Generic VLM path</td><td>--</td><td>Degrade, don't fail</td></tr>
           </tbody>
         </table>
       </div>
@@ -1130,17 +1130,17 @@ Q6 (case006): Are <span class="hl">forceps</span> involved in the procedure?</co
         <strong>The second pass runs only when new visual evidence arrived.</strong> The detector
         and dense re-sampling both produce something the model has not seen, so re-asking is
         worth the latency. The class fallback and the task-class-wins branch resolve by consulting
-        a table — re-asking there would add cost and give the model a chance to talk itself out of
+        a table -- re-asking there would add cost and give the model a chance to talk itself out of
         an answer that is already correct. Those two emit directly.
       </p>
       <p>
-        The detector never contributes location to the answer text — only evidence that a tool is
+        The detector never contributes location to the answer text -- only evidence that a tool is
         present.
       </p>
 
       <h3><span class="marker">7</span>Answer-form selector</h3>
       <p>
-        Chooses the surface form by slot type, then emits. Deliberately not left to the VLM —
+        Chooses the surface form by slot type, then emits. Deliberately not left to the VLM --
         the form choice is deterministic and sweepable, and we measure each option against the
         official scorer rather than arguing about it.
       </p>
@@ -1176,7 +1176,7 @@ Q6 (case006): Are <span class="hl">forceps</span> involved in the procedure?</co
           confidence threshold. Because ground truth is generated from metadata we already hold,
           we replicate the generator: sample a clip, read the covering <code>tools.csv</code>
           rows and <code>tasks.csv</code> segment, and emit a question plus five paraphrased
-          references in the observed style — terse first, then paraphrases.
+          references in the observed style -- terse first, then paraphrases.
         </li>
       </ul>
       <p>
@@ -1184,7 +1184,7 @@ Q6 (case006): Are <span class="hl">forceps</span> involved in the procedure?</co
         between the synthetic distribution and the real one.
       </p>
 
-      <h3><span class="marker">0</span>Experiment 0 — establish the bar</h3>
+      <h3><span class="marker">0</span>Experiment 0 -- establish the bar</h3>
       <p>
         Run Capybara's public 2025 container against the official 2026 evaluation container on
         the 11-case sample set. This produces the BERTScore number we must beat for the
@@ -1192,7 +1192,7 @@ Q6 (case006): Are <span class="hl">forceps</span> involved in the procedure?</co
         Repeat for the other three public prior-winner containers if time allows.
       </p>
 
-      <h3><span class="marker">1</span>Experiment 1 — measure the metric's shape</h3>
+      <h3><span class="marker">1</span>Experiment 1 -- measure the metric's shape</h3>
       <p>
         Measure the metric's actual shape against the official scorer. Four numbers, all cheap
         to obtain, and every downstream decision about answer form depends on them:
@@ -1204,7 +1204,7 @@ Q6 (case006): Are <span class="hl">forceps</span> involved in the procedure?</co
         <li>How much does a <em>correct</em> answer in the wrong register lose?</li>
       </ul>
 
-      <h3><span class="marker">2</span>Experiment 2 — does commercial-name granularity matter?</h3>
+      <h3><span class="marker">2</span>Experiment 2 -- does commercial-name granularity matter?</h3>
       <p>
         For each of the three commercial-name sample questions, score answering from the class
         alone against answering from <code>P(commercial | class, task)</code> priors. If the
@@ -1238,10 +1238,10 @@ Q6 (case006): Are <span class="hl">forceps</span> involved in the procedure?</co
       <h2>Testing</h2>
       <p>Test-first, per standing practice on this project.</p>
       <ul>
-        <li><strong>Unit</strong> — question parser against every sample question plus adversarial phrasings; answer-form selector; prior computation from <code>tools.csv</code>.</li>
-        <li><strong>Golden</strong> — the 11 public samples, end to end, scored by the official container.</li>
-        <li><strong>Integration</strong> — the full container on a T4-class GPU. Not optional: the 2025 winner reports that 4-bit quantized VLMs produce <em>different outputs</em> on Turing versus Ampere versus Hopper, so validating on an A100 and submitting to a T4 means submitting untested code.</li>
-        <li><strong>Ablation</strong> — each component removed in turn on synthetic validation, to establish that the router earns its runtime.</li>
+        <li><strong>Unit</strong> -- question parser against every sample question plus adversarial phrasings; answer-form selector; prior computation from <code>tools.csv</code>.</li>
+        <li><strong>Golden</strong> -- the 11 public samples, end to end, scored by the official container.</li>
+        <li><strong>Integration</strong> -- the full container on a T4-class GPU. Not optional: the 2025 winner reports that 4-bit quantized VLMs produce <em>different outputs</em> on Turing versus Ampere versus Hopper, so validating on an A100 and submitting to a T4 means submitting untested code.</li>
+        <li><strong>Ablation</strong> -- each component removed in turn on synthetic validation, to establish that the router earns its runtime.</li>
       </ul>
     </section>
 
@@ -1283,7 +1283,7 @@ Q6 (case006): Are <span class="hl">forceps</span> involved in the procedure?</co
       </div>
 
       <div class="note is-risk">
-        <span class="note-k">Open — unpublished</span>
+        <span class="note-k">Open -- unpublished</span>
         <p>
           <strong>The per-phase runtime limit is unknown.</strong> It bounds how many passes the
           router can afford. Requested from the organizers; until it is known,
@@ -1293,7 +1293,7 @@ Q6 (case006): Are <span class="hl">forceps</span> involved in the procedure?</co
       </div>
 
       <div class="note is-risk">
-        <span class="note-k">Open — data</span>
+        <span class="note-k">Open -- data</span>
         <p>
           <strong>2026 labels may differ from the SurgVU25 labels in the bucket.</strong> Since
           ground truth is generated from those exact strings, stale labels would corrupt every
@@ -1302,7 +1302,7 @@ Q6 (case006): Are <span class="hl">forceps</span> involved in the procedure?</co
       </div>
 
       <div class="note is-risk">
-        <span class="note-k">Deadline — 10 days out</span>
+        <span class="note-k">Deadline -- 10 days out</span>
         <p>
           <strong>Registration closes Aug 15.</strong> The team must exist on the platform and
           the signed agreement form must have reached
@@ -1315,7 +1315,7 @@ Q6 (case006): Are <span class="hl">forceps</span> involved in the procedure?</co
         <span class="note-k">Managed</span>
         <p>
           <strong>Quantization is nondeterministic across GPU architectures</strong>, per the
-          2025 winner's own report — mitigated by the T4 integration-test requirement above.
+          2025 winner's own report -- mitigated by the T4 integration-test requirement above.
           Separately, both submission budgets are finite: <strong>10 preliminary attempts, then
           2 final ones</strong>. Every submission must be justified by a local result first.
         </p>
