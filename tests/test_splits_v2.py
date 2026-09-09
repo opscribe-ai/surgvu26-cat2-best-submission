@@ -1,8 +1,8 @@
 """Pure-logic tests for the v2 split: heldout exclusion + tool stratification.
 
 Nothing here opens a real shard. The corpus is described as
-`{case_id: [[tool, ...], ...]}` — one list of tool names per 30-second
-window — which is exactly the shape `build_splits_v2` reduces the real shard
+`{case_id: [[tool, ...], ...]}` -- one list of tool names per 30-second
+window -- which is exactly the shape `build_splits_v2` reduces the real shard
 metadata to, so the assignment logic is exercised on synthetic data that
 takes microseconds to build.
 
@@ -59,7 +59,7 @@ def _corpus(n_cases=20, per_case=100, first_id=0):
 
 def _granular_corpus():
     """Cases of three different lengths carrying four classes on different
-    strides — no two are interchangeable, so the assignment has real local
+    strides -- no two are interchangeable, so the assignment has real local
     optima to get stuck in. `_corpus` cannot stand in: identical cases make
     almost every arrangement locally optimal."""
     corpus = {}
@@ -77,7 +77,7 @@ def _granular_corpus():
 
 
 # --------------------------------------------------------------------------
-# id normalisation — the reason the leak was invisible
+# id normalisation -- the reason the leak was invisible
 # --------------------------------------------------------------------------
 
 def test_normalize_case_id_maps_both_spellings_to_one_form():
@@ -171,7 +171,7 @@ def test_val_holds_roughly_the_requested_fraction_of_cases():
 
 def test_the_val_window_share_follows_the_fraction_when_cases_differ_in_length():
     """Cases differ in length by more than an order of magnitude, so 20% of
-    the cases is not 20% of the windows — and val is a window count in every
+    the cases is not 20% of the windows -- and val is a window count in every
     metric computed from it.
 
     Every case here carries the same 10 tool windows and differs only in how
@@ -265,7 +265,7 @@ def test_a_class_living_in_a_single_case_is_reported_not_forced():
 
 def test_a_class_that_had_to_be_over_sampled_into_val_is_flagged():
     """Cases move whole, so a class confined to a couple of long cases cannot
-    land on 20% — the reachable val shares here are 0% or 50%. Reaching the
+    land on 20% -- the reachable val shares here are 0% or 50%. Reaching the
     floor at 50% is the right trade, but it is a distortion of the split and
     the file has to say so instead of presenting 50% as if it were 20%."""
     corpus = _corpus(20)
@@ -322,7 +322,7 @@ def test_the_split_is_reproducible_and_seed_dependent():
 def test_more_restarts_can_only_improve_the_published_split():
     """A swap search stops at the first arrangement no single exchange
     improves, and which one that is depends entirely on where it started.
-    Restarts exist because one climb settles for a visibly worse split — on
+    Restarts exist because one climb settles for a visibly worse split -- on
     the real corpus, a single start left `tip-up fenestrated grasper` at
     75/82 instead of 68/89. Each restart is an independent climb and the best
     is kept, so the achieved cost must never go up when restarts do."""
