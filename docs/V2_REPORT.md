@@ -1,10 +1,10 @@
-# V2 overnight report — 2026-08-11 into 2026-08-12
+# V2 overnight report -- 2026-08-11 into 2026-08-12
 
 Six experiments, plus one I invented mid-run. **One large positive, one small
 positive, five negatives.** Most of the negatives were my own hypotheses,
 which is the right ratio for a night of exploration but worth saying plainly.
 
-## SUPERSEDED, 2026-08-12 morning — read this first
+## SUPERSEDED, 2026-08-12 morning -- read this first
 
 The 20-epoch ResNet landed and **it beats the ensemble on its own**:
 
@@ -14,13 +14,13 @@ The 20-epoch ResNet landed and **it beats the ensemble on its own**:
     EfficientNet + ResNet-long      tools 0.7690   task 0.9551
 
 **+0.0631 on tools over the ensemble, from one model.** And ensembling it with
-EfficientNet makes tools *worse* (0.7690 vs 0.7802) — the weaker partner drags
+EfficientNet makes tools *worse* (0.7690 vs 0.7802) -- the weaker partner drags
 it down. Measurable-class macro-F1 says the same: 0.8511 alone against the
 ensemble's 0.7823.
 
 So the overnight framing was wrong in an instructive way. **The ensemble was
-compensating for an undertrained ResNet.** Diversity is real — the seed control
-proved it — but it is worth less than training the better architecture
+compensating for an undertrained ResNet.** Diversity is real -- the seed control
+proved it -- but it is worth less than training the better architecture
 properly, and it turns *negative* once the partners are far apart in quality.
 
 The task head disagrees: the ensemble still wins there (0.9551 vs 0.9456), so
@@ -30,14 +30,14 @@ the right configuration may differ per head.
 
 **Experiment 4 (the second spotter) works: +0.0424 macro-F1.** Nothing else
 moved the needle, and the ensemble's gain does not show up on the 11 held-out
-cases at all — for a reason we now understand and can measure.
+cases at all -- for a reason we now understand and can measure.
 
 ## Every experiment
 
 All numbers are **clip-level macro-F1 on the splits_v2 validation split**,
 29 cases / 4,635 windows, with per-class thresholds tuned on one case fold and
 scored on the other. That protocol is stricter than the one that produced the
-shipped `0.6605`, so the two are not comparable — see "Numbers that look
+shipped `0.6605`, so the two are not comparable -- see "Numbers that look
 comparable and are not".
 
 | # | Experiment | Verdict | Result |
@@ -60,7 +60,7 @@ comparable and are not".
 
 ---
 
-## 4 — The ensemble. The result of the night.
+## 4 -- The ensemble. The result of the night.
 
 EfficientNet-V2-S and ResNet-50, probabilities averaged **per frame** before
 aggregation, then reduced with `top5`.
@@ -73,17 +73,17 @@ aggregation, then reduced with `top5`.
 
 The instructive detail: **ResNet-50 alone is *worse* than EfficientNet at clip
 level** (0.6623 vs 0.6747) despite being *better* per-frame (0.6732 vs
-0.6605). An ensemble partner does not have to be better — it has to be wrong
+0.6605). An ensemble partner does not have to be better -- it has to be wrong
 differently. That is the whole "second spotter" idea, and it is the only thing
 tonight that produced a large number.
 
 ResNet also **had not converged at 8 epochs** (0.6301 → 0.6611 → 0.6732, still
-climbing when the run ended), which is the opposite of EfficientNet — that
+climbing when the run ended), which is the opposite of EfficientNet -- that
 peaks at epoch 3 and never beats it in a 12-epoch run. The shipped 4-epoch
 default turns out to be an EfficientNet fact that had been treated as a
 project-wide one. A 20-epoch ResNet is running.
 
-### 4b — Ensembling the TASK head is worth more, and I nearly skipped it
+### 4b -- Ensembling the TASK head is worth more, and I nearly skipped it
 
     single task model     0.8923
     task ensemble         0.9392      +0.047
@@ -91,7 +91,7 @@ project-wide one. A 20-epoch ResNet is running.
 A **43% cut in task error** (10.8% -> 6.1%), from a partner that was barely
 better alone (0.6947 vs 0.6803) and *wildly* unstable across epochs, swinging
 between 0.32 and 0.69. I had written that instability off as making the ResNet
-task result untrustworthy. It made it a **better ensemble partner** — an
+task result untrustworthy. It made it a **better ensemble partner** -- an
 unstable model is wrong in different places each time, which is exactly what
 averaging exploits.
 
@@ -111,14 +111,14 @@ both configs through the identical harness and diffing the *records*:
 
 The router absorbed all six changes, and you can see why case by case.
 case125 asks whether a suture is required; both records contain a needle
-driver, so both say Yes. case128 asks whether a needle driver is involved —
+driver, so both say Yes. case128 asks whether a needle driver is involved --
 same. case129 is a procedure question answered from a **constant**, so
 perception cannot reach it. case127 is answered from `task_top`, which did not
 move.
 
 **The general lesson, and it cuts both ways:** the router asks coarse
 questions of a fine-grained record. That is why v1 scored 0.8015 on the
-leaderboard while carrying a mediocre 0.6605 tool model — it is robust to bad
+leaderboard while carrying a mediocre 0.6605 tool model -- it is robust to bad
 perception. It is also why it does not cash in good perception.
 
 The ensemble's gains sit in the **rare tail** (force bipolar, stapler) while
@@ -126,8 +126,8 @@ the 11 sample questions ask about needle driver, forceps and cadiere, where it
 barely moves. Eleven questions cannot resolve a difference measured over
 4,635 windows.
 
-**Tested twice, both ways.** Re-running with *both* heads ensembled — tools
-+0.0424 and task +0.047 — still gives byte-identical answers:
+**Tested twice, both ways.** Re-running with *both* heads ensembled -- tools
++0.0424 and task +0.047 -- still gives byte-identical answers:
 
     task_top differing    1 of 11   (case126, uterine horn -> rectal artery/vein)
     ANSWERS differing     0 of 11
@@ -142,7 +142,7 @@ established property of the evaluation, not a one-off observation.
 The three v1 failures survive untouched: case124 still answers Bipolar Forceps
 against a gold of Cadiere, case126 still No against Yes, case132 still Yes
 against No. Moving the sample score requires fixing the *tool* model on
-cadiere-versus-bipolar and on a needle driver it never sees above 0.107 —
+cadiere-versus-bipolar and on a needle driver it never sees above 0.107 --
 neither of which an ensemble of two models that share that blind spot can
 do.
 
@@ -164,7 +164,7 @@ the shipped model separates architecture from partner strength.
 
       cross - same                  +0.0317  +0.0463  +0.0348
 
-**Two EfficientNets ensemble to 0.6707 — below the single shipped model's
+**Two EfficientNets ensemble to 0.6707 -- below the single shipped model's
 0.6847.** Averaging two models of the same architecture buys nothing at all;
 it is slightly harmful. The entire gain comes from the partner being a
 *different kind of model*.
@@ -183,7 +183,7 @@ Two obvious knobs, both tested honestly, both flat or worse:
     top5     0.7133   0.7171   0.7165   0.7113
     q75      0.7154   0.7148   0.7209   0.7184
 
-The highest cell (24/q75, 0.7209) is +0.0038 over the chosen 16/top5 — inside
+The highest cell (24/q75, 0.7209) is +0.0038 over the chosen 16/top5 -- inside
 the +-0.008 noise band, and it is the maximum over a 4x3 grid scored on the
 folds that report it. Not claimed.
 
@@ -200,7 +200,7 @@ the same fold-agreement check.
 
 ---
 
-## 1 — Aggregation. The shipped `mean` is near the bottom.
+## 1 -- Aggregation. The shipped `mean` is near the bottom.
 
     top3      0.6889          trim20    0.6784
     top5      0.6847          q75       0.6762
@@ -219,13 +219,13 @@ under `top3`). Anyone inheriting "top3 is best" onto a new model would lose to
 it. It has to be re-measured per model, and the serving config now carries it
 per expert for that reason.
 
-## 1b — Per-class aggregators. My idea, and it is fold noise.
+## 1b -- Per-class aggregators. My idea, and it is fold noise.
 
 The +0.0142 was 6 classes up and 5 down, and the split looked principled:
 intermittently-visible instruments gained, continuously-present ones lost. So
 I let each class pick its own aggregator, selected on the tuning fold only.
 
-It scores **0.6798, worse than global `top3`'s 0.6889** — and the diagnostic
+It scores **0.6798, worse than global `top3`'s 0.6889** -- and the diagnostic
 is what makes that conclusive rather than merely disappointing: **only 2 of 12
 classes chose the same aggregator on both folds**, and one of those is
 unmeasurable anyway. The preferences are properties of the fold, not the
@@ -235,7 +235,7 @@ One real exception survives: **force bipolar picks `q90` on both folds and
 gains +0.073**. The worst class in the taxonomy has a genuine, reproducible
 preference. Not enough to justify a per-class vector, but noted for v3.
 
-## 2 — Frame count. Your intuition, and it does not hold.
+## 2 -- Frame count. Your intuition, and it does not hold.
 
     frames    8       16      24      30
     mean    0.6746  0.6747  0.6757  0.6722
@@ -246,36 +246,36 @@ independent evidence; the estimate is saturated well below 16.
 
 So "we only use 22 seconds of 600, let's be generous" is right about the
 headroom and wrong about where to spend it. The budget is better spent the way
-experiment 4 spends it — on a **second model** rather than more looks from the
+experiment 4 spends it -- on a **second model** rather than more looks from the
 same one.
 
 **Hard limit:** shards store 30 frames per window, so this sweep cannot test
 above 30. Serving decodes 60 fps video and could take more, but there is no
 labelled way to measure it without re-extracting the corpus.
 
-## 3 — Test-time augmentation. Actively harmful.
+## 3 -- Test-time augmentation. Actively harmful.
 
     id                   0.6889          id+scale448          0.6726
     scale448             0.6611          id+hflip             0.6679
     hflip                0.6084          id+hflip+scale448    0.6718
 
 Every augmentation combination loses to plain `id`, and **hflip costs
-−0.0664**. Instrument *identity* is not chiral but arm *position* is — in
+−0.0664**. Instrument *identity* is not chiral but arm *position* is -- in
 robotic surgery the left and right arms systematically carry different
 instruments, and mirroring destroys that association. This was flagged as "a
 question rather than a freebie" when it was built; the answer is emphatically
 negative.
 
-## 5 — The `pos_weight` ceiling. Wrong on two independent measurements.
+## 5 -- The `pos_weight` ceiling. Wrong on two independent measurements.
 
 The hypothesis: `train_tools.py` clips per-class weights at 50 while tip-up's
 true negatives/positives ratio is ~175 and stapler's ~200, and tip-up scores
-exactly 0.0000 — never predicted at all.
+exactly 0.0000 -- never predicted at all.
 
 - On **frozen features**, across 16 configurations, raising the ceiling
   50 → 200 changed macro-F1 by ≤0.008 and sometimes *favoured* 50.
 - On the **real CNN**, the ceiling-200 retrain finished at **0.5991** against
-  the shipped **0.6605** — same architecture, same seed, same data, the only
+  the shipped **0.6605** -- same architecture, same seed, same data, the only
   difference being the ceiling. **−0.0614.** Raising it is not neutral, it is
   actively harmful.
 
@@ -286,10 +286,10 @@ structural zero in one direction regardless of the model. This verdict rests
 on stapler and force bipolar, not on the class that motivated it.
 
 And tip-up stays at 0.0000 even when thresholds are tuned self-tuned on *all*
-68 windows — so it is a genuine model failure, not a fold artifact. Neither
+68 windows -- so it is a genuine model failure, not a fold artifact. Neither
 the ensemble nor the weighting change touches it.
 
-## 6 — EndoViT. Negative as tested, but the test was not the fair one.
+## 6 -- EndoViT. Negative as tested, but the test was not the fair one.
 
 A ViT-B/16 pretrained with masked autoencoding on 700k endoscopic frames from
 nine public datasets, Apache-2.0. Loads into a timm ViT with **zero missing
@@ -299,7 +299,7 @@ and zero unexpected keys**.
     EfficientNet best            0.6889
 
 Frozen EndoViT loses by 0.0262. **But frozen-versus-fine-tuned is not a fair
-fight** — a completely frozen trunk landing within 0.026 of a fine-tuned CNN
+fight** -- a completely frozen trunk landing within 0.026 of a fine-tuned CNN
 on 115 training cases is a strong showing, and fine-tuning it is the version
 that was not tested. That is the clearest v3 item on the list.
 
@@ -313,7 +313,7 @@ applier, and **0.850 for stapler from fourteen positive examples**.
 This experiment could have produced a confident false null twice over.
 
 1. **Normalisation is not ImageNet.** The checkpoint carries its own
-   statistics — `mean [0.3464, 0.2280, 0.2228]` — which are endoscopy
+   statistics -- `mean [0.3464, 0.2280, 0.2228]` -- which are endoscopy
    statistics, note the red channel. Feeding ImageNet's would have shifted
    every input off-distribution with no opportunity to adapt, because nothing
    is fine-tuned.
@@ -323,21 +323,21 @@ This experiment could have produced a confident false null twice over.
    **standardised 0.6605 vs raw 0.6321, +0.0284.**
 
 I found the cone property hours before I acted on it, ran the first sweep
-without standardising, and got 0.6279 — which would have read as "the
+without standardising, and got 0.6279 -- which would have read as "the
 foundation model is mediocre". It was a preprocessing result wearing a model
 result's clothes.
 
-## 6b — EndoViT as a third ensemble member. Also negative.
+## 6b -- EndoViT as a third ensemble member. Also negative.
 
 Tonight's main lesson is that a member has to be wrong *differently*, not
-better — ResNet is worse alone and still lifts the pair. EndoViT is a
+better -- ResNet is worse alone and still lifts the pair. EndoViT is a
 transformer trained by masked autoencoding on endoscopic video, so it is about
 as decorrelated from two ImageNet CNNs as anything available. Worth testing.
 
     2-way  EfficientNet + ResNet              0.7171
     3-way  + EndoViT, equal weight            0.7138     -0.0033
 
-Equal weight is arbitrary, so the weight was swept — and this is where the
+Equal weight is arbitrary, so the weight was swept -- and this is where the
 experiment nearly produced a false positive:
 
     w      0.00    0.10    0.20    0.30    0.40    0.50    0.75    1.00
@@ -345,7 +345,7 @@ experiment nearly produced a false positive:
 
 w=0.30 reads as **+0.0083**. But the curve oscillates by ±0.008 between
 adjacent weights, and that cell is the *maximum over eight weights scored on
-the same folds that report it* — the identical selection-on-test trap that
+the same folds that report it* -- the identical selection-on-test trap that
 killed experiment 1b.
 
 Choosing the weight on one fold and evaluating on the other:
@@ -381,7 +381,7 @@ any weight that can be selected reliably. The two-way ensemble stands.
 
 The first fold split put **all 68 tip-up windows on one side and none on the
 other**, and vessel sealer at 50/186. A class with no positives in a fold
-cannot have a threshold tuned for it, so it scores a structural zero — which
+cannot have a threshold tuned for it, so it scores a structural zero -- which
 would have made experiment 5's improvements *invisible*, since the rare tail
 is exactly what experiment 5 targets. I would have reported a confident null
 about nothing.
@@ -392,7 +392,7 @@ per-class log-ratio **1.299 → 0.253**). Seeded, so runs stay comparable.
 ## Corrections to things I said earlier
 
 - **"All three sample misses are model errors."** Only two are. case132 is the
-  documented 17.6% tail of `large_needle_driver_policy` — "Large Needle
+  documented 17.6% tail of `large_needle_driver_policy` -- "Large Needle
   Driver" is a commercial *variant* collapsing into the `needle driver` class,
   unrecoverable from a 12-class taxonomy. No perception work fixes it.
 - **"Idle jobs mean a bad resource request."** They meant group GPU
@@ -407,9 +407,9 @@ per-class log-ratio **1.299 → 0.253**). Seeded, so runs stay comparable.
 
 ## What is still running
 
-- `tools_posw200` — experiment 5's CNN confirmation, trending negative
-- `tools_resnet50_long` — 20 epochs, since 8 had not converged
-- `frame_probs_resnet_both_val` — for a both-heads ensemble
+- `tools_posw200` -- experiment 5's CNN confirmation, trending negative
+- `tools_resnet50_long` -- 20 epochs, since 8 had not converged
+- `frame_probs_resnet_both_val` -- for a both-heads ensemble
 
 ## The decision for you
 
@@ -425,7 +425,7 @@ gains are on the classes v1 is worst at.
 **Against:** zero measured change on every case we can actually score, six
 perception changes that the router absorbed, and seven submissions left. A
 submission spent here buys information about a change we cannot otherwise
-observe — which may itself be the reason to spend it.
+observe -- which may itself be the reason to spend it.
 
 `config/perception.json` is untouched. The ensemble lives in
 `config/perception_ensemble.json`, so nothing about the submitted v1 has
