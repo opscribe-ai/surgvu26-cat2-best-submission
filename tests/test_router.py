@@ -586,7 +586,7 @@ def test_task_question_names_the_task():
 
 
 # --------------------------------------------------------------------------
-# fallbacks and robustness — the router must never crash, never return ""
+# fallbacks and robustness -- the router must never crash, never return ""
 # --------------------------------------------------------------------------
 
 def test_unknown_polar_question_gets_the_polar_fallback():
