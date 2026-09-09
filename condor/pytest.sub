@@ -14,7 +14,7 @@ container_image         = file:///staging/n/nkalthoff/surgvu26/surgvu26-train.si
 
 executable              = condor/pytest.sh
 
-# Required to reach the .sif in /staging/n/nkalthoff — same as every other
+# Required to reach the .sif in /staging/n/nkalthoff -- same as every other
 # container_image=file:///staging/... job in this repo (gpu_check.sub,
 # gpu_check_any.sub). This is personal staging holding the container image,
 # not the shared /staging/groups/bhaskar_opscribe corpus.
