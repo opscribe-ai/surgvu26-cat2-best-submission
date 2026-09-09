@@ -52,7 +52,7 @@ def test_every_window_task_agrees_with_task_at_its_own_midpoint():
     """`task_at` resolves overlapping segments by taking the SHORTEST covering
     one. `enumerate_windows` used to copy the task off whichever segment it was
     iterating, so a window inside an overlap could carry a task that
-    contradicted `task_at` at its own midpoint — 155 such windows across the
+    contradicted `task_at` at its own midpoint -- 155 such windows across the
     real corpus. There is exactly one answer to "what task is happening here",
     and it is `task_at`'s."""
     labels = CaseLabels.from_dir(FIXTURE)
@@ -66,7 +66,7 @@ def test_every_window_task_agrees_with_task_at_its_own_midpoint():
 
 def test_overlapping_segments_resolve_to_the_shortest_segment():
     """A long 'other' segment containing a short 'suturing' one. EVERY window
-    whose midpoint falls in the short segment must be labelled suturing — not
+    whose midpoint falls in the short segment must be labelled suturing -- not
     just the one enumerated from the short segment. The window enumerated from
     the LONG segment at the same moment is the one that used to be wrong."""
     labels = _OverlappingLabels()
