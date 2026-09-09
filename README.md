@@ -275,10 +275,4 @@ in `NOTICE`.
 ## AI assistance
 
 We used [Claude Code](https://claude.com/claude-code) while building this. It helped
-with the pipeline code, the evaluation tooling, the documentation and a lot of the
-commit messages in this repository. The design decisions, the measurements and what we
-actually submitted to the challenge were ours.
-
-Commits from 2026-09-09 onward carry a `Co-Authored-By: Claude` trailer. The ones before
-that don't, because the repository was set up under an earlier convention that left the
-trailer out, so we are disclosing the assistance here instead.
+with the pipeline code, the evaluation tooling, the documentation and commits. 
