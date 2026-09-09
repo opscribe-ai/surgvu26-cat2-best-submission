@@ -55,7 +55,7 @@ to what our pipeline was trained on.
 ### The vision-language model
 
 ```
-Qwen2.5-VL-7B, served NF4-quantised (bitsandbytes), 16 frames per call
+Qwen2.5-VL-7B, served NF4-quantised, 16 frames per call
 
   Qwen/Qwen2.5-VL-7B-Instruct              base instruction-tuned VLM
     └─ nvidia/Qwen2.5-VL-7B-Surg-CholecT50   surgical continuation, CholecT50
@@ -64,13 +64,16 @@ Qwen2.5-VL-7B, served NF4-quantised (bitsandbytes), 16 frames per call
 
   LoRA  r=32, alpha=64  ·  95.2M of 4.79B parameters trained (1.99%)
   Prompt is evidence-conditioned: the model sees the frames AND a rendered
-  summary of what all five perception channels found.
+  summary of what all five measurements found.
 ```
 
-Two stages of fine-tuning sit on top of a base that had already been adapted for
-surgery, so the model arrives knowing what a cadiere forceps looks like. The
-adapter touches the language layers and the vision MLPs; the patch embedder and
-the positional encoding are left alone.
+The pre-training and fine-tuning we did sits on top of a model that has already been
+trained to thrive in surgical understanding, so the base model arrives with some
+understanding of surgical tools and phases.
+
+The training we did touches on how the model outputs and the words that it speaks:
+further fine-tuning it on minimally invasive surgery, and then finally showing it
+SurgVU-style frames and answers to set it up for success on actual runs.
 
 ### The router's thirteen intents
 
