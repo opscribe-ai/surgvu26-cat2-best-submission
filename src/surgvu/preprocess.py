@@ -22,8 +22,8 @@ def detect_side_margins(frame, threshold=12, run=8):
     """(left, right) width in pixels of near-black vertical margins.
 
     A margin boundary is only accepted once `run` consecutive columns clear
-    the threshold. A single bright column at the frame edge — a specular
-    highlight, a vignette artifact, a compression edge — must not be mistaken
+    the threshold. A single bright column at the frame edge -- a specular
+    highlight, a vignette artifact, a compression edge -- must not be mistaken
     for the start of real content: real margins are ~193 px wide, so there is
     enormous separation between signal and noise at run=8.
     """
@@ -58,7 +58,7 @@ def crop_side_margins(frame):
 def blur_ui_band(frame, band_fraction=UI_BAND_FRACTION, kernel=BLUR_KERNEL):
     """Gaussian-blur the bottom band where the instrument UI is rendered.
 
-    Safe to apply to an already-blurred frame — blurring is idempotent enough
+    Safe to apply to an already-blurred frame -- blurring is idempotent enough
     that re-applying costs nothing and guarantees compliance regardless of
     what the organizers shipped.
     """
@@ -71,7 +71,7 @@ def blur_ui_band(frame, band_fraction=UI_BAND_FRACTION, kernel=BLUR_KERNEL):
 
 
 def prepare_frame(frame, size=512):
-    """The single entry point. Crop, blur, resize — in that order, always."""
+    """The single entry point. Crop, blur, resize -- in that order, always."""
     frame = crop_side_margins(frame)
     frame = blur_ui_band(frame)
     return cv2.resize(frame, (size, size), interpolation=cv2.INTER_CUBIC)
