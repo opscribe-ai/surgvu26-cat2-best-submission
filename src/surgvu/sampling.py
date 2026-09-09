@@ -1,7 +1,7 @@
 """Choose which 30-second windows become training data.
 
 The unit is a 30-second window sampled at 1 fps, because that is exactly the
-test-time format. Windows are enumerated only inside task segments — that is
+test-time format. Windows are enumerated only inside task segments -- that is
 where the evaluation clips come from, and it is where the labels are defined.
 
 Stratification is by TOOL CLASS rather than duration. Intervals and hours
@@ -33,7 +33,7 @@ def enumerate_windows(case_id, labels, length=WINDOW_SECONDS, stride=WINDOW_SECO
 
     Segments overlap in the real data, so a moment can be covered by more
     than one. `CaseLabels.task_at` resolves that by taking the SHORTEST
-    covering segment — it is the most specific — and this function defers to
+    covering segment -- it is the most specific -- and this function defers to
     it rather than reading `segment.task` off whichever segment it happens to
     be iterating. Reading the iterated segment produced windows whose task
     contradicted `task_at` at their own midpoint (155 of them across the 155
@@ -74,7 +74,7 @@ def tool_frequency(windows):
     """Count of window-appearances per tool class, over all 12 classes.
 
     Every class is initialised to 0, including classes absent from
-    `windows`, so a caller can rely on the shape of the returned dict — this
+    `windows`, so a caller can rely on the shape of the returned dict -- this
     is meant to be built once over a whole dataset's windows and handed to
     `stratify` as its `frequency` argument.
     """
@@ -93,7 +93,7 @@ def stratify(windows, per_case_cap, seed=0, frequency=None):
     containing only needle drivers.
 
     `frequency` should be a dataset-wide table (e.g. from `tool_frequency`
-    called over every case's windows) whenever the caller has one available —
+    called over every case's windows) whenever the caller has one available --
     that is what "rarest tool" is supposed to mean. If `frequency` is
     omitted, it is computed from the `windows` passed in here instead, which
     makes rarity CASE-LOCAL: a tool that is rare across the dataset but
@@ -141,7 +141,7 @@ def make_splits(case_ids, val_fraction=0.2, seed=7):
 #: With n val windows containing a class, flipping one window moves that
 #: class's recall by 1/n. At n=25 that is 4 points; at n=13 (what `stapler`
 #: had in config/splits.json) it is 7.7; at n=0 the F1 is not small but
-#: UNDEFINED, and every scorer in this repo reports undefined as 0.0 — which
+#: UNDEFINED, and every scorer in this repo reports undefined as 0.0 -- which
 #: is how `tip-up fenestrated grasper` silently cost macro-F1 ~0.056 for a
 #: reason that had nothing to do with the model. 25 is the smallest count at
 #: which a per-class number is worth printing.
@@ -211,7 +211,7 @@ def _split_cost(val_counts, val_windows, targets, floors, target_windows):
     penalty: a class below its floor dominates everything else, so the search
     buys val positives for a rare class before it tidies up a common one. The
     proportional term is a squared RELATIVE deviation, so `stapler` at 2x its
-    target counts the same as `cadiere forceps` at 2x its target — an
+    target counts the same as `cadiere forceps` at 2x its target -- an
     absolute deviation would let the rare classes drift arbitrarily far in
     exchange for a rounding error on the common ones.
     """
@@ -288,7 +288,7 @@ def make_splits_v2(case_windows, heldout_ids, val_fraction=0.2, seed=7,
     """Split by CASE into train/val/heldout, stratified over TOOL_CLASSES.
 
     `case_windows` maps a case id to that case's windows, each window being
-    the list of tool classes installed during it —
+    the list of tool classes installed during it --
     `{"case_012": [["needle driver"], [], ...]}`. `heldout_ids` are the cases to
     hold out entirely; they may be spelled either way (`case122` or
     `case_122`) and every one of them must exist in `case_windows`, because a
@@ -353,7 +353,7 @@ def make_splits_v2(case_windows, heldout_ids, val_fraction=0.2, seed=7,
         wanted.append(floor)
         # A class living in ONE case cannot be in both splits. Forcing that
         # case into val to satisfy the floor takes the class's only training
-        # windows with it, so the floor is not enforced — it is reported.
+        # windows with it, so the floor is not enforced -- it is reported.
         floors.append(floor if cases_by_class[i] >= 2 else None)
 
     val, search_cost, converged = _hill_climb(
@@ -379,7 +379,7 @@ def make_splits_v2(case_windows, heldout_ids, val_fraction=0.2, seed=7,
                         if wanted[i] is not None
                         and window_counts[n]["val"] < wanted[i]]
     # Cases move whole, so a class that lives in two long cases can only take
-    # a val share of 0% or 50% — there is no 20% to hit. Meeting the floor at
+    # a val share of 0% or 50% -- there is no 20% to hit. Meeting the floor at
     # 50% is the right trade against an F1 of 0.0, but it is a distortion of
     # the split, and presenting it beside the classes that did land on 20%
     # without saying so would misrepresent what the val number measures.
@@ -401,13 +401,13 @@ def make_splits_v2(case_windows, heldout_ids, val_fraction=0.2, seed=7,
         # `restarts` can only lower this number, never raise it.
         "search_cost": search_cost,
         # True means the search stopped because NO single case swap improves
-        # the split any further — the published assignment is a local optimum
+        # the split any further -- the published assignment is a local optimum
         # of the objective, not wherever the loop happened to run out of
         # passes. A heuristic search that was cut short is exactly the thing
         # a reader of this file cannot otherwise detect.
         "local_optimum": converged,
         "method": (
-            "Cases — never windows — are assigned by best-improvement swap "
+            "Cases -- never windows -- are assigned by best-improvement swap "
             "search from %d seeded starts, minimising a cost that (1) "
             "penalises any tool class holding fewer than min_val_windows val "
             "windows and (2) squares each class's relative deviation from a "
@@ -442,7 +442,7 @@ def make_splits_v2(case_windows, heldout_ids, val_fraction=0.2, seed=7,
             "too few cases for any whole-case assignment to hit the target: "
             "see cases_per_class. The alternative was a val count below "
             "min_val_windows, which scores as an F1 of 0.0 and measures "
-            "nothing, so the over-sampling is deliberate — but the val "
+            "nothing, so the over-sampling is deliberate -- but the val "
             "numbers for these classes rest on fewer distinct cases than the "
             "rest, and their train counts are correspondingly thinner."
             % (", ".join(over_represented), _DISTORTION, val_fraction))
@@ -451,7 +451,7 @@ def make_splits_v2(case_windows, heldout_ids, val_fraction=0.2, seed=7,
             "%s did not reach min_val_windows val windows. A class is capped "
             "at half its windows (it must stay learnable) and a class living "
             "in a single case cannot be in two splits at once, so for these "
-            "the val count is the best the corpus allows — the number is "
+            "the val count is the best the corpus allows -- the number is "
             "recorded here rather than silently accepted."
             % ", ".join(underrepresented))
 
