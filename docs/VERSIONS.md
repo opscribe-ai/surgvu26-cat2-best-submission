@@ -1,7 +1,7 @@
 # Version history
 
 What each version changed, and what it measured. The negative results are
-included deliberately — three of the last four changes cost points, and the
+included deliberately, because three of the last four changes cost points and the
 reasons are more useful than the wins.
 
 **Two scoreboards, never comparable.** The preliminary phase scored 11 cases
@@ -13,16 +13,16 @@ useful only against other preliminary numbers.
 |---|---|---|---|
 | v2 | prelim | 0.8015 | Router + two perception heads. No VLM on the answer path. |
 | v5.2 | prelim | 0.8558 | Instrument variant head (+0.0543, leaderboard-confirmed). A `challenger` arbiter mode was tried and measured **−0.0784**; it was removed. |
-| v6 / v6.1 | — | not separately scored | Three-stage VLM curriculum: NVIDIA surgical base → GI corpus → SurgVU 16-frame QA. The VLM was in the container but, as v6.2 later revealed, **never actually ran on the grader**. |
+| v6 / v6.1 | n/a | not separately scored | Three-stage VLM curriculum: NVIDIA surgical base → GI corpus → SurgVU 16-frame QA. The VLM was in the container but, as v6.2 later revealed, **never actually ran on the grader**. |
 | **v6.2** | **prelim 0.9128 · final 0.660400** | **the submitted system** | Added the missing VRAM term to VLM frame planning. See below. |
 | v7 | final 0.660156 | **−0.000244** | Gave the VLM first crack ahead of the router on more intents, with router re-wording. Net zero, and slightly negative. |
 | v8 | final ≈ 0.60 | **−0.06** | Full VLM-first redesign: per-intent answer normalisation, five sampled passes with phase jitter, per-intent confidence gates, a much richer evidence prompt. Scored **+0.033 on our internal benchmark and −0.06 on the real test set.** |
 
-## v6.2 — the version in this repository
+## v6.2, the version in this repository
 
 `select_plan` chose a VLM frame plan on **time budget alone**. There was no VRAM
 term at all, so a 420 s budget always reached for the richest plan that fit the
-clock — on every card, forever. On the grader's 14.6 GiB Tesla T4 that prefill
+clock, on every card, forever. On the grader's 14.6 GiB Tesla T4 that prefill
 OOM'd, `try_vlm_result` caught the exception, and the router answered instead.
 
 The failure was silent and total: **every graded case, through several
@@ -35,14 +35,14 @@ difference between shipping a VLM and shipping a VLM-shaped hole.
 
 ## Why v7 and v8 lost
 
-Both rest on the same assumption — that the VLM should answer more questions —
+Both rest on the same assumption, that the VLM should answer more questions,
 and both were checked against an internal 199-item benchmark that **agreed with
 them**. v8 scored 0.9418 there against v7's 0.9088, with instrument identity
 rising 0.6585 → 0.8675. It then lost about 0.06 on the real set.
 
 The benchmark's references were synthesised from the same operative logbook the
 task recogniser was trained on. So it partly measured *"does the model agree with
-the classifier"* — which rewards exactly the router-led behaviour v8 was designed
+the classifier"*, which rewards exactly the router-led behaviour v8 was designed
 to replace, and inverts the sign of the change it was built to evaluate.
 
 The lesson we would carry forward: **a benchmark built from your own labels
