@@ -15,45 +15,42 @@ reference answers.
 ## How it works
 
 As soon as a clip gets ingested into our pipeline, it gets decoded into 16 frames, and
-five readings are taken from those frames. The question, separately, is sorted into one of
+five measurements are taken from those frames. The question, separately, is sorted into one of
 thirteen question types, based on the words and the actual string of the question.
 
 The end of the pipeline is concluded by a judge, which decides, based on the question
-type, whether the answer should come from the five readings, from the vision-language
+type, whether the answer should come from the five measurements, from the vision-language
 model, or from a fact we already know about the dataset and don't need to look at the
 clip to say (ex; if a question is "what does x instrument do?", the answer to this will be the same every time).
 
-That last category only happens in niche scenarios; most questions are answered by the five readings in this pipeline. 
+That last category only happens in niche scenarios; most questions are answered by the five measurements in this pipeline. 
 
-### The five readings
+### The five measurements
 
-| reading | what it is |
+| measurement | what it is |
 |---|---|
 | **Tool recogniser** | A ResNet-50 that tries to identify what instruments are in the window. It outputs all 12 instrument classes, each with its own confidence score, so more than one instrument can be identified as being in the frame. |
 | **Task recogniser** | A ResNet-50 that says what surgical step is happening, for example suturing or retraction. Unlike the tool recogniser, the task recogniser outputs just one answer, with eight possible activity classes. |
 | **Detector** | Uses YOLO to draw boxes around instruments in the individual frames. The tool recogniser tells you what instruments are probably there; the detector is a second reference for what is there, and it also tells you where they are, with confidence scores. |
-| **Motion reader** | Computes a micro and a macro score. The micro score tells you how much the picture changed between frames 67 milliseconds apart from the target frame, to see if something is moving on a small time scale. The macro score measures the movement from frame to frame across the original 16 frames we took from the 30-second clip, to see if there is larger-scale change. |
-| **Agreement reader** | Deterministic code that checks whether the tool recogniser and the detector named the same instrument. This gives the pipeline more confidence when they agree, and flags things when they disagree. |
+| **Motion measurement** | Computes a micro and a macro score. The micro score tells you how much the picture changed between frames 67 milliseconds apart from the target frame, to see if something is moving on a small time scale. The macro score measures the movement from frame to frame across the original 16 frames we took from the 30-second clip, to see if there is larger-scale change. |
+| **Agreement measurement** | Deterministic code that checks whether the tool recogniser and the detector named the same instrument. This gives the pipeline more confidence when they agree, and flags things when they disagree. |
 
-Frame probabilities get averaged into clip-level probabilities, then cut with
-per-class thresholds that were tuned against that exact averaging step. Change
-the aggregation and those thresholds stop meaning anything, which is why the two
-are documented together.
+Step and instrument probabilities are taken into account to produce probabilities at
+the clip level. Those are then compared to thresholds that decide whether a given tool
+or step gets approved or denied as actually being in the clip.
 
-### Frame preparation, and why the UI band is blurred
+### Frame preparation
 
-Before any of that, frames are cropped to the endoscopic image and the on-screen
-UI band is Gaussian-blurred.
+Before any of the measurements happen, the frames are cropped to our desired size, and
+the bottom 8% of the image is Gaussian blurred.
 
-The reason is distribution consistency. We blurred that band in training and
-validation so the recognisers couldn't shortcut their way to an answer by reading
-instrument names off the overlay. A model that learns to read the UI validates
-beautifully and generalises to nothing. Having trained that way, we run the same
-blur at inference so the frames at serving time look like the frames the model
-was fitted on. The evaluation clips already arrive with the band obscured; doing
-our own blur anyway just means there's one preparation path instead of two.
-`preprocess.py` covers the text rows with room to spare: 6.25% of frame height is
-what the measurement calls for, and we blur 8%.
+The reason we did this is for consistency. We blurred the bottom 8% in training and
+validation so the recognisers couldn't cherry-pick their way to an answer by reading the
+UI that the da Vinci robotic system displays at the bottom of the videos. We understand
+the UI is blurred for the final, but we wanted to make the frames as similar as possible
+to what our pipeline was trained on.
+
+`preprocess.py` is what changes the frame height and does the blurring.
 
 ### The vision-language model
 
