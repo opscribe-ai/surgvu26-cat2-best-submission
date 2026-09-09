@@ -1,6 +1,6 @@
-# v4 — the temporal programme, 2026-08-13 into 08-14
+# v4 -- the temporal programme, 2026-08-13 into 08-14
 
-## READ THIS FIRST — current understanding as of 06:45
+## READ THIS FIRST -- current understanding as of 06:45
 
 This file is append-only and contains FOUR reversals of my own claims. Sections
 below are in the order things were learned, not the order they should be read.
@@ -76,7 +76,7 @@ at a time.
 |-----------------------------------|----------|---------|
 | 8 frames of a 2 s burst           | 0.7283   | 0.7108  |
 | 8 frames spread across the 30 s   | 0.7348   | 0.7238  |
-| 16 frames spread (the shipped 2D) | 0.7802   | —       |
+| 16 frames spread (the shipped 2D) | 0.7802   | --       |
 
 - **Span is nearly free**: widening 2 s to 30 s is +0.0065 without the shift,
   +0.0130 with it.
@@ -84,7 +84,7 @@ at a time.
   arm and the shipped model is that temporal arms read 8 frames and the 2D
   model reads 16. Nothing to do with temporal modelling.
 - **The shift itself costs 0.0175 on the narrow input, 0.0110 on the wide
-  one** — small, and smaller where there is more to see, which is the
+  one** -- small, and smaller where there is more to see, which is the
   direction a temporal mechanism should move.
 
 I originally attributed 0.0519 to "the input" and called it three times the
@@ -93,14 +93,14 @@ split above is the corrected version.
 
 ### 2. Resolution is not the problem
 
-The v3 Kinetics arm at 224px scores 0.7427 honest against 112px's 0.7494 —
+The v3 Kinetics arm at 224px scores 0.7427 honest against 112px's 0.7494 --
 *worse*. More pixels is not the missing ingredient.
 
 ### 3. BatchNorm was suppressing every conversion
 
 A conversion starts from weights already fine-tuned 20 epochs on this corpus.
-Training it updates BatchNorm's running statistics — overwriting what the
-classifier was fitted against — and that happens regardless of learning rate:
+Training it updates BatchNorm's running statistics -- overwriting what the
+classifier was fitted against -- and that happens regardless of learning rate:
 
     untrained conversion, self-tuned   0.7609
     1 epoch, BN frozen                 0.7530
@@ -111,7 +111,7 @@ A tenfold change in step size moved the first epoch by 0.0011. Freezing moved
 it by 0.124.
 
 **Corrected once**: unfrozen BN at 1e-5 is a three-epoch *detour*, not a
-demolition — it recovers to 0.7100 by epoch 3. At 1e-4 the two effects compound
+demolition -- it recovers to 0.7100 by epoch 3. At 1e-4 the two effects compound
 into genuine collapse (0.6277, 0.4981, 0.4280, val_loss 0.23 → 1.15). Freezing
 is the right default because on an 8–10 epoch budget a three-epoch detour is a
 third of the run, not because the alternative is fatal.
@@ -128,7 +128,7 @@ Every dumped tool arm, best blend weight **0.00**, folds disagreeing on all:
     temporal_tsm_control2   0.7802 -> 0.7528   w=0.00   err-r 0.696
 
 Error correlation with the 2D model runs 0.574–0.705. That is substantial
-overlap but **not** redundancy — at r≈0.65 an arm still holds independent
+overlap but **not** redundancy -- at r≈0.65 an arm still holds independent
 error, so correlation alone does not explain the null. What does is correlation
 *together with* weakness: every arm is 0.02–0.14 below the 2D model, and a
 model that is both worse and largely agreeing has no weight at which it helps.
@@ -142,7 +142,7 @@ assumed.
 ## PENDING
 
 - **The task head.** Four consecutive epochs above the shipped model
-  (acc 0.9569 vs 0.9456, desc 0.9687 vs 0.9581 — margins ~+0.011), but these
+  (acc 0.9569 vs 0.9456, desc 0.9687 vs 0.9581 -- margins ~+0.011), but these
   are self-tuned per-epoch numbers. The honest dump decides, and then fusion
   decides whether it ships. This is the axis v3 predicted would pay.
 - **16-frame TSM**, testing whether closing the frame-count gap closes the
@@ -168,7 +168,7 @@ caught by a check rather than by intuition.
 - The task head's evaluator was tools-only and would have crashed at ~05:00 on
   the one arm currently beating the shipped model.
 
-## Correction, 02:15 — the task arm was mis-selected and cut short
+## Correction, 02:15 -- the task arm was mis-selected and cut short
 
 I decided at 01:43 not to restart the running task arm for the selection-metric
 fix, on the grounds that the two metrics disagreed by 0.0022. The finished
@@ -190,7 +190,7 @@ Relaunched as cluster 9655269: 14 epochs, selection on description accuracy,
 everything else identical. The original arm's dump still runs -- it is a real
 measurement of a real checkpoint, just not of this arm's best one.
 
-## 02:22 — the task head beats the shipped model on the honest protocol
+## 02:22 -- the task head beats the shipped model on the honest protocol
 
 The first temporal arm in this project to do so, on the axis v3 predicted.
 
@@ -226,7 +226,7 @@ yet separable from which cases landed in which fold. The relaunched arm
 settle it, and a wider margin is exactly what it should produce if the effect
 is real.
 
-## 02:35 — replicating the task result, on two axes
+## 02:35 -- replicating the task result, on two axes
 
 The task result rests on one arm whose margin (+0.0089) is smaller than the
 spread between its own case folds (0.031). One arm cannot settle that, so two
@@ -246,7 +246,7 @@ If both replicates clear the 2D task head, the finding is real and the action
 is to replace the task head. If they scatter, the margin was fold noise and
 tonight's headline is that TOOLS are settled and tasks are still open.
 
-## 03:15 — frame count was the wrong diagnosis; temporal DIVERSITY is the right one
+## 03:15 -- frame count was the wrong diagnosis; temporal DIVERSITY is the right one
 
 The clean test, same pool and everything else equal:
 
@@ -275,7 +275,7 @@ That experiment was only valid after fixing a bug it would have hit: the spread
 layout computed `i * step` with step = depth // frames, so on a 30-frame window
 16 frames meant frames 0-15 -- the first sixteen seconds, called "spread".
 
-## 03:33 — a caveat on the mechanism replicate, recorded BEFORE it reports
+## 03:33 -- a caveat on the mechanism replicate, recorded BEFORE it reports
 
 The two task replicates are not equally clean.
 
@@ -298,7 +298,7 @@ replicate can confirm the finding if it clears, but cannot refute it if it does
 not, because it varies two things at once. Saying so now, before its final
 number lands, so the interpretation is not chosen after seeing the result.
 
-## 04:10 — THE PIPELINE IS VALIDATED, AND THE TOOLS RESULT WAS PART ARTEFACT
+## 04:10 -- THE PIPELINE IS VALIDATED, AND THE TOOLS RESULT WAS PART ARTEFACT
 
 The no-shift control, built from the SHIPPED checkpoint and scored the way the
 2D path scores, reproduces the canonical number exactly:
@@ -345,7 +345,7 @@ doc, not in a submit file. The 7/7 invariant suite could not catch it either --
 it verifies that a conversion reproduces ITS OWN base model, which was true.
 Nothing checked that the base model was the right one.
 
-## 04:15 — the Kinetics arms stopped early, on purpose
+## 04:15 -- the Kinetics arms stopped early, on purpose
 
 Both overfit from epoch 2 onward: training loss falling, validation loss and
 macro-F1 both deteriorating.
@@ -369,7 +369,7 @@ runs that were both stopped for overfitting rather than converged -- so it
 answers "does Kinetics transfer to surgery at all" (yes, substantially) and
 not "how much is it worth in a well-tuned run".
 
-## 04:40 — THE TASK HEADLINE REVERSES. x40 is BETTER than the shipped checkpoint.
+## 04:40 -- THE TASK HEADLINE REVERSES. x40 is BETTER than the shipped checkpoint.
 
 Both task controls, no shift, 16 frames, sparse pool, probability averaging:
 
@@ -404,7 +404,7 @@ Cluster 9655533 scores the same untrained x40 conversion on the arm's exact
 input -- multi pool, 8 frames. That is the number the arm has to beat, and it
 is the comparison I should have built before running any task arm at all.
 
-## 04:45 — a free improvement to the SHIPPED model, unrelated to temporal work
+## 04:45 -- a free improvement to the SHIPPED model, unrelated to temporal work
 
 The two task checkpoints, scored identically through the validated pipeline
 (no shift, 16 frames, sparse pool, probability averaging):
@@ -440,7 +440,7 @@ Re-scoring both task checkpoints through the SERVING path rather than the
 research one, and checking the 11-case sample end to end. Both are cheap and
 neither has been done.
 
-## 04:55 — the task question, settled against its own base
+## 04:55 -- the task question, settled against its own base
 
 The untrained x40 conversion scored on the ARM'S EXACT INPUT (multi pool, 8
 frames) -- the comparison that should have existed before any task arm ran:
@@ -474,7 +474,7 @@ recorded before it reported, so it neither confirms nor refutes.
 The checkpoint choice is six times the size of the temporal effect and costs
 nothing but a config edit and a validation run.
 
-## 05:30 — the checkpoint swap FAILS its confirmation. Do not do it.
+## 05:30 -- the checkpoint swap FAILS its confirmation. Do not do it.
 
 The +0.0180 description accuracy that `task_resnet50_x40` shows over the
 shipped `task_resnet50_long` does not survive the 11-case sample. Running both
@@ -500,34 +500,34 @@ records changed and only one answer did. The channel is lossy, which cuts both
 ways -- it protects the submission from a bad perception change as effectively
 as it hides a good one.
 
-## 05:35 — the five action items, and what each returned
+## 05:35 -- the five action items, and what each returned
 
 The user's list, verbatim: "multi-burst extraction, convert 2d neural net
 trying BOTH methods, train r2plus1d_18 the right way, multiple clips per window
 per epoch, then ablation between the new kinetics and 2d --> 3d cnn
 transformations."
 
-**1. Multi-burst extraction — DONE.** 235 shards, 24,578 windows, verified
+**1. Multi-burst extraction -- DONE.** 235 shards, 24,578 windows, verified
 against both twins: identical window counts, task labels and tool sets, 32
 frames per window. It bought less than expected: span is worth +0.007 to
 +0.013, and the pool's four distinct temporal locations turned out to be the
 binding constraint rather than frame count.
 
-**2. Both conversions — DONE.** TSM and I3D, 7/7 wiring invariants, and a
+**2. Both conversions -- DONE.** TSM and I3D, 7/7 wiring invariants, and a
 control that reproduces the shipped reference to +0.0000. Best tools conversion
 so far 0.7817 self-tuned at epoch 0 from the shipped base; honest numbers
 pending.
 
-**3. r2plus1d trained properly — DONE, with a caveat.** Burst-aware sampling
+**3. r2plus1d trained properly -- DONE, with a caveat.** Burst-aware sampling
 (the old trainer would have spliced 7.5-second jump cuts into its clips), four
 clips per window, learning rate scaled to the step count. It overfit from epoch
 2 and was stopped at epoch 5. Honest: **0.7053**.
 
-**4. Multiple clips per window — DONE.** Shipped in `ShardTemporal`, closing a
+**4. Multiple clips per window -- DONE.** Shipped in `ShardTemporal`, closing a
 30x gradient-sample deficit that had nothing to do with 3D convolution and
 everything to do with how the loader was written.
 
-**5. The Kinetics ablation — DONE.** Honest clip-level, identical protocol:
+**5. The Kinetics ablation -- DONE.** Honest clip-level, identical protocol:
 
     r2plus1d, Kinetics-400 init   0.7053
     r2plus1d, from scratch        0.4533
@@ -541,7 +541,7 @@ ResNet-50 at 384.
 Both numbers come from runs stopped for overfitting rather than converged, so
 they bound the transfer's value from below.
 
-## 05:45 — the first clean positive on tools: +0.0229 over its own base
+## 05:45 -- the first clean positive on tools: +0.0229 over its own base
 
     tsm_sparse16, trained (x40 base, sparse pool, 16 frames)   0.7549
     the same conversion UNTRAINED, same input, same averaging  0.7320
@@ -568,7 +568,7 @@ has added anything to the 2D model at any blend weight. An arm that improves
 itself and still loses to the shipped model, while carrying largely the same
 errors, is interesting for v5 and not shippable today.
 
-## 06:30 — a finding outside the action items: 23 serving-path tests were dead
+## 06:30 -- a finding outside the action items: 23 serving-path tests were dead
 
 Not part of the night's plan, and probably the most valuable thing in this
 file.
@@ -615,7 +615,7 @@ Four changes shipped tonight -- the unanswerable-question guard, generic
 instrument presence, scene-level questions, and plural answers -- with all 11
 public sample answers verified byte-identical before and after.
 
-## 07:15 — the router verified through the REAL serving path
+## 07:15 -- the router verified through the REAL serving path
 
 `scripts/inference.py` run end to end over all 11 public sample cases, decoding
 video and loading the shipped checkpoints, on cluster 9655759:
@@ -629,7 +629,7 @@ records, which is the right unit-level test and is not the path the graders
 run. Four router changes shipped tonight and the only end-to-end evidence
 predated the plural-answer change being wired. Now it does not.
 
-## 07:15 — the corrected task arm, honest
+## 07:15 -- the corrected task arm, honest
 
     task TSM v2 (desc-selected, 14 epochs)   acc 0.9655   desc 0.9780
     2D task head                             acc 0.9456   desc 0.9581
@@ -648,7 +648,7 @@ temporal training.** And the x40 base is the checkpoint the sample check
 rejected at 05:30. So the temporal contribution remains inside noise, and the
 apparent headline remains a checkpoint effect wearing a temporal costume.
 
-## 07:25 — tools: training converges to the same level regardless of the base
+## 07:25 -- tools: training converges to the same level regardless of the base
 
 Three arms, same recipe, different starting points (self-tuned per epoch):
 
@@ -675,7 +675,7 @@ at epoch 2 before rising, so monotonic decline over three epochs is suggestive
 and not final. What would overturn this is either shipped-base arm climbing
 back above 0.7928.
 
-## 08:00 — tools, apples to apples on the shipped model's own input
+## 08:00 -- tools, apples to apples on the shipped model's own input
 
 Same base checkpoint, same pool, same frames, same aggregation, same folds --
 the comparison that took all night to construct without a confound:
@@ -706,7 +706,7 @@ matching baseline (shipped checkpoint, multi pool, 16 frames) has not been
 measured yet, and comparing it to the SPARSE baseline would repeat exactly the
 cross-pool mistake this section exists to avoid. Clusters 9656220 and 9656221.
 
-## 08:05 — the mechanism DOES pay, but only on input that contains motion
+## 08:05 -- the mechanism DOES pay, but only on input that contains motion
 
 The multi-pool baseline completes the pair, and it splits by input:
 
@@ -745,7 +745,7 @@ nothing": **the temporal mechanism contributes +0.0087 when fed real motion,
 which is enough to reach parity with the shipped model on a much narrower view
 of the window, and not enough to beat it or to add to it.**
 
-## 2026-08-15, 10:40 — the residual arm: temporal capacity that is ADDED, not traded
+## 2026-08-15, 10:40 -- the residual arm: temporal capacity that is ADDED, not traded
 
 Everything above tests conversions. A conversion rebuilds the 2D network with
 time inside it, and the measurements are consistent about what that costs:
@@ -755,7 +755,7 @@ time inside it, and the measurements are consistent about what that costs:
     fusion with the 2D model                     no helpful weight, at any arm
 
 The reading that fits all three is that TSM and I3D do not ADD temporal
-capacity — they TRADE appearance capacity for it. `fold_div=8` replaces a
+capacity -- they TRADE appearance capacity for it. `fold_div=8` replaces a
 quarter of every residual block's channels with time-shifted copies of its
 neighbours' channels; an inflated kernel is repeated along time and divided by
 its extent. Neither adds a parameter. So the mechanism starts in debt and has
@@ -769,7 +769,7 @@ back roughly what it spent.
 with `alpha` a learned scalar **initialised to zero** and the whole 2D trunk
 frozen and pinned in eval mode. At initialisation the second term vanishes and
 the model computes exactly what the shipped model computes over the same
-sixteen moments — asserted to floating-point equality against the real shipped
+sixteen moments -- asserted to floating-point equality against the real shipped
 checkpoint in `scripts/verify_temporal.py`, both per frame and after the
 probability averaging the score is actually computed on. The trainable surface
 is `alpha` plus a ~1.6M-parameter motion branch; the 47M-parameter ResNet-50
@@ -796,14 +796,14 @@ different FRAMES: the sparse pool samples 16 bin centres of a 30-frame 1 fps
 window, and the 16-burst pool puts a burst centre at the same fraction of the
 window but at continuous time. Same sampling design, different frames. So
 `scripts/save_temporal_init.py --mechanism residual` runs FIRST, its number is
-the base, and the gain is measured against that — the rule that came out of
+the base, and the gain is measured against that -- the rule that came out of
 Attempt 1, where two contaminations worth 0.048 survived six hours precisely
 because the reference was never reproduced through the new pipeline.
 
 **Supporting pieces.** A `bursts` loader layout that emits whole bursts in time
 order and never jitters across a boundary (the arm splits the clip at burst
 boundaries, so a one-frame jitter would put the tail of one burst and the head
-of the next into a single "motion" — a 7.5-second jump cut called a 67 ms
+of the next into a single "motion" -- a 7.5-second jump cut called a 67 ms
 step); the same picks mirrored in `clip_indices` so the evaluator scores the
 frames the arm trained on; chunked trunk forwards, because 16 bursts x 3 frames
 at 384px is 192 images in a batch of four and conv1 alone would hold 1.8 GB.
@@ -813,10 +813,10 @@ started behind. It does not create motion information where there is none, and
 the tool head remains the wrong place to look for it: tool INSTALLATION state
 does not change within a window, so motion cannot predict something constant
 over the interval being modelled. The task head is the better bet, and the
-measured mechanism effect — **+0.0087 on motion-bearing input, -0.0041 on
-sparse input** — is the size of effect to expect, not a transformation.
+measured mechanism effect -- **+0.0087 on motion-bearing input, -0.0041 on
+sparse input** -- is the size of effect to expect, not a transformation.
 
-## 2026-08-15, 11:55 — the motion calibration, and what it forbids
+## 2026-08-15, 11:55 -- the motion calibration, and what it forbids
 
 Frame-difference activity over 1,131 windows of 40 training shards, computed
 by `scripts/calibrate_motion.py`. The script was written to be able to return
@@ -830,7 +830,7 @@ a negative and it returned a mixed one, which is more useful.
 Macro is 4.11x micro, which is the sanity check passing: frames 1.875 s apart
 differ more than frames 67 ms apart, and by roughly the right order.
 
-### 2. It carries task information — a 1.90x spread, in the predicted direction
+### 2. It carries task information -- a 1.90x spread, in the predicted direction
 
 Restricted to classes with n >= 40, because the others cannot be read:
 
@@ -841,7 +841,7 @@ Restricted to classes with n >= 40, because the others cannot be read:
     uterine horn                         n=179   3.725
     retraction and collision avoidance   n=40    3.292
 
-Skills application is dexterity drill — gross, continuous movement. Retraction
+Skills application is dexterity drill -- gross, continuous movement. Retraction
 and collision avoidance is holding tissue still. They sit at opposite ends,
 1.90x apart, which is what physics predicts and therefore weak evidence that
 the statistic measures what it claims to.
@@ -849,13 +849,13 @@ the statistic measures what it claims to.
 The reported AUCs are NOT evidence and should not be quoted: `other` has n=1,
 so `suturing_vs_other` AUC 0.958 and `range of motion_vs_other` AUC 1.000 are
 one-sample artefacts. The only interpretable one is suturing vs range of
-motion at 0.316 (n 360 vs 12) — the right direction, far too few on one side.
+motion at 0.316 (n 360 vs 12) -- the right direction, far too few on one side.
 
 ### 3. THE CUTTING RULE IS NOT JUSTIFIED. The gate stays closed.
 
 471 windows hold a credible cutting tool; 46 of them (9.8%) fall in the bottom
-activity decile. So the proposed rule — answer "cut?" with Yes only if a
-cutting tool is present AND the scene is moving — would flip about one cutting
+activity decile. So the proposed rule -- answer "cut?" with Yes only if a
+cutting tool is present AND the scene is moving -- would flip about one cutting
 answer in ten from Yes to No.
 
 That is the interesting middle: not inert, not reckless. And it is exactly
@@ -872,7 +872,7 @@ would mean betting against a measured prior on unvalidated evidence, to change
 9.8% of one intent. `STATIC_ACTIVITY_THRESHOLD` stays None.
 
 This is the second time a plausible perception win has failed its confirmation
-— the first was the x40 checkpoint swap, +0.0180 on validation and six changed
+-- the first was the x40 checkpoint swap, +0.0180 on validation and six changed
 predictions on the sample. Both were caught by asking what the change would
 DO rather than whether the signal was real.
 
@@ -882,8 +882,8 @@ The task head, which is where the handoff independently pointed and where
 these numbers point too. Task classification is open-ended rather than polar,
 so the Yes-skew argument does not apply, and the 1.90x spread says motion
 carries information the appearance model may not already have. That is a case
-for the LEARNED branches — `ResidualTemporal` with the local gate alpha and
-the sequence gate beta — supervised on the task head and scored against the
+for the LEARNED branches -- `ResidualTemporal` with the local gate alpha and
+the sequence gate beta -- supervised on the task head and scored against the
 alpha=0 base, not for a hand-written rule.
 
 Caveats on this calibration, stated so they are not rediscovered later: the 40
@@ -892,7 +892,7 @@ class balance is whatever those cases happened to hold; and the statistic does
 not separate camera motion from instrument motion, so "skills application
 moves more" may partly be "the scope moves more during drills".
 
-## 2026-08-15, 12:40 — the vision system, and three classes of bug it surfaced
+## 2026-08-15, 12:40 -- the vision system, and three classes of bug it surfaced
 
 ### What was built
 
@@ -964,7 +964,7 @@ learned task arm is queued behind that. The calibration pointed at the task
 head and the learned branches are the way to test it -- not a hand-written
 rule.
 
-## 2026-08-15, 13:40 — the alpha=0 baselines, and a prediction that missed
+## 2026-08-15, 13:40 -- the alpha=0 baselines, and a prediction that missed
 
 The rule from Attempt 1 is to reproduce the reference through the new pipeline
 before trusting any arm on it. Both heads, on shards_multi16, at alpha=0 --
@@ -1024,7 +1024,7 @@ literal came from and that the arm's base is the dump's own alpha=0 number.
 The task head needs no such correction: -0.0004 is within noise of the shipped
 reference, and it is the head the calibration pointed at.
 
-## 2026-08-15, 13:55 — the feature cache, verified, and a bug I reintroduced
+## 2026-08-15, 13:55 -- the feature cache, verified, and a bug I reintroduced
 
 ### The cache
 
@@ -1099,7 +1099,7 @@ Every link now checked against an independent computation of the same thing:
     cached trainer  vs the dump              base identical, 0.9454 / 0.9577
     serving+motion  vs serving               0 of 11 answers changed
 
-## 2026-08-15, 14:45 — the 30-second branch: a null, and a false positive caught in the act
+## 2026-08-15, 14:45 -- the 30-second branch: a null, and a false positive caught in the act
 
 Six configurations of `SequenceBranch` on the task head, trained on cached
 trunk features, scored against the alpha=0 base of **0.9577** established
@@ -1189,7 +1189,7 @@ decimals (0.9454 / 0.9577 both ways) with the cached logits verified to
 1.78e-07. Had any config cleared its base, the dump would have been mandatory
 before believing it.
 
-## 2026-08-15, 15:20 — two "environmental" failures were a wrong path
+## 2026-08-15, 15:20 -- two "environmental" failures were a wrong path
 
 `scripts/run_tests.py` classifies failures as environmental when they are
 missing `bert_score` or a missing file, so that a permanently-red suite does
@@ -1217,7 +1217,7 @@ verify.sub. **934 passed, 3 environmental, 0 real** -- and the three that
 remain genuinely need `bert_score`, which is in the scoring venv rather than
 the read-only training image.
 
-## 2026-08-15, 16:12 — pricing the motion rule on the graded set, and a retraction
+## 2026-08-15, 16:12 -- pricing the motion rule on the graded set, and a retraction
 
 `calibrate_motion.py` measured the rule's flip rate on TRAINING windows nobody
 grades. The eleven public sample cases are the only place we hold a question
@@ -1274,7 +1274,7 @@ because nothing about a threshold announces which distribution it was fitted
 on. If a motion threshold is ever wanted, calibrate it on clips that resemble
 what is graded -- or at minimum report both quantiles side by side.
 
-## 2026-08-15, 16:30 — where the sample's headroom actually is, and how much is reachable
+## 2026-08-15, 16:30 -- where the sample's headroom actually is, and how much is reachable
 
 The eleven graded cases score **0.8767** mean (container_gpu, and today's
 `validate.sh` run reproduces the same eleven answers byte for byte). Eight are
@@ -1290,7 +1290,7 @@ The heldout split in `config/splits_v2.json` is EXACTLY these eleven cases, so
 none of this leaked into training and the tool labels for them can be read
 directly. Doing that changes what the three numbers mean.
 
-### case124 — a genuine, fixable perception error. The biggest single item.
+### case124 -- a genuine, fixable perception error. The biggest single item.
 
     Q     "What type of forceps is mentioned?"
     gold  Cadiere Forceps
@@ -1303,7 +1303,7 @@ CONFIDENTLY wrong -- 0.992 on the wrong one, 0.059 on the right one. Nothing
 structural prevents fixing this. **Worth 0.0691, which is 72% of all reachable
 headroom, in one case.**
 
-### case126 — a detection miss, also fixable
+### case126 -- a detection miss, also fixable
 
     Q     "Was a large needle driver used in this clip?"
     gold  Yes
@@ -1315,7 +1315,7 @@ headroom, in one case.**
 IS a large one and the gold is unambiguous. We missed it at 0.199. Worth
 0.0271.
 
-### case132 — probably NOT fixable by a 12-class detector
+### case132 -- probably NOT fixable by a 12-class detector
 
     Q     "Was a large needle driver used during the surgery?"
     gold  No
@@ -1354,7 +1354,7 @@ everything else available combined.
 That is also consistent with the day's null: nothing about a 30-second
 timescale helps tell a Cadiere from a Maryland Bipolar in a still frame.
 
-## 2026-08-15, 16:45 — what fixing case124 actually requires, tested rather than assumed
+## 2026-08-15, 16:45 -- what fixing case124 actually requires, tested rather than assumed
 
 Two claims I made an hour apart, both wrong, both corrected by running the
 router instead of reading it:
@@ -1406,7 +1406,7 @@ needle driver from 0.199 past its threshold is an ordinary recall improvement,
 where case124 needs a confident error reversed. Worth 0.0271 against 0.0691,
 but at a fraction of the difficulty.
 
-## 2026-08-15, 17:00 — the cheapest fix is available, measurable, and should NOT be shipped
+## 2026-08-15, 17:00 -- the cheapest fix is available, measurable, and should NOT be shipped
 
 case126 is the cheapest headroom on the graded set: a needle driver scoring
 0.199 against a serving cut of 0.36, worth 0.0271. Lowering that one threshold
@@ -1457,7 +1457,7 @@ Which means the honest state of the graded set is:
 None of the three is cheap. That is worth knowing before another perception
 run is launched on the assumption that some of it is.
 
-## 2026-08-15, 17:45 — the eyeball gate on case124: the confusable pair is not the one I said
+## 2026-08-15, 17:45 -- the eyeball gate on case124: the confusable pair is not the one I said
 
 case124 is the largest single item of headroom (0.0691) and the open question
 was whether its error is in the MODEL or in the LABEL -- tool labels are
@@ -1515,7 +1515,7 @@ grasping retractor is on any arm. That the cadiere is what triggers it is the
 best available explanation and not a measurement; confirming it needs the
 confusion matrix on validation windows where cadiere is installed.
 
-## 2026-08-15, 18:00 — the confusion hypothesis is REFUTED. Cadiere misses are recall, not substitution.
+## 2026-08-15, 18:00 -- the confusion hypothesis is REFUTED. Cadiere misses are recall, not substitution.
 
 The 17:45 entry proposed that case124's two errors share one mechanism: the
 model sees the cadiere and calls it a grasping retractor. Tested on all 4,635
@@ -1567,7 +1567,7 @@ The eyeball-gate finding SURVIVES: the model does make two errors on case124,
 confirmed against the da Vinci overlay. Only the mechanism connecting them was
 invented.
 
-## 2026-08-15, 18:15 — cadiere recall fails PER CASE, which makes it plausibly fixable
+## 2026-08-15, 18:15 -- cadiere recall fails PER CASE, which makes it plausibly fixable
 
 If case124's 0.0691 needs cadiere recall (18:00), the next question is whether
 that recall is uniformly hard or concentrated. Measured over the 2,308
@@ -1602,7 +1602,7 @@ missed, find what they share, and check whether case124 shares it. That is an
 afternoon of looking, not a GPU programme, and it decides whether the largest
 single item of headroom in the project is reachable.
 
-## 2026-08-15, 18:30 — the largest headroom item reduces to one question a human can answer
+## 2026-08-15, 18:30 -- the largest headroom item reduces to one question a human can answer
 
 Compared frames from the worst and best cadiere cases, both during confirmed
 cadiere-installed intervals:
@@ -1657,7 +1657,7 @@ Noah reviewed 50 annotated case_002 frames. It worked then for the same reason
 it would work now: some questions are cheap for a human and expensive for
 everything else.
 
-## 2026-08-15, 18:45 — a cadiere reference set, built from the logbook rather than from judgement
+## 2026-08-15, 18:45 -- a cadiere reference set, built from the logbook rather than from judgement
 
 To decide whether case124's cadiere is in frame without needing to identify
 instruments by expertise, I found windows where **cadiere is the ONLY grasper
@@ -1713,7 +1713,7 @@ honest reading is that **the perception path is closer to exhausted than the
 0.1233 raw headroom suggests**, and that the remaining leverage is in answer
 form and routing.
 
-## 2026-08-15, 19:00 — my own discriminator, tested and REFUTED
+## 2026-08-15, 19:00 -- my own discriminator, tested and REFUTED
 
 The 18:45 lean rested on one visual claim: that the cream/white component on
 case124's left-hand instrument marks it as a BIPOLAR, because bipolar
@@ -1758,7 +1758,7 @@ was.
 attention, and it decides whether the largest single item of headroom in this
 project is reachable at all.
 
-## 2026-08-15, 19:10 — confusion vs visibility, settled at population scale
+## 2026-08-15, 19:10 -- confusion vs visibility, settled at population scale
 
 The 19:00 entry left case124 open because my visual discriminator failed. The
 question -- is a missed cadiere CONFUSED with something or simply NOT VISIBLE
@@ -1805,7 +1805,7 @@ recall" is largely "detect an instrument that is not in the picture", and that
 is not a modelling problem.** Anyone planning a tool-head retrain to chase
 case124 should read this section first.
 
-## 2026-08-15, 19:20 — the tool head's error is CASE-structured, not class-structured
+## 2026-08-15, 19:20 -- the tool head's error is CASE-structured, not class-structured
 
 The cadiere finding generalises. Recall per class, and how much it varies
 across cases holding at least 20 windows of that class:
