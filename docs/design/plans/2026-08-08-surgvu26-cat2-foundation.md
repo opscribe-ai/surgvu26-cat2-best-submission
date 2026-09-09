@@ -1,7 +1,7 @@
-# SurgVU 2026 Cat 2 — Foundation Implementation Plan
+# SurgVU 2026 Cat 2 -- Foundation Implementation Plan
 
 
-**Goal:** Build the label engine, preprocessing, training-corpus extractor, and scoring harness — everything the CNNs and the inference container both depend on.
+**Goal:** Build the label engine, preprocessing, training-corpus extractor, and scoring harness -- everything the CNNs and the inference container both depend on.
 
 **Architecture:** A small Python package `surgvu` with four independent modules. `taxonomy` owns the closed vocabularies. `labels` turns the two challenge CSVs into a queryable interval structure. `preprocess` handles frame geometry adaptively. `extract` samples 30-second windows and writes training shards. `scoring` wraps the official evaluation metric so every later measurement is the real number.
 
@@ -9,7 +9,7 @@
 
 ## Global Constraints
 
-- **Python 3.10** — matches the challenge's reference container.
+- **Python 3.10** -- matches the challenge's reference container.
 - **12 tool classes only.** `needle driver`, `monopolar curved scissors`, `force bipolar`, `clip applier`, `cadiere forceps`, `bipolar forceps`, `vessel sealer`, `permanent cautery hook/spatula`, `prograsp forceps`, `stapler`, `grasping retractor`, `tip-up fenestrated grasper`. Everything else is train-only signal, never predicted.
 - **8 task classes.** `suturing`, `uterine horn`, `suspensory ligaments`, `rectal artery/vein`, `skills application`, `range of motion`, `retraction and collision avoidance`, `other`. Raw labels vary in case; normalize by lowercasing.
 - **Using the UI overlay to make predictions is prohibited by challenge rules.** Every frame that reaches a model must have the bottom UI band blurred. This is compliance, not a hyperparameter.
@@ -33,10 +33,10 @@
 **Interfaces:**
 - Consumes: nothing
 - Produces:
-  - `TOOL_CLASSES: tuple[str, ...]` — the 12, in fixed index order
-  - `TASK_CLASSES: tuple[str, ...]` — the 8, in fixed index order
+  - `TOOL_CLASSES: tuple[str, ...]` -- the 12, in fixed index order
+  - `TASK_CLASSES: tuple[str, ...]` -- the 8, in fixed index order
   - `normalize_task(raw: str) -> str | None`
-  - `normalize_tool(raw: str) -> str | None` — returns `None` for out-of-scope and for the endoscope
+  - `normalize_tool(raw: str) -> str | None` -- returns `None` for out-of-scope and for the endoscope
   - `tool_index(name: str) -> int`
 
 - [ ] **Step 1: Write the failing test**
@@ -108,7 +108,7 @@ Expected: FAIL with `ModuleNotFoundError: No module named 'surgvu'`
 
 ```python
 # src/surgvu/__init__.py
-"""SurgVU 2026 Category 2 — surgical VQA."""
+"""SurgVU 2026 Category 2 -- surgical VQA."""
 __version__ = "0.1.0"
 ```
 
@@ -259,10 +259,10 @@ git commit -m "feat: package scaffolding and closed tool/task vocabularies"
 **Interfaces:**
 - Consumes: `surgvu.taxonomy.normalize_tool`, `normalize_task`
 - Produces:
-  - `parse_hms(text: str) -> float | None` — `"00:41:01.008000"` → seconds
+  - `parse_hms(text: str) -> float | None` -- `"00:41:01.008000"` → seconds
   - `CaseLabels.from_dir(path) -> CaseLabels`
   - `CaseLabels.tools_at(part: str, seconds: float) -> set[str]`
-  - `CaseLabels.task_at(part: str, seconds: float) -> tuple[str, str] | None` — `(task_class, matched_description)`
+  - `CaseLabels.task_at(part: str, seconds: float) -> tuple[str, str] | None` -- `(task_class, matched_description)`
   - `CaseLabels.task_segments() -> list[Segment]` where `Segment` is a NamedTuple `(part: str, start: float, stop: float, task: str, description: str)`
   - `load_all_cases(root) -> dict[str, CaseLabels]`
 
@@ -489,7 +489,7 @@ class CaseLabels:
     def task_at(self, part, seconds):
         """(task_class, matched_description) covering this moment, or None.
 
-        Where segments overlap, the shortest wins — it is the most specific.
+        Where segments overlap, the shortest wins -- it is the most specific.
         """
         part = _part(part)
         hits = [s for s in self._segments
@@ -535,7 +535,7 @@ descs = {s.description for c in cases.values() for s in c.task_segments()}
 print('unique descriptions:', len(descs))
 "
 ```
-Expected: `cases: 155`, roughly `1500-1900` segments, and **`unique descriptions: 21`** — the 21 is the load-bearing number. If it is not 21, the dedupe or normalization is wrong; stop and fix before continuing.
+Expected: `cases: 155`, roughly `1500-1900` segments, and **`unique descriptions: 21`** -- the 21 is the load-bearing number. If it is not 21, the dedupe or normalization is wrong; stop and fix before continuing.
 
 - [ ] **Step 6: Commit**
 
@@ -556,9 +556,9 @@ git commit -m "feat: part-aware label engine over tools.csv and tasks.csv"
 **Interfaces:**
 - Consumes: `surgvu.labels.load_all_cases`, `surgvu.taxonomy.TASK_CLASSES`
 - Produces:
-  - `build_corpus(cases: dict) -> dict` — `{task_class: [description, ...]}` ordered by frequency
+  - `build_corpus(cases: dict) -> dict` -- `{task_class: [description, ...]}` ordered by frequency
   - `write_corpus(corpus, path)` / `load_corpus(path) -> dict`
-  - `DescriptionRetriever(corpus).retrieve(task_class: str) -> str` — the modal description for that task
+  - `DescriptionRetriever(corpus).retrieve(task_class: str) -> str` -- the modal description for that task
 
 - [ ] **Step 1: Write the failing test**
 
@@ -609,7 +609,7 @@ Expected: FAIL with `ModuleNotFoundError: No module named 'surgvu.descriptions'`
 """The 21-string description corpus.
 
 Across all 155 cases there are exactly 21 unique matched_description values.
-This is not a training set — it is a closed retrieval corpus, and it is the
+This is not a training set -- it is a closed retrieval corpus, and it is the
 verbatim text the challenge's ground-truth answers were generated from.
 Classify the task, retrieve the string, and you hold the source material.
 """
@@ -712,7 +712,7 @@ git commit -m "feat: 21-string description corpus and retriever"
   - `detect_side_margins(frame: np.ndarray, threshold: int = 12) -> tuple[int, int]`
   - `crop_side_margins(frame) -> np.ndarray`
   - `blur_ui_band(frame, band_fraction: float = 0.0625, kernel: int = 51) -> np.ndarray`
-  - `prepare_frame(frame, size: int = 512) -> np.ndarray` — the single entry point every model uses
+  - `prepare_frame(frame, size: int = 512) -> np.ndarray` -- the single entry point every model uses
 
 - [ ] **Step 1: Write the failing test**
 
@@ -851,7 +851,7 @@ def crop_side_margins(frame):
 def blur_ui_band(frame, band_fraction=UI_BAND_FRACTION, kernel=BLUR_KERNEL):
     """Gaussian-blur the bottom band where the instrument UI is rendered.
 
-    Safe to apply to an already-blurred frame — blurring is idempotent enough
+    Safe to apply to an already-blurred frame -- blurring is idempotent enough
     that re-applying costs nothing and guarantees compliance regardless of
     what the organizers shipped.
     """
@@ -864,7 +864,7 @@ def blur_ui_band(frame, band_fraction=UI_BAND_FRACTION, kernel=BLUR_KERNEL):
 
 
 def prepare_frame(frame, size=512):
-    """The single entry point. Crop, blur, resize — in that order, always."""
+    """The single entry point. Crop, blur, resize -- in that order, always."""
     frame = crop_side_margins(frame)
     frame = blur_ui_band(frame)
     return cv2.resize(frame, (size, size), interpolation=cv2.INTER_CUBIC)
@@ -912,7 +912,7 @@ git commit -m "feat: adaptive frame preprocessing with mandatory UI blur"
   - `Window = namedtuple("Window", "case part start task description tools")`
   - `enumerate_windows(case_id, labels, length: float = 30.0, stride: float = 30.0) -> list[Window]`
   - `stratify(windows, per_case_cap: int, seed: int) -> list[Window]`
-  - `make_splits(case_ids, val_fraction: float, seed: int) -> dict` — `{"train": [...], "val": [...]}`
+  - `make_splits(case_ids, val_fraction: float, seed: int) -> dict` -- `{"train": [...], "val": [...]}`
 
 - [ ] **Step 1: Write the failing test**
 
@@ -989,7 +989,7 @@ Expected: FAIL with `ModuleNotFoundError: No module named 'surgvu.sampling'`
 """Choose which 30-second windows become training data.
 
 The unit is a 30-second window sampled at 1 fps, because that is exactly the
-test-time format. Windows are enumerated only inside task segments — that is
+test-time format. Windows are enumerated only inside task segments -- that is
 where the evaluation clips come from, and it is where the labels are defined.
 
 Stratification is by TOOL CLASS rather than duration. Intervals and hours
@@ -1082,7 +1082,7 @@ if __name__ == "__main__":
     out.parent.mkdir(parents=True, exist_ok=True)
 
     if out.exists():
-        print("REFUSING to overwrite %s — the split must stay stable." % out)
+        print("REFUSING to overwrite %s -- the split must stay stable." % out)
         raise SystemExit(1)
 
     cases = load_all_cases(labels_root)
@@ -1119,7 +1119,7 @@ print('cardinality:', dict(sorted(card.items())))
 print('rarest tools:', tools.most_common()[-4:])
 "
 ```
-Expected: `train 124  val 31`. Windows in the tens of thousands. **Cardinality should peak at 3 with roughly 78% of mass** — that reproduces the measurement the design rests on. A very different shape means the label engine and the earlier analysis disagree; investigate before extracting frames.
+Expected: `train 124  val 31`. Windows in the tens of thousands. **Cardinality should peak at 3 with roughly 78% of mass** -- that reproduces the measurement the design rests on. A very different shape means the label engine and the earlier analysis disagree; investigate before extracting frames.
 
 - [ ] **Step 6: Commit**
 
@@ -1143,7 +1143,7 @@ git commit -m "feat: window enumeration, rarity-weighted stratification, canonic
 - Consumes: `surgvu.preprocess.prepare_frame`, `surgvu.sampling.Window`
 - Produces:
   - `extract_window(video_path, window, fps: int = 1, size: int = 512) -> list[np.ndarray]`
-  - `write_shard(windows_and_frames, out_path)` — one `.npz` per case
+  - `write_shard(windows_and_frames, out_path)` -- one `.npz` per case
   - `read_shard(path) -> tuple[np.ndarray, list[dict]]`
 
 - [ ] **Step 1: Write the failing test**
@@ -1219,7 +1219,7 @@ Expected: FAIL with `ModuleNotFoundError: No module named 'surgvu.extract'`
 
 Decoding 344 GB of 60 fps video is the expensive step in this project, so it
 happens exactly once and all three models are trained from the same frame
-pool — they differ only in labels and in how many consecutive frames they use.
+pool -- they differ only in labels and in how many consecutive frames they use.
 """
 import json
 
@@ -1256,7 +1256,7 @@ def write_shard(windows_and_frames, out_path, min_frames=25):
     """One compressed .npz per case: a frame stack plus JSON metadata.
 
     A ragged shard cannot be stacked, so every window is truncated to the
-    shortest one present. That truncation is reported rather than silent —
+    shortest one present. That truncation is reported rather than silent --
     a single short window would otherwise quietly shorten the whole case.
     Windows below min_frames are dropped instead of dragging the rest down.
     """
@@ -1433,9 +1433,9 @@ git commit -m "feat: window extraction to shards, with Condor fan-out"
 **Interfaces:**
 - Consumes: nothing
 - Produces:
-  - `normalize(text: str) -> str` — matches the organizers' BLEU/ROUGE normalization exactly
+  - `normalize(text: str) -> str` -- matches the organizers' BLEU/ROUGE normalization exactly
   - `Scorer(device: str = "cpu")` with `.score_one(candidate: str, references: list[str]) -> dict`
-  - `.score_many(pairs) -> dict` — per-case results plus the mean aggregate
+  - `.score_many(pairs) -> dict` -- per-case results plus the mean aggregate
 
 - [ ] **Step 1: Write the failing test**
 
@@ -1498,7 +1498,7 @@ _PUNCT = str.maketrans("", "", string.punctuation)
 
 
 def normalize(text):
-    """Lowercase and strip punctuation — the organizers' BLEU/ROUGE path."""
+    """Lowercase and strip punctuation -- the organizers' BLEU/ROUGE path."""
     return (text or "").translate(_PUNCT).lower().strip()
 
 
@@ -1585,7 +1585,7 @@ Expected: PASS, 1 test
 Then, once `pip install bert-score torch` has completed and roberta-large has downloaded (~1.4 GB):
 
 Run: `pytest tests/test_scoring.py -v`
-Expected: PASS, 3 tests. The polarity test is the important one — it quantifies how much a wrong yes/no actually costs, which is the number the whole answer-form design rests on.
+Expected: PASS, 3 tests. The polarity test is the important one -- it quantifies how much a wrong yes/no actually costs, which is the number the whole answer-form design rests on.
 
 - [ ] **Step 5: Establish the bar**
 
@@ -1614,7 +1614,7 @@ git commit -m "feat: official BERTScore harness and sample-set scoring script"
 
 - **Model training.** Plan 2. It needs this plan's shards and splits.
 - **The router, question parser, answer-form selector, and submission container.** Plan 3.
-- **Synthetic validation-set generation.** Plan 3 — it needs the scoring harness from Task 7 and the description corpus from Task 3, both of which land here.
+- **Synthetic validation-set generation.** Plan 3 -- it needs the scoring harness from Task 7 and the description corpus from Task 3, both of which land here.
 - **The detector.** Off the shelf, no training, and only if measurement shows it is needed.
 
 ## Verification that the whole plan worked
