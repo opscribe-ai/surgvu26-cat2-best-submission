@@ -2,13 +2,13 @@
 
 Decoding 344 GB of 60 fps video is the expensive step in this project, so it
 happens exactly once and all three models are trained from the same frame
-pool — they differ only in labels and in how many consecutive frames they use.
+pool -- they differ only in labels and in how many consecutive frames they use.
 
 The unit of work is a `(case, part)` pair, never a case. Cases split into up
 to two video files and **timestamps reset at the part boundary**, so a part-2
 window's `start` is meaningless against the part-1 video. `extract_window`
 therefore demands to be told which part the video it was handed represents,
-and refuses to decode a window from the wrong one — a mismatch there produces
+and refuses to decode a window from the wrong one -- a mismatch there produces
 frames that look perfectly plausible and are labelled with someone else's
 timestamps, which no loss curve would ever reveal.
 """
@@ -55,7 +55,7 @@ def extract_window(video_path, window, part, fps=1, size=512, default_fps=60.0):
 
     `default_fps` is the fallback used when the container doesn't report a
     readable CAP_PROP_FPS. It defaults to 60.0 to match this corpus's real
-    frame rate — silently falling back to some other rate would compute
+    frame rate -- silently falling back to some other rate would compute
     every frame index at the wrong offset and mislabel the whole video
     without any error. Callers working with already-1-fps test-format clips
     should pass `default_fps=1.0` explicitly. The fallback firing at all is
@@ -335,25 +335,25 @@ def write_shard(windows_and_frames, out_path, fps=1, frames_per_window=None,
 
     JPEG blobs are ragged, so they cannot go into one rectangular array. They
     are concatenated into a single uint8 buffer with an offsets index, which
-    keeps `read_shard` on `allow_pickle=False` — an object array would have
+    keeps `read_shard` on `allow_pickle=False` -- an object array would have
     forced pickle back on just to store bytes.
 
     A ragged shard cannot be stacked. Rather than truncating every window
-    down to whatever the shortest survivor happens to be — which would clip
+    down to whatever the shortest survivor happens to be -- which would clip
     real frames off windows that decoded completely fine, just because some
-    other window in the same case ran short — a window is kept only if it
+    other window in the same case ran short -- a window is kept only if it
     has exactly the frame count its own `length` implies at `fps`.
     `enumerate_windows` already guarantees a window fits entirely inside its
     label segment, so a window that comes back short means the video ended
-    early or a read failed — both genuinely unusable, not something to
+    early or a read failed -- both genuinely unusable, not something to
     salvage by shortening its neighbours. Any drop is reported, not silent.
 
     `frames_per_window` overrides that derivation and exists for tests that
     build fixture windows by hand; production callers should leave it unset
     so the expected depth follows `window.length`.
 
-    Each metadata row also records how the frames were produced —
-    `ui_blurred`, `frame_size`, `fps`, `length` — so a shard carries a
+    Each metadata row also records how the frames were produced --
+    `ui_blurred`, `frame_size`, `fps`, `length` -- so a shard carries a
     machine-checkable claim rather than relying on convention. `ui_blurred`
     is True because `prepare_frame` is the only path frames take into a
     shard and it always blurs the bottom UI band; blurring is required by
