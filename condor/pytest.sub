@@ -3,7 +3,7 @@
 # There is no torch on the login node, and surgvu.dataset imports
 # torch.utils.data, so the suite cannot be collected outside the training
 # container once tests/test_dataset.py exists. This is the reusable runner
-# for that suite and for every later task's tests, not just Task 2's.
+# for that suite and for every later task's tests, not just Task 2's!
 #
 # Run from the repo root, after:
 #   mkdir -p logs
