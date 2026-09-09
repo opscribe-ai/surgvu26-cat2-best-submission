@@ -17,7 +17,7 @@ images taken from robotic surgical training".
 
 ### The output is a JSON-encoded string, not raw text
 
-The example value is `"Example String"` — quoted. So a "Yes" answer is the
+The example value is `"Example String"` -- quoted. So a "Yes" answer is the
 four bytes `"Yes"` including the quotation marks, which is what
 `json.dump("Yes", f)` produces. Writing bare `Yes` is malformed JSON and would
 fail regardless of whether the answer is correct.
@@ -63,7 +63,7 @@ From the challenge configuration and the organizers' announcement:
   (`docs/compliance_audit.md` §2c) by normalised cross-correlation against a
   banner template: it is **present in 5 of the 11 sample cases and absent in 6**,
   and present in **14 of 45 sampled training cases (31%)** in the 512x512 shard
-  domain — that is, it reaches both CNNs unblurred and varies from case to case.
+  domain -- that is, it reaches both CNNs unblurred and varies from case to case.
 
   What was actually measured, and is the real basis for accepting it: banner
   presence is **near-independent of the task label**. Across the same 45-case
@@ -73,7 +73,7 @@ From the challenge configuration and the organizers' announcement:
 
   **Decision: ship as-is, with the record corrected.** Extending the blur to a
   top band is a small edit to `preprocess.py` but invalidates every extracted
-  shard and both shipped checkpoints — a full re-extract and retrain of both
+  shard and both shipped checkpoints -- a full re-extract and retrain of both
   CNNs, a multi-day cost against a signal measured at near-zero. The residual
   exposure is a train/test distribution question rather than a rules one: if the
   organizers blur the top region in the test set, the model sees a top-of-frame
@@ -114,7 +114,7 @@ Rough budget, leaving ~7.5 min of headroom:
 3. **Does the 5-reference structure hold at test time?** The answer form is
    tuned to the observed fact that the first reference is a bare token
    ("Yes", "Cadiere Forceps"), which scores 1.0000 while correct prose
-   scores lower — in **9 of the 11** samples, not all 11: case129's first
+   scores lower -- in **9 of the 11** samples, not all 11: case129's first
    reference is a six-word noun phrase and case130's is a full sentence.
 
    MEASURED 2026-08-11, cluster 9636318, see `docs/NIGHTLY_REPORT.md`. If the
@@ -122,5 +122,5 @@ Rough budget, leaving ~7.5 min of headroom:
    below the generic constant sentence (0.4358); a terse-plus-clause form
    holds 0.7238 -> 0.7184. Break-even is p = 0.715 on P(a terse reference
    exists). Terse is kept because all 11 samples come from one generator with
-   an identical five-reference structure, so p is high — but it is a bet with
+   an identical five-reference structure, so p is high -- but it is a bet with
    a priced tail, not a free choice.
