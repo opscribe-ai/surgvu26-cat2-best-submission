@@ -174,6 +174,10 @@ We don't keep weights in this repository. All of them are on Hugging Face at
 somewhere else you can point `VLM_MODEL_SRC` at a directory that holds
 `qwen25vl-7b-nf4/`.
 
+That repository holds what we trained. The base model it sits on top of, and the
+surgical checkpoint in between, are listed in the Hugging Face links at the bottom of
+this page.
+
 ### Building
 
 ```bash
