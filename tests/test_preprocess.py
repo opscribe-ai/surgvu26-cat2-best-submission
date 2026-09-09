@@ -26,7 +26,7 @@ def test_detect_side_margins_returns_zero_when_already_cropped():
 def test_detect_side_margins_ignores_single_bright_edge_column():
     # A specular highlight, vignette artifact, or compression edge can leave a
     # single bright column right at the frame border. A single bright pixel
-    # must not be mistaken for the start of real content — that requires a
+    # must not be mistaken for the start of real content -- that requires a
     # run of consecutive bright columns. Against the old argmax-based
     # implementation this fails: bright[0] and bright[-1] are True, so
     # argmax(bright) == 0 and argmax(bright[::-1]) == 0, reporting (0, 0)
@@ -128,7 +128,7 @@ def test_prepare_frame_is_square_and_blurred():
     assert out.shape == (512, 512, 3)
     assert out.dtype == np.uint8
 
-    # The same crop and resize, with no blur — the exact thing `prepare_frame`
+    # The same crop and resize, with no blur -- the exact thing `prepare_frame`
     # would reduce to if the blur call were removed.
     unblurred = cv2.resize(crop_side_margins(source), (512, 512),
                            interpolation=cv2.INTER_CUBIC)
@@ -137,7 +137,7 @@ def test_prepare_frame_is_square_and_blurred():
     # rows) and then resized, so its footprint in the output is ~41 rows.
     band = 30
     assert out[-band:].var() < unblurred[-band:].var() / 3, (
-        "bottom band variance %.1f vs unblurred %.1f — the UI band is not "
+        "bottom band variance %.1f vs unblurred %.1f -- the UI band is not "
         "being blurred" % (out[-band:].var(), unblurred[-band:].var()))
 
     # And the band is materially smoother than the untouched upper region of
