@@ -44,3 +44,11 @@ Data
   The SurgVU 2026 dataset is provided by the challenge organizers and Intuitive
   Surgical under their own data agreement. It is NOT redistributed in this
   repository, and no gold reference answers are included here.
+
+--------------------------------------------------------------------------------
+AI ASSISTANCE
+--------------------------------------------------------------------------------
+
+Parts of this codebase, its documentation and its commit history were developed
+with Claude Code (Anthropic), working under the direction of the maintainer.
+See the "AI assistance" section of README.md.

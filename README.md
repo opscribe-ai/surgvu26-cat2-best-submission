@@ -209,3 +209,21 @@ in `NOTICE`.
 - **The dataset we then used to train a LoRA on minimally invasive surgery** — [opscribe-ai/mis-abdominal-gi-min-invasive](https://huggingface.co/datasets/opscribe-ai/mis-abdominal-gi-min-invasive)
 - **The dataset we fine-tuned that LoRA on to reach the model used in the pipeline** — [opscribe-ai/surgvu-cat2-vqa](https://huggingface.co/datasets/opscribe-ai/surgvu-cat2-vqa)
 - **All the artifacts (CNNs, YOLO, the LoRA)** — [opscribe-ai/surgvu26-cat2-v6.2](https://huggingface.co/opscribe-ai/surgvu26-cat2-v6.2)
+
+---
+
+## AI assistance
+
+Parts of this codebase, its documentation and its commit history were developed with
+[Claude Code](https://claude.com/claude-code) (Anthropic), working under the direction
+of the maintainer.
+
+Claude contributed to the pipeline implementation, the evaluation and analysis tooling,
+and the repository documentation, and authored many of the commit messages in this
+repository. Design decisions, measurements and what was submitted to the challenge were
+made and reviewed by the maintainer.
+
+Commits made with Claude's assistance from 2026-09-09 onward carry a
+`Co-Authored-By: Claude` trailer. Commits before that date do not, because the
+repository was created under an earlier convention that omitted the trailer; the
+assistance is disclosed here instead.
