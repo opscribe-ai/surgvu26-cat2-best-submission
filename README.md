@@ -1,6 +1,6 @@
 # OpScribe-AI's SurgVU 2026 Category 2 Surgical Visual Question Answering (Submission)
 
-**OpScribe-AI. MICCAI 2026 EndoVis / SurgVU Category 2.**
+**MICCAI 2026 EndoVis / SurgVU Category 2.**
 
 This repository is the company's best submitted system. It scored **0.9128** on the
 preliminary phase via BERTScore-F1.
@@ -15,16 +15,15 @@ reference answers.
 ## How it works
 
 As soon as a clip gets ingested into our pipeline, it gets decoded into 16 frames, and
-five signals are read from those frames. The question, separately, is sorted into one of
+five readings are taken from those frames. The question, separately, is sorted into one of
 thirteen question types, based on the words and the actual string of the question.
 
-The end of the pipeline is concluded by an arbiter, which decides, based on the question
-type, whether the answer should come from the five signals, from the vision-language
+The end of the pipeline is concluded by a judge, which decides, based on the question
+type, whether the answer should come from the five readings, from the vision-language
 model, or from a fact we already know about the dataset and don't need to look at the
-clip to say.
+clip to say (ex; if a question is "what does x instrument do?", the answer to this will be the same every time).
 
-That last category is smaller than the other two, but it's real, and we'd rather name it
-than bury it.
+That last category only happens in niche scenarios; most questions are answered by the five readings in this pipeline. 
 
 ### The five signals
 
