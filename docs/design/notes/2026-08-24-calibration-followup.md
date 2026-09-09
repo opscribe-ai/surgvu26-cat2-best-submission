@@ -1,4 +1,4 @@
-# Motion calibration follow-up (ruling R17) — do this before trusting config/motion_v2.json
+# Motion calibration follow-up (ruling R17) -- do this before trusting config/motion_v2.json
 
 Task 4 shipped the calibration machinery and it works end to end: a 2-case smoke run through
 `condor/dump_motion_v2.sub` produced 40 anchors with all nine motion slots populated from real
@@ -20,7 +20,7 @@ Demoting coherence to a secondary signal was correct.
 
 Everything else in that table is suspect.
 
-## Defect 1 — autocorrelation inflates every AUC
+## Defect 1 -- autocorrelation inflates every AUC
 
 The producer draws a batch of anchors from within ONE span, spaced ~0.8s apart. Measured on the
 smoke dump, the idle anchors sat at t = 457, 458, 459, 460, 461, 461, 462, 463, 464, 465 and then
@@ -32,20 +32,20 @@ a generalisation estimate.
 
 **Fix:** draw fewer anchors per span and more spans (a batch of 2-3, not ~10), and/or aggregate to
 one value per span before computing AUC. The plan said `--windows-per-case 20` and never said
-those windows had to be independent — that omission is the defect.
+those windows had to be independent -- that omission is the defect.
 
-## Defect 2 — the idle class may be trivially separable
+## Defect 2 -- the idle class may be trivially separable
 
 Split by label on the smoke dump:
 
     ACTIVE  micro_short  min 3.706  median 11.447  max 28.686   flow_mag_mean median 1.3956
     IDLE    micro_short  min 0.000  median  1.019  max  8.316   flow_mag_mean median 0.0603
-    IDLE had 10 of 20 anchors below micro_short 0.5 — essentially frozen frames.
+    IDLE had 10 of 20 anchors below micro_short 0.5 -- essentially frozen frames.
 
 If the gaps between annotated tasks are camera-out or paused segments, the fitted cut is detecting
 **"is the camera in the body"**, not "is surgery happening". The router question this threshold is
 meant to serve ("is tissue being cut?") is only ever asked of clips where the camera is
-definitionally in — so a cut fitted on that distinction would not transfer.
+definitionally in -- so a cut fitted on that distinction would not transfer.
 
 This is checkable: `tools.csv` carries `nan(camera in)` 1277 times, so camera events are recorded.
 
@@ -56,7 +56,7 @@ the narrower question it actually answers and say so in the config's `objective`
 ## Why this matters more than it looks
 
 `scripts/sample_motion.py` exists in this repo precisely to price a motion rule rather than estimate
-it — its docstring says the eleven graded sample cases are "the only place the rule can be PRICED
+it -- its docstring says the eleven graded sample cases are "the only place the rule can be PRICED
 rather than estimated". The same discipline has to apply to its successor. Shipping
 `config/motion_v2.json` with a threshold fitted on "camera present" and validated by an AUC inflated
 with near-duplicate frames would produce a number that looks like strong evidence and is neither.
