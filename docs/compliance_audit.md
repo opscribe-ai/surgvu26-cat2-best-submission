@@ -480,6 +480,17 @@ and neither file contains a single `apt-get` line:
     numpy                    2.1.2         BSD
     pillow                   10.2.0        HPND
 
+> **CORRECTED 2026-09-10 — the two findings below are no longer true.** They were
+> accurate when this audit ran on 2026-08-11. The instrument detector was added on
+> 2026-08-21, and `containers/build_submission.sh` now stages a stripped **YOLOv5
+> checkout, licensed GPL-3.0**, into the image (`YOLO_REPO_SRC`; the build fails if it
+> is missing). `src/surgvu/detect.py` puts that checkout on `sys.path` to load the
+> fine-tuned weights, so **the submitted container carries GPL-3.0 code**.
+>
+> A re-run of the sweep below would not have caught this either: it enumerates
+> *installed distributions*, and a checkout placed on `sys.path` is not one. The
+> detector's source is public at github.com/ultralytics/yolov5, and `NOTICE` now lists it.
+
 **No AGPL or GPL anywhere in the image.** Sweeping every installed distribution:
 
     $ apptainer exec ... python -c "<scan all distributions for AGPL/GPL/LGPL>"

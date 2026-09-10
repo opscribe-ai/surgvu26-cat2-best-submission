@@ -30,6 +30,13 @@ Python packages (pinned in containers/surgvu26-submission.def)
   matplotlib 3.9.2               Matplotlib licence (BSD-compatible)
   seaborn 0.13.2                 BSD-3-Clause
 
+YOLOv5 (instrument detector)
+  A stripped checkout of the YOLOv5 codebase ships inside the evaluation container
+  and is used to load and run the fine-tuned detector weights.
+  Ultralytics YOLOv5 — GNU General Public License v3.0 (GPL-3.0).
+  Source: https://github.com/ultralytics/yolov5
+  The detector was fine-tuned from yolov5s.pt (COCO-pretrained YOLOv5-small).
+
 Model weights
   Qwen/Qwen2.5-VL-7B-Instruct
     Alibaba Cloud, Apache-2.0.
