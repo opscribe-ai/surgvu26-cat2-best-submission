@@ -15,23 +15,24 @@ reference answers.
 ## How it works
 
 As soon as a clip gets ingested into our pipeline, it gets decoded into 16 frames, and
-five measurements are taken from those frames. The question, separately, is sorted into one of
+six measurements are taken from those frames. The question, separately, is sorted into one of
 thirteen question types, based on the words and the actual string of the question.
 
 The end of the pipeline is concluded by a judge, which decides, based on the question
-type, whether the answer should come from the five measurements, from the vision-language
+type, whether the answer should come from the six measurements, from the vision-language
 model, or from a fact we already know about the dataset and don't need to look at the
 clip to say (ex; if a question is "what does x instrument do?", the answer to this will be the same every time).
 
-That last category only happens in niche scenarios; most questions are answered by the five measurements in this pipeline. 
+That last category only happens in niche scenarios; most questions are answered by the six measurements in this pipeline. 
 
-### The five measurements
+### The six measurements
 
 | measurement | what it is |
 |---|---|
 | **Tool recogniser** | A ResNet-50 that tries to identify what instruments are in the window. It outputs all 12 instrument classes, each with its own confidence score, so more than one instrument can be identified as being in the frame. |
 | **Task recogniser** | A ResNet-50 that says what surgical step is happening, for example suturing or retraction. Unlike the tool recogniser, the task recogniser outputs just one answer, with eight possible activity classes. |
 | **Detector** | Uses YOLO to draw boxes around instruments in the individual frames. The tool recogniser tells you what instruments are probably there; the detector is a second reference for what is there, and it also tells you where they are, with confidence scores. |
+| **Variant head** | A ResNet-18 that tells a large needle driver apart from a mega one, which is the one thing the tool recogniser can't do, since it only knows a needle driver is there and not which size. It looks at the needle drivers the detector found, cropped out of the frames, and uses the whole frame if the detector didn't find one. |
 | **Motion measurement** | Computes a micro and a macro score. The micro score tells you how much the picture changed between frames 67 milliseconds apart from the target frame, to see if something is moving on a small time scale. The macro score measures the movement from frame to frame across the original 16 frames we took from the 30-second clip, to see if there is larger-scale change. |
 | **Agreement measurement** | Deterministic code that checks whether the tool recogniser and the detector named the same instrument. This gives the pipeline more confidence when they agree, and flags things when they disagree. |
 
@@ -64,7 +65,7 @@ Qwen2.5-VL-7B, served NF4-quantised, 16 frames per call
 
   LoRA  r=32, alpha=64  ·  95.2M of 4.79B parameters trained (1.99%)
   Prompt is evidence-conditioned: the model sees the frames AND a rendered
-  summary of what all five measurements found.
+  summary of what all six measurements found.
 ```
 
 The pre-training and fine-tuning we did sits on top of a model that has already been
