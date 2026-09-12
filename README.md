@@ -1,18 +1,20 @@
-# OpScribe-AI's SurgVU 2026 Category 2 Surgical Visual Question Answering (Submission)
+## OpScribe-AI's Official Submission for SurgVU 2026 Category 2 Surgical VQA Challenge
 
-**MICCAI 2026 EndoVis / SurgVU Category 2.**
+Team Members:
+- Noah John Kalthoff
+- Ruffin Hager Bryant
+- Aadya Ganjigunta
+- Tuo Peter Li
+- Dhananjay Bhaskar
 
-This repository is the company's best submitted system. It scored **0.9128** on the
-preliminary phase via BERTScore-F1.
+Our model achieved BERTScore-F1 score of **0.9128** in Category 2 during the [preliminary phase](https://surgvu26.grand-challenge.org/evaluation/category-2-final-phase/leaderboard/) of the MICCAI EndoVis SurgVU Surgical VQA Challenge.
 
-Category 2 involves giving a pipeline a 30-second surgical clip along with a free-text
-question, and then the pipeline will output a free-text answer. Submissions are scored
-with BERTScore-F1, taking the best answer graded across five independent human
-reference answers.
+In this challenge, a 30-second surgical clip and a text question are provided; the model must produce a free-text answer. Submissions are scored
+using BERTScore-F1, taking the best answer graded across five independent human reference answers.
 
 ---
 
-## How it works
+### How it works
 
 As soon as a clip gets ingested into our pipeline, it gets decoded into 16 frames, and
 six measurements are taken from those frames. The question, separately, is sorted into one of
@@ -24,8 +26,6 @@ model, or from a fact we already know about the dataset and don't need to look a
 clip to say (ex; if a question is "what does x instrument do?", the answer to this will be the same every time).
 
 That last category only happens in niche scenarios; most questions are answered by the six measurements in this pipeline. 
-
-### The six measurements
 
 | measurement | what it is |
 |---|---|
@@ -142,7 +142,7 @@ questions, so we aren't able to set the answer up for success. The VLM has the p
 to output whatever and answer whatever, whereas the router is constrained to what we
 have set it up for.
 
-## Measured results
+## Results
 
 | | value | notes |
 |---|---|---|
@@ -174,10 +174,6 @@ We don't keep weights in this repository. All of them are on Hugging Face at
 `containers/build_submission.sh` pulls them into the build context, and if yours are
 somewhere else you can point `VLM_MODEL_SRC` at a directory that holds
 `qwen25vl-7b-nf4/`.
-
-That repository holds what we trained. The base model it sits on top of, and the
-surgical checkpoint in between, are listed in the Hugging Face links at the bottom of
-this page.
 
 ### Building
 
